@@ -1,10 +1,10 @@
 <?php
-/** SigTool v0.0.1-ALPHA (last modified: 2017.07.28). */
+/** SigTool v0.0.1-ALPHA (last modified: 2017.07.29). */
 
 /** L10N. */
 $L10N = [
     'Help' =>
-        " SigTool v0.0.1-ALPHA (last modified: 2017.07.28).\n" .
+        " SigTool v0.0.1-ALPHA (last modified: 2017.07.29).\n" .
         " Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.\n\n" .
         " Syntax:" .
         "  \$ php sigtool.php [arguments]\n" .
@@ -76,7 +76,7 @@ $Shorthand = function (&$Data) {
             ["\x14", '(?:ELF|Linux)'],
             ["\x15", '(?:Macho|OSX)'],
             ["\x16", 'Andr(?:oid)?'],
-            ["\x17", 'E?mail'],
+            ["\x17", '(?:E?mail|EML)'],
             ["\x18", '(?:Javascript|JS|Jscript)'],
             ["\x19", 'Java'],
             ["\x1A", 'XXE'],
@@ -242,75 +242,124 @@ if (strpos($RunMode, 'x') !== false) {
         echo unlink($File) ? $L10N['Done'] : $L10N['Failed'];
     }
     /** Cleanup. */
-    unset($ThisFile, $Files, $Pad, $Set);
+    unset($ThisFile, $Files, $Pad);
 }
 
 /** Phase 4: Process signature files for use with phpMussel. --todo-- */
 if (strpos($RunMode, 'p') !== false) {
 
-    /** Hash signatures. */
-    if (file_exists(__DIR__ . '/daily.hdb') && file_exists(__DIR__ . '/main.hdb')) {
-        $UseMains = false;
-        $FileData = '';
-        $Size = 0;
-        echo sprintf($L10N['Accessing'], 'daily.hdb');
-        $Handle = fopen(__DIR__ . '/daily.hdb', 'rb');
-        if (!is_resource($Handle)) {
-            echo $L10N['Failed'];
-        } else {
-            $Size += filesize(__DIR__ . '/daily.hdb');
-            if ($Size > $SafeFileSize) {
-                fseek($Handle, $Size - $SafeFileSize);
-            } else {
-                $UseMains = true;
-            }
-            while (!feof($Handle)) {
-                $FileData .= fread($Handle, $SafeReadSize);
-            }
-            fclose($Handle);
-            echo $L10N['Done'];
+    /** Don't need these (not currently used by this tool or by phpMussel). */
+    foreach ([
+        'COPYING',
+        'daily.cdb',
+        'daily.cfg',
+        'daily.crb',
+        'daily.fp',
+        'daily.ftm',
+        'daily.hdu',
+        'daily.hsb',
+        'daily.hsu',
+        'daily.idb',
+        'daily.ign',
+        'daily.ign2',
+        'daily.info',
+        'daily.ldb',
+        'daily.ldu',
+        'daily.mdu',
+        'daily.msb',
+        'daily.msu',
+        'daily.ndu',
+        'daily.pdb',
+        'daily.sfp',
+        'daily.wdb',
+        'main.crb',
+        'main.fp',
+        'main.hdu',
+        'main.hsb',
+        'main.info',
+        'main.ldb',
+        'main.msb',
+        'main.sfp',
+    ] as $File) {
+        if (file_exists(__DIR__ . '/' . $File)) {
+            echo sprintf($L10N['Deleting'], $File);
+            echo unlink(__DIR__ . '/' . $File) ? $L10N['Done'] : $L10N['Failed'];
         }
-        if ($UseMains) {
-            echo sprintf($L10N['Accessing'], 'main.hdb');
-            $Handle = fopen(__DIR__ . '/main.hdb', 'rb');
+    }
+
+    /** Standard hash signatures (HDBs) and PE sectional signatures (MDBs). */
+    foreach ([
+        ['daily.hdb', 'main.hdb', '~([0-9a-f]{32}\:[0-9]+\:)([^\n]+)\n~', 'clamav.hdb', "\x20"],
+        ['daily.mdb', 'main.mdb', '~([0-9]+\:[0-9a-f]{32}\:)([^\n]+)\n~', 'clamav.mdb', "\xA0"],
+    ] as $Set) {
+
+        /** Process signature files. */
+        if (file_exists(__DIR__ . '/' . $Set[0]) && file_exists(__DIR__ . '/' . $Set[1])) {
+            $UseMains = false;
+            $FileData = '';
+            $Size = 0;
+            echo sprintf($L10N['Accessing'], $Set[0]);
+            $Handle = fopen(__DIR__ . '/' . $Set[0], 'rb');
             if (!is_resource($Handle)) {
                 echo $L10N['Failed'];
             } else {
-                $Size += filesize(__DIR__ . '/main.hdb');
+                $Size += filesize(__DIR__ . '/' . $Set[0]);
                 if ($Size > $SafeFileSize) {
                     fseek($Handle, $Size - $SafeFileSize);
                 } else {
                     $UseMains = true;
                 }
                 while (!feof($Handle)) {
-                    $FileData = fread($Handle, $SafeReadSize) . $FileData;
+                    $FileData .= fread($Handle, $SafeReadSize);
                 }
                 fclose($Handle);
                 echo $L10N['Done'];
             }
+            if ($UseMains) {
+                echo sprintf($L10N['Accessing'], $Set[1]);
+                $Handle = fopen(__DIR__ . '/' . $Set[1], 'rb');
+                if (!is_resource($Handle)) {
+                    echo $L10N['Failed'];
+                } else {
+                    $Size += filesize(__DIR__ . '/' . $Set[1]);
+                    if ($Size > $SafeFileSize) {
+                        fseek($Handle, $Size - $SafeFileSize);
+                    } else {
+                        $UseMains = true;
+                    }
+                    while (!feof($Handle)) {
+                        $FileData = fread($Handle, $SafeReadSize) . $FileData;
+                    }
+                    fclose($Handle);
+                    echo $L10N['Done'];
+                }
+            }
+            echo sprintf($L10N['Writing'], $Set[3]);
+            $Handle = fopen(__DIR__ . '/' . $Set[3], 'wb');
+            if (!is_resource($Handle)) {
+                $Terminate();
+            }
+            if (($EoL = strpos($FileData, "\n")) !== false) {
+                $FileData = substr($FileData, $EoL + 1);
+            }
+            $FileData = 'phpMussel' . $Set[4] . "\n" . $FileData;
+            $FileData = preg_replace($Set[2], "\\1\x1a\x20\x10\x10\\2\n", $FileData);
+            $Shorthand($FileData);
+            fwrite($Handle, $FileData);
+            fclose($Handle);
+            echo $L10N['Done'];
+            $FileData = '';
         }
-        echo sprintf($L10N['Writing'], 'clamav.hdb');
-        $Handle = fopen(__DIR__ . '/clamav.hdb', 'wb');
-        if (!is_resource($Handle)) {
-            $Terminate();
-        }
-        if (($EoL = strpos($FileData, "\n")) !== false) {
-            $FileData = substr($FileData, $EoL + 1);
-        }
-        $FileData = "phpMussel \n" . $FileData;
-        $FileData = preg_replace('~([0-9a-f]{32}\:[0-9]+\:)([^\n]+)\n~', "\\1\x1a\x20\x10\x10\\2\n", $FileData);
-        $Shorthand($FileData);
-        fwrite($Handle, $FileData);
-        fclose($Handle);
-        echo $L10N['Done'];
-        $FileData = '';
-    }
 
-    /** Don't need these. */
-    //foreach (['daily.hdu', 'main.hdu', 'daily.hdb', 'main.hdb'] as $File) {
-    //    echo sprintf($L10N['Deleting'], $File);
-    //    echo unlink(__DIR__ . '/' . $File) ? $L10N['Done'] : $L10N['Failed'];
-    //}
+        /** Don't need these anymore. */
+        foreach ([$Set[0], $Set[1]] as $File) {
+            if (file_exists(__DIR__ . '/' . $File)) {
+                echo sprintf($L10N['Deleting'], $File);
+                echo unlink(__DIR__ . '/' . $File) ? $L10N['Done'] : $L10N['Failed'];
+            }
+        }
+
+    }
 
 }
 
