@@ -1,38 +1,43 @@
 <?php
 /** SigTool v0.0.1-ALPHA (last modified: 2017.07.28). */
 
-/** Fetch arguments. */
-$RunMode = (isset($argv[1]) && !empty($argv[1])) ? strtolower($argv[1]) : '';
-
-/** Help. */
-if ($RunMode === '') {
-    echo " SigTool v0.0.1-ALPHA (last modified: 2017.07.28).
- Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
-
- Syntax:
-  $ php sigtool.php [arguments]
- Example: php sigtool.php xpmd
- Arguments (all are OFF by default; include to turn ON):
- - No arguments: Display this help information.
- - x Extract signature files from daily.cvd and main.cvd.
- - p Process signature files for use with phpMussel. --todo--
- - m Download main.cvd before processing. --todo--
- - d Download daily.cvd before processing. --todo--
- - u Update SigTool. --todo--
-
-";
-    die();
-}
-
 /** L10N. */
 $L10N = [
+    'Help' =>
+        " SigTool v0.0.1-ALPHA (last modified: 2017.07.28).\n" .
+        " Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.\n\n" .
+        " Syntax:" .
+        "  \$ php sigtool.php [arguments]\n" .
+        " Example: php sigtool.php xpmd\n" .
+        " Arguments (all are OFF by default; include to turn ON):\n" .
+        " - No arguments: Display this help information.\n" .
+        " - x Extract signature files from daily.cvd and main.cvd.\n" .
+        " - p Process signature files for use with phpMussel. --todo--\n" .
+        " - m Download main.cvd before processing. --todo--\n" .
+        " - d Download daily.cvd before processing. --todo--\n" .
+        " - u Update SigTool. --todo--\n\n",
     'Err0' => ' Can\'t continue (problem on line %s)!',
+    'Accessing' => ' Accessing %s ...',
+    'Deleting' => ' Deleting %s ...',
     'Done' => " Done!\n",
+    'Failed' => " Failed!\n",
+    'Writing' => ' Writing %s ...',
     'Phase3Step1' => ' Stripping ClamAV package header from %s ...',
     'Phase3Step2' => ' Decompressing %s (GZ) ...',
     'Phase3Step3' => ' Extracting contents from %s (TAR) to ' . __DIR__ . ' ...',
-    'Phase3Step4' => ' Deleting %s ...',
 ];
+
+/** Common integer values used by the script. */
+$SafeReadSize = 131072;
+$SafeFileSize = 20971520;
+
+/** Fetch arguments. */
+$RunMode = !empty($argv[1]) ? strtolower($argv[1]) : '';
+
+/** Help. */
+if ($RunMode === '') {
+    die($L10N['Help']);
+}
 
 /** Just used for debugging. */
 $VarInfo = function (&$Var) {
@@ -58,6 +63,101 @@ $Terminate = function ($Err = 'Err0') use (&$L10N) {
 /** Fix path. */
 $FixPath = function ($Path) {
     return str_replace(array('\/', '\\', '/\\'), '/', $Path);
+};
+
+/** Apply shorthand to signature names. */
+$Shorthand = function (&$Data) {
+    while (true) {
+        $Check = md5($Data) . ':' . strlen($Data);
+        foreach ([
+            ["\x11", 'Win'],
+            ["\x12", 'W(?:in)?32'],
+            ["\x13", 'W(?:in)?64'],
+            ["\x14", '(?:ELF|Linux)'],
+            ["\x15", '(?:Macho|OSX)'],
+            ["\x16", 'Andr(?:oid)?'],
+            ["\x17", 'E?mail'],
+            ["\x18", '(?:Javascript|JS|Jscript)'],
+            ["\x19", 'Java'],
+            ["\x1A", 'XXE'],
+            ["\x1B", '(?:Graphics|JPE?G|GIF|PNG)'],
+            ["\x1C", '(?:Macro|OLE)'],
+            ["\x1D", 'HTML?'],
+            ["\x1E", 'RTF'],
+            ["\x1F", '(?:Archive|[RT]AR|ZIP)'],
+            ["\x20", 'PHP'],
+            ["\x21", 'XML'],
+            ["\x22", 'ASPX?'],
+            ["\x23", 'VB[SEX]?'],
+            ["\x24", 'BAT'],
+            ["\x25", 'PDF'],
+            ["\x26", 'SWF'],
+            ["\x27", 'W97M?'],
+            ["\x28", 'X97M?'],
+            ["\x29", 'O97M?'],
+            ["\x2A", 'ASCII'],
+            ["\x2B", 'Unix'],
+            ["\x2C", 'Py(?:thon)?'],
+            ["\x2D", 'Perl'],
+            ["\x2E", 'Ruby'],
+            ["\x2F", '(?:CFG|IN[IF])'],
+            ["\x30", 'CGI'],
+        ] as $Param) {
+            $Data = preg_replace("~\x10\x10" . $Param[1] . '[-.]~i', $Param[0] . "\x10", $Data);
+            $Data = preg_replace("~\x10\x10([a-z0-9]+[._-])" . $Param[1] . '[-.]~i', $Param[0] . "\x10\\1", $Data);
+        }
+        foreach ([
+            ["\x11", 'Worm'],
+            ["\x12", 'Tro?[jy]a?n?'],
+            ["\x13", 'Ad(?:ware)?'],
+            ["\x14", 'Flooder'],
+            ["\x15", 'IRC(?:Bot)?'],
+            ["\x16", 'Exp?l?o?i?t?'],
+            ["\x17", 'VirTool'],
+            ["\x18", 'Dial(?:er)?'],
+            ["\x19", '(?:Joke|Hoax)'],
+            ["\x1B", 'Malware'],
+            ["\x1C", 'Risk(?:ware|y)?'],
+            ["\x1D", '(?:Rkit|Rootkit|Root)'],
+            ["\x1E", '(?:Backdoor|Back|BD|Door)'],
+            ["\x1F", '(?:Hack|Hacktool|HT)'],
+            ["\x20", '(?:Key)?logger'],
+            ["\x21", 'Ransom(?:ware)?'],
+            ["\x22", 'Spy(?:ware)?'],
+            ["\x23", 'Vir(?:us)?'],
+            ["\x24", 'Dropper'],
+            ["\x25", 'Dropped'],
+            ["\x26", '(?:Dldr|Downloader)'],
+            ["\x27", 'Obfuscation'],
+            ["\x28", 'Obfuscator'],
+            ["\x29", 'Obfuscated'],
+            ["\x2A", 'Packer'],
+            ["\x2B", 'Packed'],
+            ["\x2C", 'PU[AP]'],
+            ["\x2D", 'Shell'],
+            ["\x2E", 'Defacer'],
+            ["\x2F", 'Defacement'],
+            ["\x30", 'Crypt(?:ed|or)?'],
+            ["\x31", 'Phish'],
+            ["\x32", 'Spam'],
+            ["\x33", 'Spammer'],
+            ["\x34", 'Scam'],
+            ["\x35", 'ZipBomb'],
+            ["\x36", 'Fork(?:Bomb)?'],
+            ["\x37", 'LogicBomb'],
+            ["\x38", 'CyberBomb'],
+            ["\x39", 'Malvertisement'],
+            ["\x3F", 'BadURL'],
+        ] as $Param) {
+            $Data = preg_replace("~\x10" . $Param[1] . '[-.]~i', $Param[0], $Data);
+            $Data = preg_replace("~\x10([a-z0-9]+[._-])" . $Param[1] . '[-.]~i', $Param[0] . '\1', $Data);
+        }
+        $Data = preg_replace(array('~([^a-z0-9])Agent([.-])~i', '~([^a-z0-9])General([.-])~i', '~([^a-z0-9])Generic([.-])~i'), '\1X\2', $Data);
+        $Confirm = md5($Data) . ':' . strlen($Data);
+        if ($Confirm === $Check) {
+            break;
+        }
+    }
 };
 
 /** Phase 1: Download main.cvd. --todo-- */
@@ -88,7 +188,7 @@ if (strpos($RunMode, 'x') !== false) {
             $Terminate();
         }
         while (!feof($Handle[0])) {
-            $FileData = fread($Handle[0], 131072);
+            $FileData = fread($Handle[0], $SafeReadSize);
             fwrite($Handle[1], $FileData);
         }
         fclose($Handle[1]);
@@ -105,7 +205,7 @@ if (strpos($RunMode, 'x') !== false) {
             $Terminate();
         }
         while (!gzeof($Handle[0])) {
-            $FileData = gzread($Handle[0], 131072);
+            $FileData = gzread($Handle[0], $SafeReadSize);
             fwrite($Handle[1], $FileData);
         }
         fclose($Handle[1]);
@@ -131,16 +231,15 @@ if (strpos($RunMode, 'x') !== false) {
                     $Terminate();
                 }
                 while (!feof($Handle[0])) {
-                    $FileData = fread($Handle[0], 131072);
+                    $FileData = fread($Handle[0], $SafeReadSize);
                     fwrite($Handle[1], $FileData);
                 }
                 fclose($Handle[1]);
                 fclose($Handle[0]);
             }
         }
-        echo $L10N['Done'] . sprintf($L10N['Phase3Step4'], $Set);
-        unlink($File);
-        echo $L10N['Done'];
+        echo $L10N['Done'] . sprintf($L10N['Deleting'], $Set);
+        echo unlink($File) ? $L10N['Done'] : $L10N['Failed'];
     }
     /** Cleanup. */
     unset($ThisFile, $Files, $Pad, $Set);
@@ -148,6 +247,71 @@ if (strpos($RunMode, 'x') !== false) {
 
 /** Phase 4: Process signature files for use with phpMussel. --todo-- */
 if (strpos($RunMode, 'p') !== false) {
+
+    /** Hash signatures. */
+    if (file_exists(__DIR__ . '/daily.hdb') && file_exists(__DIR__ . '/main.hdb')) {
+        $UseMains = false;
+        $FileData = '';
+        $Size = 0;
+        echo sprintf($L10N['Accessing'], 'daily.hdb');
+        $Handle = fopen(__DIR__ . '/daily.hdb', 'rb');
+        if (!is_resource($Handle)) {
+            echo $L10N['Failed'];
+        } else {
+            $Size += filesize(__DIR__ . '/daily.hdb');
+            if ($Size > $SafeFileSize) {
+                fseek($Handle, $Size - $SafeFileSize);
+            } else {
+                $UseMains = true;
+            }
+            while (!feof($Handle)) {
+                $FileData .= fread($Handle, $SafeReadSize);
+            }
+            fclose($Handle);
+            echo $L10N['Done'];
+        }
+        if ($UseMains) {
+            echo sprintf($L10N['Accessing'], 'main.hdb');
+            $Handle = fopen(__DIR__ . '/main.hdb', 'rb');
+            if (!is_resource($Handle)) {
+                echo $L10N['Failed'];
+            } else {
+                $Size += filesize(__DIR__ . '/main.hdb');
+                if ($Size > $SafeFileSize) {
+                    fseek($Handle, $Size - $SafeFileSize);
+                } else {
+                    $UseMains = true;
+                }
+                while (!feof($Handle)) {
+                    $FileData = fread($Handle, $SafeReadSize) . $FileData;
+                }
+                fclose($Handle);
+                echo $L10N['Done'];
+            }
+        }
+        echo sprintf($L10N['Writing'], 'clamav.hdb');
+        $Handle = fopen(__DIR__ . '/clamav.hdb', 'wb');
+        if (!is_resource($Handle)) {
+            $Terminate();
+        }
+        if (($EoL = strpos($FileData, "\n")) !== false) {
+            $FileData = substr($FileData, $EoL + 1);
+        }
+        $FileData = "phpMussel \n" . $FileData;
+        $FileData = preg_replace('~([0-9a-f]{32}\:[0-9]+\:)([^\n]+)\n~', "\\1\x1a\x20\x10\x10\\2\n", $FileData);
+        $Shorthand($FileData);
+        fwrite($Handle, $FileData);
+        fclose($Handle);
+        echo $L10N['Done'];
+        $FileData = '';
+    }
+
+    /** Don't need these. */
+    //foreach (['daily.hdu', 'main.hdu', 'daily.hdb', 'main.hdb'] as $File) {
+    //    echo sprintf($L10N['Deleting'], $File);
+    //    echo unlink(__DIR__ . '/' . $File) ? $L10N['Done'] : $L10N['Failed'];
+    //}
+
 }
 
 echo "\n";
