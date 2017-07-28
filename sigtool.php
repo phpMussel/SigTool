@@ -29,7 +29,6 @@ $L10N = [
 
 /** Common integer values used by the script. */
 $SafeReadSize = 131072;
-$SafeFileSize = 20971520;
 
 /** Fetch arguments. */
 $RunMode = !empty($argv[1]) ? strtolower($argv[1]) : '';
@@ -287,13 +286,14 @@ if (strpos($RunMode, 'p') !== false) {
         }
     }
 
-    /** Standard hash signatures (HDBs) and PE sectional signatures (MDBs). */
+    /** Main sequence. */
     foreach ([
-        ['daily.hdb', 'main.hdb', '~([0-9a-f]{32}\:[0-9]+\:)([^\n]+)\n~', 'clamav.hdb', "\x20"],
-        ['daily.mdb', 'main.mdb', '~([0-9]+\:[0-9a-f]{32}\:)([^\n]+)\n~', 'clamav.mdb', "\xA0"],
+        ['daily.hdb', 'main.hdb', '~([0-9a-f]{32}\:[0-9]+\:)([^\n]+)\n~', "\\1\x1A\x20\x10\x10\\2\n", 'clamav.hdb', "\x20", 16777216],
+        ['daily.mdb', 'main.mdb', '~([0-9]+\:[0-9a-f]{32}\:)([^\n]+)\n~', "\\1\x1A\x20\x10\x10\\2\n", 'clamav.mdb', "\xA0", 16777216],
+        ['daily.ndb', 'main.ndb', '~^([^:\n]+\:)~m', "\x1A\x20\x10\x10\\1", 'clamav.ndb', false, 0],
     ] as $Set) {
 
-        /** Process signature files. */
+        /** Fetch and build. */
         if (file_exists(__DIR__ . '/' . $Set[0]) && file_exists(__DIR__ . '/' . $Set[1])) {
             $UseMains = false;
             $FileData = '';
@@ -304,8 +304,8 @@ if (strpos($RunMode, 'p') !== false) {
                 echo $L10N['Failed'];
             } else {
                 $Size += filesize(__DIR__ . '/' . $Set[0]);
-                if ($Size > $SafeFileSize) {
-                    fseek($Handle, $Size - $SafeFileSize);
+                if ($Set[6] > 0 && $Size > $Set[6]) {
+                    fseek($Handle, $Size - $Set[6]);
                 } else {
                     $UseMains = true;
                 }
@@ -322,10 +322,8 @@ if (strpos($RunMode, 'p') !== false) {
                     echo $L10N['Failed'];
                 } else {
                     $Size += filesize(__DIR__ . '/' . $Set[1]);
-                    if ($Size > $SafeFileSize) {
-                        fseek($Handle, $Size - $SafeFileSize);
-                    } else {
-                        $UseMains = true;
+                    if ($Set[6] > 0 && $Size > $Set[6]) {
+                        fseek($Handle, $Size - $Set[6]);
                     }
                     while (!feof($Handle)) {
                         $FileData = fread($Handle, $SafeReadSize) . $FileData;
@@ -334,16 +332,18 @@ if (strpos($RunMode, 'p') !== false) {
                     echo $L10N['Done'];
                 }
             }
-            echo sprintf($L10N['Writing'], $Set[3]);
-            $Handle = fopen(__DIR__ . '/' . $Set[3], 'wb');
+            echo sprintf($L10N['Writing'], $Set[4]);
+            $Handle = fopen(__DIR__ . '/' . $Set[4], 'wb');
             if (!is_resource($Handle)) {
                 $Terminate();
             }
             if (($EoL = strpos($FileData, "\n")) !== false) {
                 $FileData = substr($FileData, $EoL + 1);
             }
-            $FileData = 'phpMussel' . $Set[4] . "\n" . $FileData;
-            $FileData = preg_replace($Set[2], "\\1\x1a\x20\x10\x10\\2\n", $FileData);
+            if (!empty($Set[5])) {
+                $FileData = 'phpMussel' . $Set[5] . "\n" . $FileData;
+            }
+            $FileData = preg_replace($Set[2], $Set[3], $FileData);
             $Shorthand($FileData);
             fwrite($Handle, $FileData);
             fclose($Handle);
