@@ -1,24 +1,277 @@
 <?php
-/** SigTool v0.0.1-ALPHA (last modified: 2017.07.29). */
+/** SigTool v0.0.2-ALPHA (last modified: 2017.08.04). */
+
+/** Script version. */
+$Ver = '0.0.2-ALPHA';
+
+/** Script user agent. */
+$UA = 'SigTool v' . $Ver . ' (https://github.com/phpMussel/SigTool)';
+
+/**
+ * Class for handling YAML. Adapted from YAML closures in
+ * phpMussel/phpMussel->./vault/functions.php
+ */
+class SigToolYAML
+{
+
+    var $Arr;
+    var $Raw;
+    var $VM;
+
+    function __construct($Arr = [], $Raw = '', $VM = false)
+    {
+        $this->Arr = $Arr;
+        $this->Raw = $Raw;
+        $this->VM = $VM;
+    }
+
+    /**
+     * Normalises values defined by the YAML closure.
+     *
+     * @param string|int|bool The value to be normalised.
+     * @param int The length of the value.
+     * @param string|int|bool The value to be normalised, lowercased.
+     */
+    private function Normalise(&$Value, $ValueLen, $ValueLow)
+    {
+        if (substr($Value, 0, 1) === '"' && substr($Value, $ValueLen - 1) === '"') {
+            $Value = substr($Value, 1, $ValueLen - 2);
+        } elseif (substr($Value, 0, 1) === '\'' && substr($Value, $ValueLen - 1) === '\'') {
+            $Value = substr($Value, 1, $ValueLen - 2);
+        } elseif ($ValueLow === 'true' || $ValueLow === 'y') {
+            $Value = true;
+        } elseif ($ValueLow === 'false' || $ValueLow === 'n') {
+            $Value = false;
+        } elseif (substr($Value, 0, 2) === '0x' && ($HexTest = substr($Value, 2)) && !preg_match('/[^a-f0-9]/i', $HexTest) && !($ValueLen % 2)) {
+            $Value = hex2bin($HexTest);
+        } else {
+            $ValueInt = (int)$Value;
+            if (strlen($ValueInt) === $ValueLen && $Value == $ValueInt && $ValueLen > 1) {
+                $Value = $ValueInt;
+            }
+        }
+        if (!$Value) {
+            $Value = false;
+        }
+    }
+
+    /**
+     * A simplified YAML-like parser. Note: This is intended to adequately serve
+     * the needs of this package in a way that should feel familiar to users of
+     * YAML, but it isn't a true YAML implementation and it doesn't adhere to any
+     * specifications, official or otherwise.
+     *
+     * @param string $In The data to parse.
+     * @param array $Arr Where to save the results.
+     * @param bool $VM Validator Mode (if true, results won't be saved).
+     * @param int $Depth Tab depth (inherited through recursion; ignore it).
+     * @return bool Returns false if errors are encountered, and true otherwise.
+     */
+    public function Read($In, &$Arr, $VM = false, $Depth = 0)
+    {
+        if (!is_array($Arr)) {
+            if ($VM) {
+                return false;
+            }
+            $Arr = array();
+        }
+        if (!substr_count($In, "\n")) {
+            return false;
+        }
+        $In = str_replace("\r", '', $In);
+        $Key = $Value = $SendTo = '';
+        $TabLen = $SoL = 0;
+        while ($SoL !== false) {
+            if (($EoL = strpos($In, "\n", $SoL)) === false) {
+                $ThisLine = substr($In, $SoL);
+            } else {
+                $ThisLine = substr($In, $SoL, $EoL - $SoL);
+            }
+            $SoL = ($EoL === false) ? false : $EoL + 1;
+            $ThisLine = preg_replace(array("/#.*$/", "/\x20+$/"), '', $ThisLine);
+            if (empty($ThisLine) || $ThisLine === "\n") {
+                continue;
+            }
+            $ThisTab = 0;
+            while (($Chr = substr($ThisLine, $ThisTab, 1)) && ($Chr === ' ' || $Chr === "\t")) {
+                $ThisTab++;
+            }
+            if ($ThisTab > $Depth) {
+                if ($TabLen === 0) {
+                    $TabLen = $ThisTab;
+                }
+                $SendTo .= $ThisLine . "\n";
+                continue;
+            } elseif ($ThisTab < $Depth) {
+                return false;
+            } elseif (!empty($SendTo)) {
+                if (empty($Key)) {
+                    return false;
+                }
+                if (!isset($Arr[$Key])) {
+                    if ($VM) {
+                        return false;
+                    }
+                    $Arr[$Key] = false;
+                }
+                if (!$this->Read($SendTo, $Arr[$Key], $VM, $TabLen)) {
+                    return false;
+                }
+                $SendTo = '';
+            }
+            if (substr($ThisLine, -1) === ':') {
+                $Key = substr($ThisLine, $ThisTab, -1);
+                $KeyLen = strlen($Key);
+                $KeyLow = strtolower($Key);
+                $this->Normalise($Key, $KeyLen, $KeyLow);
+                if (!isset($Arr[$Key])) {
+                    if ($VM) {
+                        return false;
+                    }
+                    $Arr[$Key] = false;
+                }
+            } elseif (substr($ThisLine, $ThisTab, 2) === '- ') {
+                $Value = substr($ThisLine, $ThisTab + 2);
+                $ValueLen = strlen($Value);
+                $ValueLow = strtolower($Value);
+                $this->Normalise($Value, $ValueLen, $ValueLow);
+                if (!$VM && $ValueLen > 0) {
+                    $Arr[] = $Value;
+                }
+            } elseif (($DelPos = strpos($ThisLine, ': ')) !== false) {
+                $Key = substr($ThisLine, $ThisTab, $DelPos - $ThisTab);
+                $KeyLen = strlen($Key);
+                $KeyLow = strtolower($Key);
+                $this->Normalise($Key, $KeyLen, $KeyLow);
+                if (!$Key) {
+                    return false;
+                }
+                $Value = substr($ThisLine, $ThisTab + $KeyLen + 2);
+                $ValueLen = strlen($Value);
+                $ValueLow = strtolower($Value);
+                $this->Normalise($Value, $ValueLen, $ValueLow);
+                if (!$VM && $ValueLen > 0) {
+                    $Arr[$Key] = $Value;
+                }
+            } elseif (strpos($ThisLine, ':') === false && strlen($ThisLine) > 1) {
+                $Key = $ThisLine;
+                $KeyLen = strlen($Key);
+                $KeyLow = strtolower($Key);
+                $this->Normalise($Key, $KeyLen, $KeyLow);
+                if (!isset($Arr[$Key])) {
+                    if ($VM) {
+                        return false;
+                    }
+                    $Arr[$Key] = false;
+                }
+            }
+        }
+        if (!empty($SendTo) && !empty($Key)) {
+            if (!isset($Arr[$Key])) {
+                if ($VM) {
+                    return false;
+                }
+                $Arr[$Key] = array();
+            }
+            if (!$this->Read($SendTo, $Arr[$Key], $VM, $TabLen)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Parse locally.
+     */
+    public function ReadIn()
+    {
+        $Arr = &$this->Arr;
+        $Raw = $this->Raw;
+        $VM = $this->VM;
+        return $this->Read($Raw, $Arr, $VM);
+    }
+
+    /**
+     * Set raw data.
+     */
+    public function SetRaw($Raw)
+    {
+        $this->Raw = $Raw;
+    }
+
+    /**
+     * Set virtual mode.
+     */
+    public function SetVM($VM)
+    {
+        $this->VM = $VM;
+    }
+
+    /**
+     * Reconstruct level.
+     */
+    private function Inner($Arr, &$Out, $Depth = 0)
+    {
+        foreach ($Arr as $Key => $Value) {
+            if ($Key === '---' && $Value === false) {
+                $Out .= "---\n";
+                continue;
+            }
+            if (!isset($List)) {
+                $List = ($Key === 0);
+            }
+            $Out .= str_repeat(' ', $Depth) . (($List && is_int($Key)) ? '-' : $Key . ':');
+            if (is_array($Value)) {
+                $Depth++;
+                $Out .= "\n";
+                $this->Inner($Value, $Out, $Depth);
+                $Depth--;
+                continue;
+            }
+            if ($Value === true) {
+                $Out .= ' true';
+            } elseif ($Value === false) {
+                $Out .= ' false';
+            } else {
+                $Out .= ' ' . $Value;
+            }
+            $Out .= "\n";
+        }
+    }
+
+    /**
+     * Reconstruct new raw data from data array.
+     */
+    public function Reconstruct()
+    {
+        $Arr = $this->Arr;
+        $New = '';
+        $this->Inner($Arr, $New);
+        return $New . "\n";
+    }
+
+}
 
 /** L10N. */
 $L10N = [
     'Help' =>
-        " SigTool v0.0.1-ALPHA (last modified: 2017.07.29).\n" .
+        " SigTool v0.0.2-ALPHA (last modified: 2017.08.04).\n" .
         " Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.\n\n" .
-        " Syntax:" .
+        " Syntax:\n" .
         "  \$ php sigtool.php [arguments]\n" .
-        " Example: php sigtool.php xpmd\n" .
+        " Example:\n" .
+        "  php sigtool.php xpmd\n" .
         " Arguments (all are OFF by default; include to turn ON):\n" .
-        " - No arguments: Display this help information.\n" .
-        " - x Extract signature files from daily.cvd and main.cvd.\n" .
-        " - p Process signature files for use with phpMussel. --todo--\n" .
-        " - m Download main.cvd before processing. --todo--\n" .
-        " - d Download daily.cvd before processing. --todo--\n" .
-        " - u Update SigTool. --todo--\n\n",
+        "  - No arguments: Display this help information.\n" .
+        "  - x Extract signature files from daily.cvd and main.cvd.\n" .
+        "  - p Process signature files for use with phpMussel. --todo--\n" .
+        "  - m Download main.cvd before processing.\n" .
+        "  - d Download daily.cvd before processing.\n" .
+        "  - u Update SigTool. --todo--\n\n",
     'Err0' => ' Can\'t continue (problem on line %s)!',
     'Accessing' => ' Accessing %s ...',
     'Deleting' => ' Deleting %s ...',
+    'Downloading' => ' Downloading %s ...',
     'Done' => " Done!\n",
     'Failed' => " Failed!\n",
     'Writing' => ' Writing %s ...',
@@ -38,19 +291,36 @@ if ($RunMode === '') {
     die($L10N['Help']);
 }
 
-/** Just used for debugging. */
-$VarInfo = function (&$Var) {
-    $Out = '';
-    if (is_string($Var)) {
-        $Out .= 'String (' . strlen($Var) . ')';
-    } elseif (is_int($Var)) {
-        $Out .= 'Integer (' . $Var . ')';
-    } elseif (is_bool($Var)) {
-        $Out .= 'Boolean (' . ($Var ? 'True' : 'False') . ')';
-    } elseif (is_array($Var)) {
-        $Out .= 'Array (' . count($Var) . ' Elements)';
+/** Use cURL to fetch files. */
+$Fetch = function ($URI, $Timeout = 600) use (&$UA) {
+
+    /** Initialise the cURL session. */
+    $Request = curl_init($URI);
+
+    $LCURI = strtolower($URI);
+    $SSL = (substr($LCURI, 0, 6) === 'https:');
+
+    curl_setopt($Request, CURLOPT_FRESH_CONNECT, true);
+    curl_setopt($Request, CURLOPT_HEADER, false);
+    curl_setopt($Request, CURLOPT_POST, false);
+    if ($SSL) {
+        curl_setopt($Request, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+        curl_setopt($Request, CURLOPT_SSL_VERIFYPEER, false);
     }
-    return $Out . "\n";
+    curl_setopt($Request, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($Request, CURLOPT_MAXREDIRS, 1);
+    curl_setopt($Request, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($Request, CURLOPT_TIMEOUT, $Timeout);
+    curl_setopt($Request, CURLOPT_USERAGENT, $UA);
+
+    /** Execute and get the response. */
+    $Response = curl_exec($Request);
+
+    /** Close the cURL session. */
+    curl_close($Request);
+
+    /** Return the results of the request. */
+    return $Response;
 };
 
 /** Terminate with debug information. */
@@ -159,12 +429,38 @@ $Shorthand = function (&$Data) {
     }
 };
 
-/** Phase 1: Download main.cvd. --todo-- */
+/** Phase 1: Download main.cvd. */
 if (strpos($RunMode, 'm') !== false) {
+    echo sprintf($L10N['Downloading'], 'main.cvd');
+    try {
+        $Data = $Fetch('http://database.clamav.net/main.cvd');
+    } catch (\Exception $e) {
+        $Terminate();
+    }
+    echo $L10N['Done'] . sprintf($L10N['Writing'], 'main.cvd');
+    if (file_put_contents($FixPath(__DIR__ . '/main.cvd'), $Data)) {
+        echo $L10N['Done'];
+    } else {
+        $Terminate();
+    }
+    unset($Data);
 }
 
-/** Phase 2: Download daily.cvd. --todo-- */
+/** Phase 2: Download daily.cvd. */
 if (strpos($RunMode, 'd') !== false) {
+    echo sprintf($L10N['Downloading'], 'daily.cvd');
+    try {
+        $Data = $Fetch('http://database.clamav.net/daily.cvd');
+    } catch (\Exception $e) {
+        $Terminate();
+    }
+    echo $L10N['Done'] . sprintf($L10N['Writing'], 'daily.cvd');
+    if (file_put_contents($FixPath(__DIR__ . '/daily.cvd'), $Data)) {
+        echo $L10N['Done'];
+    } else {
+        $Terminate();
+    }
+    unset($Data);
 }
 
 /** Phase 3: Extract ClamAV signature files from daily.cvd and main.cvd packages. */
@@ -246,6 +542,18 @@ if (strpos($RunMode, 'x') !== false) {
 
 /** Phase 4: Process signature files for use with phpMussel. --todo-- */
 if (strpos($RunMode, 'p') !== false) {
+
+    /** Check if signatures.dat exists; If so, we'll read it for updating. */
+    if (is_readable(__DIR__ . '/signatures.dat')) {
+        echo sprintf($L10N['Accessing'], 'signatures.dat');
+        $YAML = new SigToolYAML();
+        $Handle = fopen(__DIR__ . '/signatures.dat', 'rb');
+        $YAML->SetRaw(fread($Handle, filesize(__DIR__ . '/signatures.dat')));
+        fclose($Handle);
+        $YAML->ReadIn();
+        $Meta = &$YAML->Arr;
+        echo $L10N['Done'];
+    }
 
     /** Don't need these (not currently used by this tool or by phpMussel). */
     foreach ([
@@ -346,6 +654,10 @@ if (strpos($RunMode, 'p') !== false) {
             $FileData = preg_replace($Set[2], $Set[3], $FileData);
             $Shorthand($FileData);
             fwrite($Handle, $FileData);
+            if (!empty($Set[5]) && !empty($Set[4]) && !empty($Meta[$Set[4]]['Files']['Checksum'][0]) && !empty($Meta[$Set[4]]['Version'])) {
+                $Meta[$Set[4]]['Version'] = date('Y.z.B', time());
+                $Meta[$Set[4]]['Files']['Checksum'][0] = md5($FileData) . ':' . strlen($FileData);
+            }
             fclose($Handle);
             echo $L10N['Done'];
             $FileData = '';
@@ -359,6 +671,16 @@ if (strpos($RunMode, 'p') !== false) {
             }
         }
 
+    }
+
+    /** Update signatures.dat if necessary. */
+    if (!empty($Meta)) {
+        echo sprintf($L10N['Writing'], 'signatures.dat');
+        $NewMeta = $YAML->Reconstruct();
+        $Handle = fopen(__DIR__ . '/signatures.dat', 'wb');
+        fwrite($Handle, $NewMeta);
+        fclose($Handle);
+        echo $L10N['Done'];
     }
 
 }
