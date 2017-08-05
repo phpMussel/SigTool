@@ -1,5 +1,5 @@
 <?php
-/** SigTool v0.0.2-ALPHA (last modified: 2017.08.04). */
+/** SigTool v0.0.2-ALPHA (last modified: 2017.08.05). */
 
 /** Script version. */
 $Ver = '0.0.2-ALPHA';
@@ -14,25 +14,18 @@ $UA = 'SigTool v' . $Ver . ' (https://github.com/phpMussel/SigTool)';
 class SigToolYAML
 {
 
-    var $Arr;
-    var $Raw;
-    var $VM;
-
-    function __construct($Arr = [], $Raw = '', $VM = false)
-    {
-        $this->Arr = $Arr;
-        $this->Raw = $Raw;
-        $this->VM = $VM;
-    }
+    public $Arr = [];
+    public $Raw = '';
+    public $VM = false;
 
     /**
      * Normalises values defined by the YAML closure.
      *
-     * @param string|int|bool The value to be normalised.
-     * @param int The length of the value.
-     * @param string|int|bool The value to be normalised, lowercased.
+     * @param string|int|bool $Value The value to be normalised.
+     * @param int $ValueLen The length of the value to be normalised.
+     * @param string|int|bool $ValueLow The value to be normalised, lowercased.
      */
-    private function Normalise(&$Value, $ValueLen, $ValueLow)
+    private function normalise(&$Value, int $ValueLen, $ValueLow)
     {
         if (substr($Value, 0, 1) === '"' && substr($Value, $ValueLen - 1) === '"') {
             $Value = substr($Value, 1, $ValueLen - 2);
@@ -67,13 +60,13 @@ class SigToolYAML
      * @param int $Depth Tab depth (inherited through recursion; ignore it).
      * @return bool Returns false if errors are encountered, and true otherwise.
      */
-    public function Read($In, &$Arr, $VM = false, $Depth = 0)
+    public function read(string $In, array &$Arr, bool $VM = false, int $Depth = 0)
     {
         if (!is_array($Arr)) {
             if ($VM) {
                 return false;
             }
-            $Arr = array();
+            $Arr = [];
         }
         if (!substr_count($In, "\n")) {
             return false;
@@ -114,7 +107,7 @@ class SigToolYAML
                     }
                     $Arr[$Key] = false;
                 }
-                if (!$this->Read($SendTo, $Arr[$Key], $VM, $TabLen)) {
+                if (!$this->read($SendTo, $Arr[$Key], $VM, $TabLen)) {
                     return false;
                 }
                 $SendTo = '';
@@ -123,7 +116,7 @@ class SigToolYAML
                 $Key = substr($ThisLine, $ThisTab, -1);
                 $KeyLen = strlen($Key);
                 $KeyLow = strtolower($Key);
-                $this->Normalise($Key, $KeyLen, $KeyLow);
+                $this->normalise($Key, $KeyLen, $KeyLow);
                 if (!isset($Arr[$Key])) {
                     if ($VM) {
                         return false;
@@ -134,7 +127,7 @@ class SigToolYAML
                 $Value = substr($ThisLine, $ThisTab + 2);
                 $ValueLen = strlen($Value);
                 $ValueLow = strtolower($Value);
-                $this->Normalise($Value, $ValueLen, $ValueLow);
+                $this->normalise($Value, $ValueLen, $ValueLow);
                 if (!$VM && $ValueLen > 0) {
                     $Arr[] = $Value;
                 }
@@ -142,14 +135,14 @@ class SigToolYAML
                 $Key = substr($ThisLine, $ThisTab, $DelPos - $ThisTab);
                 $KeyLen = strlen($Key);
                 $KeyLow = strtolower($Key);
-                $this->Normalise($Key, $KeyLen, $KeyLow);
+                $this->normalise($Key, $KeyLen, $KeyLow);
                 if (!$Key) {
                     return false;
                 }
                 $Value = substr($ThisLine, $ThisTab + $KeyLen + 2);
                 $ValueLen = strlen($Value);
                 $ValueLow = strtolower($Value);
-                $this->Normalise($Value, $ValueLen, $ValueLow);
+                $this->normalise($Value, $ValueLen, $ValueLow);
                 if (!$VM && $ValueLen > 0) {
                     $Arr[$Key] = $Value;
                 }
@@ -157,7 +150,7 @@ class SigToolYAML
                 $Key = $ThisLine;
                 $KeyLen = strlen($Key);
                 $KeyLow = strtolower($Key);
-                $this->Normalise($Key, $KeyLen, $KeyLow);
+                $this->normalise($Key, $KeyLen, $KeyLow);
                 if (!isset($Arr[$Key])) {
                     if ($VM) {
                         return false;
@@ -171,9 +164,9 @@ class SigToolYAML
                 if ($VM) {
                     return false;
                 }
-                $Arr[$Key] = array();
+                $Arr[$Key] = [];
             }
-            if (!$this->Read($SendTo, $Arr[$Key], $VM, $TabLen)) {
+            if (!$this->read($SendTo, $Arr[$Key], $VM, $TabLen)) {
                 return false;
             }
         }
@@ -183,18 +176,18 @@ class SigToolYAML
     /**
      * Parse locally.
      */
-    public function ReadIn()
+    public function readIn()
     {
         $Arr = &$this->Arr;
         $Raw = $this->Raw;
         $VM = $this->VM;
-        return $this->Read($Raw, $Arr, $VM);
+        return $this->read($Raw, $Arr, $VM);
     }
 
     /**
      * Set raw data.
      */
-    public function SetRaw($Raw)
+    public function setRaw(string $Raw)
     {
         $this->Raw = $Raw;
     }
@@ -202,7 +195,7 @@ class SigToolYAML
     /**
      * Set virtual mode.
      */
-    public function SetVM($VM)
+    public function setVM(bool $VM)
     {
         $this->VM = $VM;
     }
@@ -210,7 +203,7 @@ class SigToolYAML
     /**
      * Reconstruct level.
      */
-    private function Inner($Arr, &$Out, $Depth = 0)
+    private function inner(array $Arr, string &$Out, int $Depth = 0)
     {
         foreach ($Arr as $Key => $Value) {
             if ($Key === '---' && $Value === false) {
@@ -224,7 +217,7 @@ class SigToolYAML
             if (is_array($Value)) {
                 $Depth++;
                 $Out .= "\n";
-                $this->Inner($Value, $Out, $Depth);
+                $this->inner($Value, $Out, $Depth);
                 $Depth--;
                 continue;
             }
@@ -242,11 +235,11 @@ class SigToolYAML
     /**
      * Reconstruct new raw data from data array.
      */
-    public function Reconstruct()
+    public function reconstruct()
     {
         $Arr = $this->Arr;
         $New = '';
-        $this->Inner($Arr, $New);
+        $this->inner($Arr, $New);
         return $New . "\n";
     }
 
@@ -255,7 +248,7 @@ class SigToolYAML
 /** L10N. */
 $L10N = [
     'Help' =>
-        " SigTool v0.0.2-ALPHA (last modified: 2017.08.04).\n" .
+        " SigTool v0.0.2-ALPHA (last modified: 2017.08.05).\n" .
         " Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.\n\n" .
         " Syntax:\n" .
         "  \$ php sigtool.php [arguments]\n" .
@@ -548,9 +541,9 @@ if (strpos($RunMode, 'p') !== false) {
         echo sprintf($L10N['Accessing'], 'signatures.dat');
         $YAML = new SigToolYAML();
         $Handle = fopen(__DIR__ . '/signatures.dat', 'rb');
-        $YAML->SetRaw(fread($Handle, filesize(__DIR__ . '/signatures.dat')));
+        $YAML->setRaw(fread($Handle, filesize(__DIR__ . '/signatures.dat')));
         fclose($Handle);
-        $YAML->ReadIn();
+        $YAML->readIn();
         $Meta = &$YAML->Arr;
         echo $L10N['Done'];
     }
@@ -676,7 +669,7 @@ if (strpos($RunMode, 'p') !== false) {
     /** Update signatures.dat if necessary. */
     if (!empty($Meta)) {
         echo sprintf($L10N['Writing'], 'signatures.dat');
-        $NewMeta = $YAML->Reconstruct();
+        $NewMeta = $YAML->reconstruct();
         $Handle = fopen(__DIR__ . '/signatures.dat', 'wb');
         fwrite($Handle, $NewMeta);
         fclose($Handle);
