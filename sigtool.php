@@ -1,22 +1,39 @@
 <?php
-/** SigTool v0.0.2-ALPHA (last modified: 2017.08.06). */
-
-/** Script version. */
-$Ver = '0.0.2-ALPHA';
-
-/** Script user agent. */
-$UA = 'SigTool v' . $Ver . ' (https://github.com/phpMussel/SigTool)';
+/**
+ * SigTool v0.0.3-ALPHA (last modified: 2017.08.07).
+ * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
+ *
+ * Package location: GitHub <https://github.com/phpMussel/SigTool>.
+ * Author: Caleb M (Maikuolan) <https://github.com/Maikuolan>.
+ */
 
 /**
- * Class for handling YAML. Adapted from YAML closures in
- * phpMussel/phpMussel->./vault/functions.php
+ * SigTool class contains any relevant non-core methods (class functions)
+ * required by SigTool, mostly (but not entirely) adapted from the closures
+ * available in the ./vault/functions.php file of the phpMussel package, used
+ * for handling YAML data, signature shorthand, etc.
  */
-class SigToolYAML
+class SigTool
 {
+    /** Script version. */
+    public $Ver = '0.0.3-ALPHA';
 
+    /** Script user agent. */
+    public $UA = 'SigTool v%s (https://github.com/phpMussel/SigTool)';
+
+    /** SigTool YAML data post-processed data array. */
     public $Arr = [];
+
+    /** SigTool YAML data pre-processed raw data. */
     public $Raw = '';
-    public $VM = false;
+
+    /** Safe file chunk size for when reading files. */
+    public $SafeReadSize = 131072;
+
+    /** Fix variables. */
+    public function __construct() {
+        $this->UA = sprintf($this->UA, $this->Ver);
+    }
 
     /**
      * Normalises values defined by the YAML closure.
@@ -56,16 +73,12 @@ class SigToolYAML
      *
      * @param string $In The data to parse.
      * @param array $Arr Where to save the results.
-     * @param bool $VM Validator Mode (if true, results won't be saved).
      * @param int $Depth Tab depth (inherited through recursion; ignore it).
      * @return bool Returns false if errors are encountered, and true otherwise.
      */
-    public function read(string $In, &$Arr, bool $VM = false, int $Depth = 0)
+    public function read(string $In, &$Arr, int $Depth = 0)
     {
         if (!is_array($Arr)) {
-            if ($VM) {
-                return false;
-            }
             $Arr = [];
         }
         if (!substr_count($In, "\n")) {
@@ -81,7 +94,7 @@ class SigToolYAML
                 $ThisLine = substr($In, $SoL, $EoL - $SoL);
             }
             $SoL = ($EoL === false) ? false : $EoL + 1;
-            $ThisLine = preg_replace(array("/#.*$/", "/\x20+$/"), '', $ThisLine);
+            $ThisLine = preg_replace(["/#.*$/", "/\x20+$/"], '', $ThisLine);
             if (empty($ThisLine) || $ThisLine === "\n") {
                 continue;
             }
@@ -102,12 +115,9 @@ class SigToolYAML
                     return false;
                 }
                 if (!isset($Arr[$Key])) {
-                    if ($VM) {
-                        return false;
-                    }
                     $Arr[$Key] = false;
                 }
-                if (!$this->read($SendTo, $Arr[$Key], $VM, $TabLen)) {
+                if (!$this->read($SendTo, $Arr[$Key], $TabLen)) {
                     return false;
                 }
                 $SendTo = '';
@@ -118,9 +128,6 @@ class SigToolYAML
                 $KeyLow = strtolower($Key);
                 $this->normalise($Key, $KeyLen, $KeyLow);
                 if (!isset($Arr[$Key])) {
-                    if ($VM) {
-                        return false;
-                    }
                     $Arr[$Key] = false;
                 }
             } elseif (substr($ThisLine, $ThisTab, 2) === '- ') {
@@ -128,7 +135,7 @@ class SigToolYAML
                 $ValueLen = strlen($Value);
                 $ValueLow = strtolower($Value);
                 $this->normalise($Value, $ValueLen, $ValueLow);
-                if (!$VM && $ValueLen > 0) {
+                if ($ValueLen > 0) {
                     $Arr[] = $Value;
                 }
             } elseif (($DelPos = strpos($ThisLine, ': ')) !== false) {
@@ -143,7 +150,7 @@ class SigToolYAML
                 $ValueLen = strlen($Value);
                 $ValueLow = strtolower($Value);
                 $this->normalise($Value, $ValueLen, $ValueLow);
-                if (!$VM && $ValueLen > 0) {
+                if ($ValueLen > 0) {
                     $Arr[$Key] = $Value;
                 }
             } elseif (strpos($ThisLine, ':') === false && strlen($ThisLine) > 1) {
@@ -152,21 +159,15 @@ class SigToolYAML
                 $KeyLow = strtolower($Key);
                 $this->normalise($Key, $KeyLen, $KeyLow);
                 if (!isset($Arr[$Key])) {
-                    if ($VM) {
-                        return false;
-                    }
                     $Arr[$Key] = false;
                 }
             }
         }
         if (!empty($SendTo) && !empty($Key)) {
             if (!isset($Arr[$Key])) {
-                if ($VM) {
-                    return false;
-                }
                 $Arr[$Key] = [];
             }
-            if (!$this->read($SendTo, $Arr[$Key], $VM, $TabLen)) {
+            if (!$this->read($SendTo, $Arr[$Key], $TabLen)) {
                 return false;
             }
         }
@@ -180,8 +181,7 @@ class SigToolYAML
     {
         $Arr = &$this->Arr;
         $Raw = $this->Raw;
-        $VM = $this->VM;
-        return $this->read($Raw, $Arr, $VM);
+        return $this->read($Raw, $Arr);
     }
 
     /**
@@ -190,14 +190,6 @@ class SigToolYAML
     public function setRaw(string $Raw)
     {
         $this->Raw = $Raw;
-    }
-
-    /**
-     * Set virtual mode.
-     */
-    public function setVM(bool $VM)
-    {
-        $this->VM = $VM;
     }
 
     /**
@@ -243,61 +235,166 @@ class SigToolYAML
         return $New . "\n";
     }
 
-}
+    /** Use cURL to fetch files. */
+    public function fetch($URI, $Timeout = 600) {
 
-/** Common integer values used by the script. */
-$SafeReadSize = 131072;
+        /** Initialise the cURL session. */
+        $Request = curl_init($URI);
+
+        $LCURI = strtolower($URI);
+        $SSL = (substr($LCURI, 0, 6) === 'https:');
+
+        curl_setopt($Request, CURLOPT_FRESH_CONNECT, true);
+        curl_setopt($Request, CURLOPT_HEADER, false);
+        curl_setopt($Request, CURLOPT_POST, false);
+        if ($SSL) {
+            curl_setopt($Request, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+            curl_setopt($Request, CURLOPT_SSL_VERIFYPEER, false);
+        }
+        curl_setopt($Request, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($Request, CURLOPT_MAXREDIRS, 1);
+        curl_setopt($Request, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($Request, CURLOPT_TIMEOUT, $Timeout);
+        curl_setopt($Request, CURLOPT_USERAGENT, $this->UA);
+
+        /** Execute and get the response. */
+        $Response = curl_exec($Request);
+
+        /** Close the cURL session. */
+        curl_close($Request);
+
+        /** Return the results of the request. */
+        return $Response;
+    }
+
+    /** Apply shorthand to signature names and remove any unwanted lines. */
+    public function shorthand(&$Data) {
+        while (true) {
+            $Check = md5($Data) . ':' . strlen($Data);
+            foreach ([
+                ["\x11", 'Win'],
+                ["\x12", 'W(?:in)?32'],
+                ["\x13", 'W(?:in)?64'],
+                ["\x14", '(?:ELF|Linux)'],
+                ["\x15", '(?:Macho|OSX)'],
+                ["\x16", 'Andr(?:oid)?'],
+                ["\x17", '(?:E?mail|EML)'],
+                ["\x18", '(?:Javascript|JS|Jscript)'],
+                ["\x19", 'Java'],
+                ["\x1A", 'XXE'],
+                ["\x1B", '(?:Graphics|JPE?G|GIF|PNG)'],
+                ["\x1C", '(?:Macro|OLE)'],
+                ["\x1D", 'HTML?'],
+                ["\x1E", 'RTF'],
+                ["\x1F", '(?:Archive|[RT]AR|ZIP)'],
+                ["\x20", 'PHP'],
+                ["\x21", 'XML'],
+                ["\x22", 'ASPX?'],
+                ["\x23", 'VB[SEX]?'],
+                ["\x24", 'BAT'],
+                ["\x25", 'PDF'],
+                ["\x26", 'SWF'],
+                ["\x27", 'W97M?'],
+                ["\x28", 'X97M?'],
+                ["\x29", 'O97M?'],
+                ["\x2A", 'ASCII'],
+                ["\x2B", 'Unix'],
+                ["\x2C", 'Py(?:thon)?'],
+                ["\x2D", 'Perl'],
+                ["\x2E", 'Ruby'],
+                ["\x2F", '(?:CFG|IN[IF])'],
+                ["\x30", 'CGI'],
+            ] as $Param) {
+                $Data = preg_replace([
+                    "~\x10\x10" . $Param[1] . '[-.]~i',
+                    "~\x10\x10([a-z0-9]+[._-])" . $Param[1] . '[-.]~i'
+                ], [
+                    $Param[0] . "\x10",
+                    $Param[0] . "\x10\\1"
+                ], $Data);
+            }
+            foreach ([
+                ["\x11", 'Worm'],
+                ["\x12", 'Tro?[jy]a?n?'],
+                ["\x13", 'Ad(?:ware)?'],
+                ["\x14", 'Flooder'],
+                ["\x15", 'IRC(?:Bot)?'],
+                ["\x16", 'Exp?l?o?i?t?'],
+                ["\x17", 'VirTool'],
+                ["\x18", 'Dial(?:er)?'],
+                ["\x19", '(?:Joke|Hoax)'],
+                ["\x1B", 'Malware'],
+                ["\x1C", 'Risk(?:ware|y)?'],
+                ["\x1D", '(?:Rkit|Rootkit|Root)'],
+                ["\x1E", '(?:Backdoor|Back|BD|Door)'],
+                ["\x1F", '(?:Hack|Hacktool|HT)'],
+                ["\x20", '(?:Key)?logger'],
+                ["\x21", 'Ransom(?:ware)?'],
+                ["\x22", 'Spy(?:ware)?'],
+                ["\x23", 'Vir(?:us)?'],
+                ["\x24", 'Dropper'],
+                ["\x25", 'Dropped'],
+                ["\x26", '(?:Dldr|Downloader)'],
+                ["\x27", 'Obfuscation'],
+                ["\x28", 'Obfuscator'],
+                ["\x29", 'Obfuscated'],
+                ["\x2A", 'Packer'],
+                ["\x2B", 'Packed'],
+                ["\x2C", 'PU[AP]'],
+                ["\x2D", 'Shell'],
+                ["\x2E", 'Defacer'],
+                ["\x2F", 'Defacement'],
+                ["\x30", 'Crypt(?:ed|or)?'],
+                ["\x31", 'Phish'],
+                ["\x32", 'Spam'],
+                ["\x33", 'Spammer'],
+                ["\x34", 'Scam'],
+                ["\x35", 'ZipBomb'],
+                ["\x36", 'Fork(?:Bomb)?'],
+                ["\x37", 'LogicBomb'],
+                ["\x38", 'CyberBomb'],
+                ["\x39", 'Malvertisement'],
+                ["\x3F", 'BadURL'],
+            ] as $Param) {
+                $Data = preg_replace([
+                    "~\x10" . $Param[1] . '[-.]~i',
+                    "~\x10([a-z0-9]+[._-])" . $Param[1] . '[-.]~i'
+                ], [
+                    $Param[0],
+                    $Param[0] . '\1'
+                ], $Data);
+            }
+            $Data = preg_replace([
+                '~([^a-z0-9])(?:Agent|General|Generic)([.-])~i', /** Let's reduce our footprint. :-) */
+                '~([^a-z0-9])Downloader([.-])~i', /** CVDs use both; Let's normalise it. */
+                '~^[^\:\n]+\:[^\n]+[\[\]][^\n]*$~m', /** ClamAV signature format documentation is unclear about what "[]" means. */
+                '~^.*This ClamAV version has reached End of Life.*$\n~im' /** Don't need these in phpMussel signatures! */
+            ], [
+                '\1X\2',
+                '\1Dldr\2',
+                '',
+                ''
+            ], $Data);
+            if (md5($Data) . ':' . strlen($Data) === $Check) {
+                break;
+            }
+        }
+    }
+
+    /** Fix path (we get funky results for "__DIR__ . '/'" in some cases, on some systems). */
+    public function fixPath($Path) {
+        return str_replace(['\/', '\\', '/\\'], '/', $Path);
+    }
+
+}
 
 /** Fetch arguments. */
 $RunMode = !empty($argv[1]) ? strtolower($argv[1]) : '';
 
-/** Use cURL to fetch files. */
-$Fetch = function ($URI, $Timeout = 600) use (&$UA) {
-
-    /** Initialise the cURL session. */
-    $Request = curl_init($URI);
-
-    $LCURI = strtolower($URI);
-    $SSL = (substr($LCURI, 0, 6) === 'https:');
-
-    curl_setopt($Request, CURLOPT_FRESH_CONNECT, true);
-    curl_setopt($Request, CURLOPT_HEADER, false);
-    curl_setopt($Request, CURLOPT_POST, false);
-    if ($SSL) {
-        curl_setopt($Request, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
-        curl_setopt($Request, CURLOPT_SSL_VERIFYPEER, false);
-    }
-    curl_setopt($Request, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($Request, CURLOPT_MAXREDIRS, 1);
-    curl_setopt($Request, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($Request, CURLOPT_TIMEOUT, $Timeout);
-    curl_setopt($Request, CURLOPT_USERAGENT, $UA);
-
-    /** Execute and get the response. */
-    $Response = curl_exec($Request);
-
-    /** Close the cURL session. */
-    curl_close($Request);
-
-    /** Return the results of the request. */
-    return $Response;
-};
-
-/** Terminate with debug information. */
-$Terminate = function ($Err = 'Err0') use (&$L10N) {
-    $Debug = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
-    die(sprintf($L10N[$Err], $Debug['line']) . "\n\n");
-};
-
-/** Fix path. */
-$FixPath = function ($Path) {
-    return str_replace(array('\/', '\\', '/\\'), '/', $Path);
-};
-
 /** L10N. */
 $L10N = [
     'Help' =>
-        " SigTool v0.0.2-ALPHA (last modified: 2017.08.06).\n" .
+        " SigTool v0.0.3-ALPHA (last modified: 2017.08.07).\n" .
         " Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.\n\n" .
         " Syntax:\n" .
         "  \$ php sigtool.php [arguments]\n" .
@@ -320,120 +417,39 @@ $L10N = [
     'Processing' => ' Processing ...',
     'Phase3Step1' => ' Stripping ClamAV package header from %s ...',
     'Phase3Step2' => ' Decompressing %s (GZ) ...',
-    'Phase3Step3' => ' Extracting contents from %s (TAR) to ' . $FixPath(__DIR__) . ' ...',
+    'Phase3Step3' => ' Extracting contents from %s (TAR) to ' . __DIR__ . ' ...',
 ];
 
-/** Apply shorthand to signature names. */
-$Shorthand = function (&$Data) {
-    while (true) {
-        $Check = md5($Data) . ':' . strlen($Data);
-        foreach ([
-            ["\x11", 'Win'],
-            ["\x12", 'W(?:in)?32'],
-            ["\x13", 'W(?:in)?64'],
-            ["\x14", '(?:ELF|Linux)'],
-            ["\x15", '(?:Macho|OSX)'],
-            ["\x16", 'Andr(?:oid)?'],
-            ["\x17", '(?:E?mail|EML)'],
-            ["\x18", '(?:Javascript|JS|Jscript)'],
-            ["\x19", 'Java'],
-            ["\x1A", 'XXE'],
-            ["\x1B", '(?:Graphics|JPE?G|GIF|PNG)'],
-            ["\x1C", '(?:Macro|OLE)'],
-            ["\x1D", 'HTML?'],
-            ["\x1E", 'RTF'],
-            ["\x1F", '(?:Archive|[RT]AR|ZIP)'],
-            ["\x20", 'PHP'],
-            ["\x21", 'XML'],
-            ["\x22", 'ASPX?'],
-            ["\x23", 'VB[SEX]?'],
-            ["\x24", 'BAT'],
-            ["\x25", 'PDF'],
-            ["\x26", 'SWF'],
-            ["\x27", 'W97M?'],
-            ["\x28", 'X97M?'],
-            ["\x29", 'O97M?'],
-            ["\x2A", 'ASCII'],
-            ["\x2B", 'Unix'],
-            ["\x2C", 'Py(?:thon)?'],
-            ["\x2D", 'Perl'],
-            ["\x2E", 'Ruby'],
-            ["\x2F", '(?:CFG|IN[IF])'],
-            ["\x30", 'CGI'],
-        ] as $Param) {
-            $Data = preg_replace("~\x10\x10" . $Param[1] . '[-.]~i', $Param[0] . "\x10", $Data);
-            $Data = preg_replace("~\x10\x10([a-z0-9]+[._-])" . $Param[1] . '[-.]~i', $Param[0] . "\x10\\1", $Data);
-        }
-        foreach ([
-            ["\x11", 'Worm'],
-            ["\x12", 'Tro?[jy]a?n?'],
-            ["\x13", 'Ad(?:ware)?'],
-            ["\x14", 'Flooder'],
-            ["\x15", 'IRC(?:Bot)?'],
-            ["\x16", 'Exp?l?o?i?t?'],
-            ["\x17", 'VirTool'],
-            ["\x18", 'Dial(?:er)?'],
-            ["\x19", '(?:Joke|Hoax)'],
-            ["\x1B", 'Malware'],
-            ["\x1C", 'Risk(?:ware|y)?'],
-            ["\x1D", '(?:Rkit|Rootkit|Root)'],
-            ["\x1E", '(?:Backdoor|Back|BD|Door)'],
-            ["\x1F", '(?:Hack|Hacktool|HT)'],
-            ["\x20", '(?:Key)?logger'],
-            ["\x21", 'Ransom(?:ware)?'],
-            ["\x22", 'Spy(?:ware)?'],
-            ["\x23", 'Vir(?:us)?'],
-            ["\x24", 'Dropper'],
-            ["\x25", 'Dropped'],
-            ["\x26", '(?:Dldr|Downloader)'],
-            ["\x27", 'Obfuscation'],
-            ["\x28", 'Obfuscator'],
-            ["\x29", 'Obfuscated'],
-            ["\x2A", 'Packer'],
-            ["\x2B", 'Packed'],
-            ["\x2C", 'PU[AP]'],
-            ["\x2D", 'Shell'],
-            ["\x2E", 'Defacer'],
-            ["\x2F", 'Defacement'],
-            ["\x30", 'Crypt(?:ed|or)?'],
-            ["\x31", 'Phish'],
-            ["\x32", 'Spam'],
-            ["\x33", 'Spammer'],
-            ["\x34", 'Scam'],
-            ["\x35", 'ZipBomb'],
-            ["\x36", 'Fork(?:Bomb)?'],
-            ["\x37", 'LogicBomb'],
-            ["\x38", 'CyberBomb'],
-            ["\x39", 'Malvertisement'],
-            ["\x3F", 'BadURL'],
-        ] as $Param) {
-            $Data = preg_replace("~\x10" . $Param[1] . '[-.]~i', $Param[0], $Data);
-            $Data = preg_replace("~\x10([a-z0-9]+[._-])" . $Param[1] . '[-.]~i', $Param[0] . '\1', $Data);
-        }
-        $Data = preg_replace(array('~([^a-z0-9])Agent([.-])~i', '~([^a-z0-9])General([.-])~i', '~([^a-z0-9])Generic([.-])~i'), '\1X\2', $Data);
-        $Data = preg_replace('~([^a-z0-9])Downloader([.-])~i', '\1Dldr\2', $Data);
-        $Confirm = md5($Data) . ':' . strlen($Data);
-        if ($Confirm === $Check) {
-            break;
-        }
-    }
+/** Terminate with debug information. */
+$Terminate = function ($Err = 'Err0') use (&$L10N) {
+    $Debug = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
+    die(sprintf($L10N[$Err], $Debug['line']) . "\n\n");
 };
 
-/** Help. */
+/** Display help information. */
 if ($RunMode === '') {
     die($L10N['Help']);
 }
+
+/** Initialise SigTool object. */
+$SigTool = new SigTool();
+
+/**
+ * We'll use ZÃ¼rich time for our timezone (closest approximate to CET, and
+ * required for our "Y.z.B" dates to actually make sense).
+ */
+date_default_timezone_set('Europe/Zurich');
 
 /** Phase 1: Download main.cvd. */
 if (strpos($RunMode, 'm') !== false) {
     echo sprintf($L10N['Downloading'], 'main.cvd');
     try {
-        $Data = $Fetch('http://database.clamav.net/main.cvd');
+        $Data = $SigTool->fetch('http://database.clamav.net/main.cvd');
     } catch (\Exception $e) {
         $Terminate();
     }
     echo $L10N['Done'] . sprintf($L10N['Writing'], 'main.cvd');
-    if (file_put_contents($FixPath(__DIR__ . '/main.cvd'), $Data)) {
+    if (file_put_contents($SigTool->fixPath(__DIR__ . '/main.cvd'), $Data)) {
         echo $L10N['Done'];
     } else {
         $Terminate();
@@ -445,12 +461,12 @@ if (strpos($RunMode, 'm') !== false) {
 if (strpos($RunMode, 'd') !== false) {
     echo sprintf($L10N['Downloading'], 'daily.cvd');
     try {
-        $Data = $Fetch('http://database.clamav.net/daily.cvd');
+        $Data = $SigTool->fetch('http://database.clamav.net/daily.cvd');
     } catch (\Exception $e) {
         $Terminate();
     }
     echo $L10N['Done'] . sprintf($L10N['Writing'], 'daily.cvd');
-    if (file_put_contents($FixPath(__DIR__ . '/daily.cvd'), $Data)) {
+    if (file_put_contents($SigTool->fixPath(__DIR__ . '/daily.cvd'), $Data)) {
         echo $L10N['Done'];
     } else {
         $Terminate();
@@ -461,13 +477,13 @@ if (strpos($RunMode, 'd') !== false) {
 /** Phase 3: Extract ClamAV signature files from daily.cvd and main.cvd packages. */
 if (strpos($RunMode, 'x') !== false) {
     /** Terminate if daily and main CVD files are missing. */
-    if (!file_exists($FixPath(__DIR__ . '/daily.cvd')) || !file_exists($FixPath(__DIR__ . '/main.cvd'))) {
+    if (!file_exists($SigTool->fixPath(__DIR__ . '/daily.cvd')) || !file_exists($SigTool->fixPath(__DIR__ . '/main.cvd'))) {
         $Terminate();
     }
 
     foreach(['daily.cvd', 'main.cvd'] as $Set) {
         echo sprintf($L10N['Phase3Step1'], $Set);
-        $File = $FixPath(__DIR__ . '/' . $Set);
+        $File = $SigTool->fixPath(__DIR__ . '/' . $Set);
         $Handle = [fopen($File, 'rb')];
         if (!is_resource($Handle[0])) {
             $Terminate();
@@ -478,7 +494,7 @@ if (strpos($RunMode, 'x') !== false) {
             $Terminate();
         }
         while (!feof($Handle[0])) {
-            $FileData = fread($Handle[0], $SafeReadSize);
+            $FileData = fread($Handle[0], $SigTool->SafeReadSize);
             fwrite($Handle[1], $FileData);
         }
         fclose($Handle[1]);
@@ -495,7 +511,7 @@ if (strpos($RunMode, 'x') !== false) {
             $Terminate();
         }
         while (!gzeof($Handle[0])) {
-            $FileData = gzread($Handle[0], $SafeReadSize);
+            $FileData = gzread($Handle[0], $SigTool->SafeReadSize);
             fwrite($Handle[1], $FileData);
         }
         fclose($Handle[1]);
@@ -514,14 +530,14 @@ if (strpos($RunMode, 'x') !== false) {
                     continue;
                 }
                 $Handle = [
-                    fopen($FixPath('phar://' . $File . '/' . $ThisFile), 'rb'),
-                    fopen($FixPath(__DIR__ . '/' . $ThisFile), 'wb')
+                    fopen($SigTool->fixPath('phar://' . $File . '/' . $ThisFile), 'rb'),
+                    fopen($SigTool->fixPath(__DIR__ . '/' . $ThisFile), 'wb')
                 ];
                 if (!is_resource($Handle[0]) || !is_resource($Handle[1])) {
                     $Terminate();
                 }
                 while (!feof($Handle[0])) {
-                    $FileData = fread($Handle[0], $SafeReadSize);
+                    $FileData = fread($Handle[0], $SigTool->SafeReadSize);
                     fwrite($Handle[1], $FileData);
                 }
                 fclose($Handle[1]);
@@ -539,14 +555,13 @@ if (strpos($RunMode, 'x') !== false) {
 if (strpos($RunMode, 'p') !== false) {
 
     /** Check if signatures.dat exists; If so, we'll read it for updating. */
-    if (is_readable($FixPath(__DIR__ . '/signatures.dat'))) {
+    if (is_readable($SigTool->fixPath(__DIR__ . '/signatures.dat'))) {
         echo sprintf($L10N['Accessing'], 'signatures.dat');
-        $YAML = new SigToolYAML();
-        $Handle = fopen($FixPath(__DIR__ . '/signatures.dat'), 'rb');
-        $YAML->setRaw(fread($Handle, filesize($FixPath(__DIR__ . '/signatures.dat'))));
+        $Handle = fopen($SigTool->fixPath(__DIR__ . '/signatures.dat'), 'rb');
+        $SigTool->setRaw(fread($Handle, filesize($SigTool->fixPath(__DIR__ . '/signatures.dat'))));
         fclose($Handle);
-        $YAML->readIn();
-        $Meta = &$YAML->Arr;
+        $SigTool->readIn();
+        $Meta = &$SigTool->Arr;
         echo $L10N['Done'];
     }
 
@@ -583,9 +598,9 @@ if (strpos($RunMode, 'p') !== false) {
         'main.msb',
         'main.sfp',
     ] as $File) {
-        if (file_exists($FixPath(__DIR__ . '/' . $File))) {
+        if (file_exists($SigTool->fixPath(__DIR__ . '/' . $File))) {
             echo sprintf($L10N['Deleting'], $File);
-            echo unlink($FixPath(__DIR__ . '/' . $File)) ? $L10N['Done'] : $L10N['Failed'];
+            echo unlink($SigTool->fixPath(__DIR__ . '/' . $File)) ? $L10N['Done'] : $L10N['Failed'];
         }
     }
 
@@ -597,99 +612,112 @@ if (strpos($RunMode, 'p') !== false) {
     ] as $Set) {
 
         /** Fetch and build. */
-        if (file_exists($FixPath(__DIR__ . '/' . $Set[0])) && file_exists($FixPath(__DIR__ . '/' . $Set[1]))) {
+        if (file_exists($SigTool->fixPath(__DIR__ . '/' . $Set[0])) && file_exists($SigTool->fixPath(__DIR__ . '/' . $Set[1]))) {
             $UseMains = false;
             $FileData = '';
             $Size = 0;
             echo sprintf($L10N['Accessing'], $Set[0]);
-            $Handle = fopen($FixPath(__DIR__ . '/' . $Set[0]), 'rb');
-            if (!is_resource($Handle)) {
+            if (!is_resource($Handle = fopen($SigTool->fixPath(__DIR__ . '/' . $Set[0]), 'rb'))) {
                 echo $L10N['Failed'];
             } else {
-                $Size += filesize($FixPath(__DIR__ . '/' . $Set[0]));
+                $Size += filesize($SigTool->fixPath(__DIR__ . '/' . $Set[0]));
                 if ($Set[6] > 0 && $Size > $Set[6]) {
                     fseek($Handle, $Size - $Set[6]);
                 } else {
                     $UseMains = true;
                 }
                 while (!feof($Handle)) {
-                    $FileData .= fread($Handle, $SafeReadSize);
+                    $FileData .= fread($Handle, $SigTool->SafeReadSize);
                 }
                 fclose($Handle);
                 echo $L10N['Done'];
             }
             if ($UseMains) {
                 echo sprintf($L10N['Accessing'], $Set[1]);
-                $Handle = fopen($FixPath(__DIR__ . '/' . $Set[1]), 'rb');
-                if (!is_resource($Handle)) {
+                if (!is_resource($Handle = fopen($SigTool->fixPath(__DIR__ . '/' . $Set[1]), 'rb'))) {
                     echo $L10N['Failed'];
                 } else {
-                    $Size += filesize($FixPath(__DIR__ . '/' . $Set[1]));
+                    $Size += filesize($SigTool->fixPath(__DIR__ . '/' . $Set[1]));
                     if ($Set[6] > 0 && $Size > $Set[6]) {
                         fseek($Handle, $Size - $Set[6]);
                     }
-                    while (!feof($Handle)) {
-                        $FileData = fread($Handle, $SafeReadSize) . $FileData;
+                    $RemSize = $Set[6] ? $Set[6] : $Size;
+                    while (!feof($Handle) && $RemSize > 0) {
+                        $RemSize -= $SigTool->SafeReadSize;
+                        $FileData = fread($Handle, $SigTool->SafeReadSize) . $FileData;
                     }
                     fclose($Handle);
                     echo $L10N['Done'];
                 }
-            }
-            echo sprintf($L10N['Writing'], $Set[4]);
-            $Handle = fopen($FixPath(__DIR__ . '/' . $Set[4]), 'wb');
-            if (!is_resource($Handle)) {
-                $Terminate();
-            }
-            if (($EoL = strpos($FileData, "\n")) !== false) {
+            } elseif (($EoL = strpos($FileData, "\n")) !== false) {
                 $FileData = substr($FileData, $EoL + 1);
             }
-            if (!empty($Set[5])) {
+            echo sprintf($L10N['Writing'], $Set[4]);
+            if ($Set[5]) {
                 $FileData = 'phpMussel' . $Set[5] . "\n" . $FileData;
             }
             $FileData = preg_replace($Set[2], $Set[3], $FileData);
-            $Shorthand($FileData);
+
+            /** Apply shorthand to signature names and remove any unwanted lines. */
+            $SigTool->shorthand($FileData);
+
+            /** Write to file. */
+            if (!is_resource($Handle = fopen($SigTool->fixPath(__DIR__ . '/' . $Set[4]), 'wb'))) {
+                $Terminate();
+            }
             fwrite($Handle, $FileData);
+            fclose($Handle);
+            if ($Set[5]) {
+                if (!is_resource($Handle = gzopen($SigTool->fixPath(__DIR__ . '/' . $Set[4] . '.gz'), 'wb'))) {
+                    $Terminate();
+                }
+                gzwrite($Handle, $FileData);
+                gzclose($Handle);
+            }
+
+            /** YAML metadata stuff here. */
             if (!empty($Set[5]) && !empty($Set[4]) && !empty($Meta[$Set[4]]['Files']['Checksum'][0]) && !empty($Meta[$Set[4]]['Version'])) {
+                /** We use the format Y.z.B for signature file versioning. */
                 $Meta[$Set[4]]['Version'] = date('Y.z.B', time());
                 $Meta[$Set[4]]['Files']['Checksum'][0] = md5($FileData) . ':' . strlen($FileData);
             }
-            fclose($Handle);
+
             echo $L10N['Done'];
             $FileData = '';
         }
 
         /** Don't need these anymore. */
         foreach ([$Set[0], $Set[1]] as $File) {
-            if (file_exists($FixPath(__DIR__ . '/' . $File))) {
+            if (file_exists($SigTool->fixPath(__DIR__ . '/' . $File))) {
                 echo sprintf($L10N['Deleting'], $File);
-                echo unlink($FixPath(__DIR__ . '/' . $File)) ? $L10N['Done'] : $L10N['Failed'];
+                echo unlink($SigTool->fixPath(__DIR__ . '/' . $File)) ? $L10N['Done'] : $L10N['Failed'];
             }
         }
 
     }
 
     /** NDB sequence. */
-    if (is_readable($FixPath(__DIR__ . '/clamav.ndb'))) {
+    if (is_readable($SigTool->fixPath(__DIR__ . '/clamav.ndb'))) {
         echo sprintf($L10N['Accessing'], 'clamav.ndb');
         $FileData = '';
-        $Handle = fopen($FixPath(__DIR__ . '/clamav.ndb'), 'rb');
-        if (!is_resource($Handle)) {
+        if (!is_resource($Handle = fopen($SigTool->fixPath(__DIR__ . '/clamav.ndb'), 'rb'))) {
             echo $L10N['Failed'];
         } else {
             while (!feof($Handle)) {
-                $FileData .= fread($Handle, $SafeReadSize);
+                $FileData .= fread($Handle, $SigTool->SafeReadSize);
             }
             fclose($Handle);
             echo $L10N['Done'];
         }
         if (!empty($FileData)) {
             echo $L10N['Processing'];
+
             /** All the signature files that we're generating from our clamav.ndb file. */
             $FileSets = [
                 'clamav.db' => "phpMussel0\n>!\$fileswitch>pefile>-1\n",
                 'clamav_regex.db' => "phpMussel@\n>!\$fileswitch>pefile>-1\n",
                 'clamav.htdb' => "phpMusselp\n>\$is_html>1>-1\n",
-                'clamav_regex.htdb' => "phpMussel€\n>\$is_html>1>-1\n",
+                'clamav_regex.htdb' => "phpMussel\x80\n>\$is_html>1>-1\n",
                 'clamav.ndb' => "phpMusselP\n>!\$fileswitch>pefile>-1\n",
                 'clamav_regex.ndb' => "phpMussel`\n>!\$fileswitch>pefile>-1\n",
                 'clamav_elf.db' => "phpMussel0\n>\$is_elf>1>-1\n",
@@ -711,11 +739,13 @@ if (strpos($RunMode, 'p') !== false) {
                 'clamav_swf.db' => "phpMussel0\n>\$is_swf>1>-1\n",
                 'clamav_swf_regex.db' => "phpMussel@\n>\$is_swf>1>-1\n",
             ];
+
             $Offset = 0;
             $SigsNDB = substr_count($FileData, "\n");
             $SigsThis = 0;
+
             while (($Pos = strpos($FileData, "\n", $Offset)) !== false) {
-                echo sprintf("\r%s (%s/%s)...", $L10N['Processing'], $SigsThis++, $SigsNDB);
+                echo sprintf("\r                                       \r%s (%s/%s)...", $L10N['Processing'], $SigsThis++, $SigsNDB);
                 $ThisLine = substr($FileData, $Offset, $Pos - $Offset);
                 $Offset = $Pos + 1;
                 if (strpos($ThisLine, ':') === false) {
@@ -727,6 +757,7 @@ if (strpos($RunMode, 'p') !== false) {
                 $SigOffset = empty($ThisLine[2]) ? '' : $ThisLine[2];
                 $SigHex = empty($ThisLine[3]) ? '' : $ThisLine[3];
                 $StartStop = '';
+
                 /** Sort offsets. */
                 if (!empty($SigOffset) && $SigOffset !== '*') {
                     $Start = $SigOffset;
@@ -760,8 +791,7 @@ if (strpos($RunMode, 'p') !== false) {
                         }
                     }
                 }
-                /** Newly formatted signature line. */
-                $ThisLine = $SigName . ':' . $SigHex . $StartStop . "\n";
+
                 /** Try to avoid dumping into general signatures whenever possible. */
                 if ($SigType === 0) {
                     $TargetGuess = substr($SigName, 2, 1);
@@ -787,9 +817,55 @@ if (strpos($RunMode, 'p') !== false) {
                         $SigType = 11;
                     }
                 }
+
                 /** Assign to the appropriate signature file. */
                 if (preg_match('/[^a-f0-9]/i', $SigHex)) {
-                    // Handle PCRE syntactical conversion here.
+
+                    /**
+                     * Handle PCRE conversion here (ClamAV to phpMussel formats).
+                     * Note that this may need to be changed/adapted in the future upon
+                     * relevant changes in the source file occurring (currently accounts
+                     * for what we already know about the present, but not for what may
+                     * occur in or may be planned for the future).
+                     */
+                    $SigHex = preg_replace([
+                        '~\{([0-9]+)-([0-9]+)\}~',
+                        '~\{([0-9]+)-\}~',
+                        '~\{-([0-9]+)\}~',
+                        '~\{([0-9]+)\}~',
+                    ], [
+                        '(?:..){\1,\2}',
+                        '(?:..){\1,}',
+                        '(?:..){0,\1}',
+                        '(?:..){\1}',
+                    ], str_replace([
+                        '*',
+                        '?',
+                        '{1}',
+                        '{0-1}',
+                        '{0-}',
+                        '{1-}',
+                        '(30|31|32|33|34|35|36|37|38|39)',
+                        '(31|32|33|34|35|36|37|38|39)',
+                        '(22|27)',
+                        '(27|22)',
+                    ], [
+                        '.*',
+                        '.',
+                        '.',
+                        '.?',
+                        '.*',
+                        '.+',
+                        '3[0-9]',
+                        '3[1-9]',
+                        '2[27]',
+                        '2[27]',
+                    ], $SigHex));
+
+                    /** Newly formatted signature line. */
+                    $ThisLine = $SigName . ':' . $SigHex . $StartStop . "\n";
+
+                    /** Add to file based on signature type (regex). */
                     if ($SigType === 0) {
                         $FileSets['clamav_regex.db'] .= $ThisLine;
                     } elseif ($SigType === 1) {
@@ -815,7 +891,13 @@ if (strpos($RunMode, 'p') !== false) {
                     } elseif ($SigType === 12) {
                         $FileSets['clamav_java_regex.db'] .= $ThisLine;
                     }
+
                 } else {
+
+                    /** Newly formatted signature line. */
+                    $ThisLine = $SigName . ':' . $SigHex . $StartStop . "\n";
+
+                    /** Add to file based on signature type (non-regex). */
                     if ($SigType === 0) {
                         $FileSets['clamav.db'] .= $ThisLine;
                     } elseif ($SigType === 1) {
@@ -841,12 +923,23 @@ if (strpos($RunMode, 'p') !== false) {
                     } elseif ($SigType === 12) {
                         $FileSets['clamav_java.db'] .= $ThisLine;
                     }
+
                 }
+
             }
-            echo "\r" . $L10N['Processing'] . $L10N['Done'];
+
+            echo "\r                                       \r" . $L10N['Processing'] . $L10N['Done'];
             foreach ($FileSets as $FileSet => $FileData) {
                 echo sprintf($L10N['Writing'], $FileSet);
-                file_put_contents($FixPath(__DIR__ . '/' . $FileSet), $FileData);
+                if (!empty($Meta[$FileSet]['Files']['Checksum'][0]) && !empty($Meta[$FileSet]['Version'])) {
+                    /** We use the format Y.z.B for signature file versioning. */
+                    $Meta[$FileSet]['Version'] = date('Y.z.B', time());
+                    $Meta[$FileSet]['Files']['Checksum'][0] = md5($FileData) . ':' . strlen($FileData);
+                }
+                file_put_contents($SigTool->fixPath(__DIR__ . '/' . $FileSet), $FileData);
+                $Handle = gzopen($SigTool->fixPath(__DIR__ . '/' . $FileSet . '.gz'), 'wb');
+                gzwrite($Handle, $FileData);
+                gzclose($Handle);
                 echo $L10N['Done'];
             }
         }
@@ -855,8 +948,8 @@ if (strpos($RunMode, 'p') !== false) {
     /** Update signatures.dat if necessary. */
     if (!empty($Meta)) {
         echo sprintf($L10N['Writing'], 'signatures.dat');
-        $NewMeta = $YAML->reconstruct();
-        $Handle = fopen($FixPath(__DIR__ . '/signatures.dat'), 'wb');
+        $NewMeta = $SigTool->reconstruct();
+        $Handle = fopen($SigTool->fixPath(__DIR__ . '/signatures.dat'), 'wb');
         fwrite($Handle, $NewMeta);
         fclose($Handle);
         echo $L10N['Done'];
