@@ -1,13 +1,38 @@
 ## SigTool.
-Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
+Generates signatures for [phpMussel](https://github.com/phpMussel/phpMussel) using main.cvd and daily.cvd from [ClamAV](http://www.clamav.net/).
 
--- todo --
+---
 
-First release (v0.1.0) can be expected soon(-ish). Work has began, but isn't yet usable nor stable enough to be released at this time.
+### How to install:
 
-### Requirements (currently anticipated; likely to evolve as development progresses):
+Before installing, please check the requirements. If these aren't met, SigTool won't operate correctly.
 
-#### Minimum.
+#### Requirements:
 - PHP &gt;= `7.0.3` with zlib + Phar support.
 - &gt;= 1GB free disk space (if working directly from disk) or available RAM (if using a RAM drive; recommended).
-- Ability to operate PHP in CLI mode (command prompt, terminal, shell, etc).
+- Ability to operate PHP in CLI-mode (command prompt, terminal, shell, etc).
+
+SigTool exists as a stand-alone PHP file and doesn't have any external dependencies (other than the requirements listed above), and so, the only thing you need to do to "install" it, is download `sigtool.php`.
+
+SigTool can operate normally from a disk or storage medium in the same manner as any other PHP script. However, due to the large number of read/write operations it performs, it is highly recommended to operate it from a RAM drive, as this will slightly increase its speed and decrease excess disk read/write operations. Final output should not exceed approximately ~64MBs, but approximately ~1GB of free disk space or available RAM is required during normal operation due to temporary working files and in order to avoid read/write errors.
+
+---
+
+### How to use:
+
+Note that SigTool is NOT a web-based PHP application (or web-app)! SigTool is a CLI-based PHP application (or CLI-app) intended to be used with terminal, shell, etc. It can be invoked by calling the PHP binary with the `sigtool.php` file as its first argument:
+
+`$ php sigtool.php`
+
+Help information will be displayed when SigTool is invoked, listing the possible flags (second argument) that can be used when operating SigTool.
+
+More information can be found in the documentation herein.
+
+---
+
+### Documentation:
+- **[English](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.en.md)**
+
+---
+
+*Last modified: 8 August 2017 (2017.08.08).*
