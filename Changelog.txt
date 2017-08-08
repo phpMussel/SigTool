@@ -1,0 +1,16 @@
+SigTool Changelog.
+
+=== VERSIONING GUIDELINES ===
+SigTool adheres to the SemVer guidelines for versioning.
+
+Versioning guidelines for SemVer can be found at: http://www.semver.org/
+
+=== Changes made since last versioned release ===
+
+(none)
+
+=== Version/Release 0.1.0 ===
+FIRST TAGGED RELEASE.
+
+Caleb M (Maikuolan),
+8th August 2017.

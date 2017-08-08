@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v0.0.4-ALPHA (last modified: 2017.08.08).
+ * SigTool v0.1.0 (last modified: 2017.08.08).
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
  * Package location: GitHub <https://github.com/phpMussel/SigTool>.
@@ -16,7 +16,7 @@
 class SigTool
 {
     /** Script version. */
-    public $Ver = '0.0.4-ALPHA';
+    public $Ver = '0.1.0';
 
     /** Script user agent. */
     public $UA = 'SigTool v%s (https://github.com/phpMussel/SigTool)';
@@ -394,7 +394,7 @@ $RunMode = !empty($argv[1]) ? strtolower($argv[1]) : '';
 /** L10N. */
 $L10N = [
     'Help' =>
-        " SigTool v0.0.4-ALPHA (last modified: 2017.08.08).\n" .
+        " SigTool v0.1.0 (last modified: 2017.08.08).\n" .
         " Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.\n\n" .
         " Syntax:\n" .
         "  \$ php sigtool.php [arguments]\n" .
@@ -664,6 +664,9 @@ if (strpos($RunMode, 'p') !== false) {
                         $RemSize -= $SigTool->SafeReadSize;
                         $FileData = fread($Handle, $SigTool->SafeReadSize) . $FileData;
                     }
+                    if ($RemSize < 1 && substr($FileData, -1, 1) !== "\n" && ($EoF = strrpos($FileData, "\n")) !== false) {
+                        $FileData = substr($FileData, 0, $EoF) . "\n";
+                    }
                     fclose($Handle);
                     echo $L10N['Done'];
                 }
@@ -678,6 +681,9 @@ if (strpos($RunMode, 'p') !== false) {
 
             /** Apply shorthand to signature names and remove any unwanted lines. */
             $SigTool->shorthand($FileData);
+
+            /** Remove erroneous lines. */
+            $FileData = preg_replace('~^(?!phpMussel|\n)[^\x1A\n]+$\n~im', '', $FileData);
 
             /** Write to file. */
             if (!is_resource($Handle = fopen($SigTool->fixPath(__DIR__ . '/' . $Set[4]), 'wb'))) {
