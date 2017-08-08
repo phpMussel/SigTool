@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v0.0.3-ALPHA (last modified: 2017.08.07).
+ * SigTool v0.0.4-ALPHA (last modified: 2017.08.08).
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
  * Package location: GitHub <https://github.com/phpMussel/SigTool>.
@@ -16,7 +16,7 @@
 class SigTool
 {
     /** Script version. */
-    public $Ver = '0.0.3-ALPHA';
+    public $Ver = '0.0.4-ALPHA';
 
     /** Script user agent. */
     public $UA = 'SigTool v%s (https://github.com/phpMussel/SigTool)';
@@ -394,7 +394,7 @@ $RunMode = !empty($argv[1]) ? strtolower($argv[1]) : '';
 /** L10N. */
 $L10N = [
     'Help' =>
-        " SigTool v0.0.3-ALPHA (last modified: 2017.08.07).\n" .
+        " SigTool v0.0.4-ALPHA (last modified: 2017.08.08).\n" .
         " Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.\n\n" .
         " Syntax:\n" .
         "  \$ php sigtool.php [arguments]\n" .
@@ -403,25 +403,26 @@ $L10N = [
         " Arguments (all are OFF by default; include to turn ON):\n" .
         "  - No arguments: Display this help information.\n" .
         "  - x Extract signature files from daily.cvd and main.cvd.\n" .
-        "  - p Process signature files for use with phpMussel. --todo--\n" .
+        "  - p Process signature files for use with phpMussel.\n" .
         "  - m Download main.cvd before processing.\n" .
         "  - d Download daily.cvd before processing.\n" .
-        "  - u Update SigTool. --todo--\n\n",
-    'Err0' => ' Can\'t continue (problem on line %s)!',
+        "  - u Update SigTool (redownloads sigtool.php and dies; no checks performed).\n\n",
     'Accessing' => ' Accessing %s ...',
     'Deleting' => ' Deleting %s ...',
-    'Downloading' => ' Downloading %s ...',
     'Done' => " Done!\n",
+    'Downloading' => ' Downloading %s ...',
     'Failed' => " Failed!\n",
-    'Writing' => ' Writing %s ...',
     'Processing' => ' Processing ...',
-    'Phase3Step1' => ' Stripping ClamAV package header from %s ...',
-    'Phase3Step2' => ' Decompressing %s (GZ) ...',
-    'Phase3Step3' => ' Extracting contents from %s (TAR) to ' . __DIR__ . ' ...',
+    'Sorting' => ' Sorting %s ...',
+    'Writing' => ' Writing %s ...',
+    '_Error0' => ' Can\'t continue (problem on line %s)!',
+    '_Phase3_Step1' => ' Stripping ClamAV package header from %s ...',
+    '_Phase3_Step2' => ' Decompressing %s (GZ) ...',
+    '_Phase3_Step3' => ' Extracting contents from %s (TAR) to ' . __DIR__ . ' ...',
 ];
 
 /** Terminate with debug information. */
-$Terminate = function ($Err = 'Err0') use (&$L10N) {
+$Terminate = function ($Err = '_Error0') use (&$L10N) {
     $Debug = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
     die(sprintf($L10N[$Err], $Debug['line']) . "\n\n");
 };
@@ -439,6 +440,23 @@ $SigTool = new SigTool();
  * required for our "Y.z.B" dates to actually make sense).
  */
 date_default_timezone_set('Europe/Zurich');
+
+/** Updating SigTool. */
+if (strpos($RunMode, 'u') !== false) {
+    echo sprintf($L10N['Downloading'], 'sigtool.php');
+    try {
+        $Data = $SigTool->fetch('https://raw.githubusercontent.com/phpMussel/SigTool/master/sigtool.php');
+    } catch (\Exception $e) {
+        $Terminate();
+    }
+    echo $L10N['Done'] . sprintf($L10N['Writing'], 'sigtool.php');
+    if (file_put_contents($SigTool->fixPath(__DIR__ . '/sigtool.php'), $Data)) {
+        echo $L10N['Done'];
+    } else {
+        $Terminate();
+    }
+    die;
+}
 
 /** Phase 1: Download main.cvd. */
 if (strpos($RunMode, 'm') !== false) {
@@ -482,7 +500,7 @@ if (strpos($RunMode, 'x') !== false) {
     }
 
     foreach(['daily.cvd', 'main.cvd'] as $Set) {
-        echo sprintf($L10N['Phase3Step1'], $Set);
+        echo sprintf($L10N['_Phase3_Step1'], $Set);
         $File = $SigTool->fixPath(__DIR__ . '/' . $Set);
         $Handle = [fopen($File, 'rb')];
         if (!is_resource($Handle[0])) {
@@ -501,7 +519,7 @@ if (strpos($RunMode, 'x') !== false) {
         fclose($Handle[0]);
         unlink($File);
         rename($File . '.tmp', $File);
-        echo $L10N['Done'] . sprintf($L10N['Phase3Step2'], $Set);
+        echo $L10N['Done'] . sprintf($L10N['_Phase3_Step2'], $Set);
         $Handle = [gzopen($File, 'rb')];
         if (!is_resource($Handle[0])) {
             $Terminate();
@@ -518,7 +536,7 @@ if (strpos($RunMode, 'x') !== false) {
         gzclose($Handle[0]);
         unlink($File);
         rename($File . '.tmp', $File);
-        echo $L10N['Done'] . sprintf($L10N['Phase3Step3'], $Set);
+        echo $L10N['Done'] . sprintf($L10N['_Phase3_Step3'], $Set);
         $Pad = str_repeat("\x00", 512 - (filesize($File) % 512));
         $Handle = fopen($File, 'ab');
         fwrite($Handle, $Pad);
@@ -551,7 +569,7 @@ if (strpos($RunMode, 'x') !== false) {
     unset($ThisFile, $Files, $Pad);
 }
 
-/** Phase 4: Process signature files for use with phpMussel. --todo-- */
+/** Phase 4: Process signature files for use with phpMussel. */
 if (strpos($RunMode, 'p') !== false) {
 
     /** Check if signatures.dat exists; If so, we'll read it for updating. */
@@ -818,8 +836,8 @@ if (strpos($RunMode, 'p') !== false) {
                     }
                 }
 
-                /** Assign to the appropriate signature file. */
-                if (preg_match('/[^a-f0-9]/i', $SigHex)) {
+                /** Assign to the appropriate signature file (regex). */
+                if (preg_match('/[^a-f0-9*]/i', $SigHex)) {
 
                     /**
                      * Handle PCRE conversion here (ClamAV to phpMussel formats).
@@ -892,7 +910,11 @@ if (strpos($RunMode, 'p') !== false) {
                         $FileSets['clamav_java_regex.db'] .= $ThisLine;
                     }
 
+                /** Assign to the appropriate signature file (non-regex). */
                 } else {
+
+                    /** Wildcards and other tricks. */
+                    $SigHex = str_replace('*', '>', $SigHex);
 
                     /** Newly formatted signature line. */
                     $ThisLine = $SigName . ':' . $SigHex . $StartStop . "\n";
