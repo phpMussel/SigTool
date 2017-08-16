@@ -39,6 +39,8 @@ If the `signatures.dat` YAML file is included in the same directory when process
 
 *Note: If you're a phpMussel user, please remember that signature files must be ACTIVE in order for them to work correctly! If you're using SigTool to generate new signature files, you can "activate" them by listing them in the phpMussel configuration "Active" directive. If you're using the front-end updates page to install and update signature files, you can "activate" them directly from the front-end updates page. However, using both methods is not necessary. Also, for optimum phpMussel performance, it's recommended that you only use the signature files that you need for your installation (e.g., if some particular type of file is blacklisted, you probably won't need signature files corresponding to that type of file; analysing files that will be blocked anyway is superfluous work and can significantly slow the scan process).*
 
+A video demonstration for using SigTool is available on YouTube: __[youtu.be/f2LfjY1HzRI](https://youtu.be/f2LfjY1HzRI)__
+
 ---
 
 ### SigTool generated signature files list:
@@ -90,4 +92,4 @@ clamav_swf_regex.db | Targets SWF files; Works with raw data; Signatures can con
 
 ---
 
-*Last modified: 8 August 2017 (2017.08.08).*
+*Last modified: 16 August 2017 (2017.08.16).*
