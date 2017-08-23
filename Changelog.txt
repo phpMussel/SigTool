@@ -7,7 +7,11 @@ Versioning guidelines for SemVer can be found at: http://www.semver.org/
 
 === Changes made since last versioned release ===
 
-(none)
+- [2017.08.22; Minor code change; Maikuolan]: Added new options for offsets in
+  signatures. Removed some duplicated code. Removed processing for terminal
+  offsets (I don't think these really exist in ClamAV signatures, and what I
+  was treating as these in the ClamAV signatures, are for something else, that
+  we don't need for phpMussel, and I'd misunderstood about them before).
 
 === Version/Release 0.1.0 ===
 FIRST TAGGED RELEASE.

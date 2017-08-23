@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v0.1.0 (last modified: 2017.08.08).
+ * SigTool v0.2.0-DEV (last modified: 2017.08.22).
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
  * Package location: GitHub <https://github.com/phpMussel/SigTool>.
@@ -16,7 +16,7 @@
 class SigTool
 {
     /** Script version. */
-    public $Ver = '0.1.0';
+    public $Ver = '0.2.0-DEV';
 
     /** Script user agent. */
     public $UA = 'SigTool v%s (https://github.com/phpMussel/SigTool)';
@@ -394,7 +394,7 @@ $RunMode = !empty($argv[1]) ? strtolower($argv[1]) : '';
 /** L10N. */
 $L10N = [
     'Help' =>
-        " SigTool v0.1.0 (last modified: 2017.08.08).\n" .
+        " SigTool v0.2.0-DEV (last modified: 2017.08.22).\n" .
         " Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.\n\n" .
         " Syntax:\n" .
         "  \$ php sigtool.php [arguments]\n" .
@@ -786,32 +786,28 @@ if (strpos($RunMode, 'p') !== false) {
                 if (!empty($SigOffset) && $SigOffset !== '*') {
                     $Start = $SigOffset;
                     /**
-                     * Signatures with entry point and sectional offsets disregarded for now,
-                     * because phpMussel hasn't been coded to handle them yet anyway (we'll get
-                     * around to sorting that out eventually).
+                     * Signatures with entry point offsets disregarded for now,
+                     * because phpMussel hasn't been coded to handle them yet
+                     * anyway (we'll get around to sorting it out eventually).
                      */
-                    if (substr($SigOffset, 0, 2) === 'EP' || substr($SigOffset, 0, 1) === 'S') {
+                    if (substr($SigOffset, 0, 2) === 'EP') {
                         continue;
                     }
                     if (substr($SigOffset, 0, 4) === 'EOF-') {
-                        $StartStop = ':' . substr($SigOffset, 3);
-                    } elseif (substr($SigOffset, 0, 4) === 'EOF-') {
-                        $StartStop = ':' . substr($SigOffset, 3);
-                    } elseif (($Comma = strpos($SigOffset, ',')) !== false) {
-                        $Start = substr($SigOffset, 0, $Comma);
-                        $Stop = substr($SigOffset, $Comma + 1);
+                        $StartStop = ':' . (int)substr($SigOffset, 3);
+                    } elseif (substr($SigOffset, 0, 1) === 'S') {
+                        $StartStop = ':'. $SigOffset;
                     } else {
-                        $Stop = false;
-                    }
-                    if ($Start === 0) {
-                        $Start = 'A';
-                    } elseif ($Start === '*') {
-                        $Start = 0;
-                    }
-                    if (!$StartStop) {
-                        $StartStop = ':' . $Start;
-                        if ($Stop !== false) {
-                            $StartStop .= ':' . $Stop;
+                        /** Ignoring float shifts because we're not using them. */
+                        if (($Comma = strpos($SigOffset, ',')) !== false) {
+                            $Start = substr($SigOffset, 0, $Comma);
+                        }
+                        if ($Start !== '*') {
+                            $Start = (int)$Start;
+                            if ($Start === 0) {
+                                $Start = 'A';
+                            }
+                            $StartStop = ':' . $Start;
                         }
                     }
                 }
