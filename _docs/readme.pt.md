@@ -1,0 +1,95 @@
+### Como instalar:
+
+Antes da instalação, verifique os requisitos. Se estes não forem atendidos, o SigTool não funcionará corretamente.
+
+#### Requisitos:
+- PHP &gt;= `7.0.3` com suporte zlib + Phar.
+- &gt;= 1GB de espaço livre no disco (se estiver trabalhando diretamente do disco) ou RAM disponível (se estiver usando uma unidade de RAM; recomendado).
+- Capacidade de operar o PHP no modo CLI (prompt de comando, terminal, shell, etc).
+
+O SigTool existe como um arquivo PHP autônomo e não possui dependências externas (além dos requisitos listados acima), e entao, o único que você precisa fazer para "instalá-lo", é baixar `sigtool.php`.
+
+O SigTool pode operar normalmente a partir de um disco ou suporte de armazenamento da mesma maneira que qualquer outro script PHP. Contudo, devido ao grande número de operações de leitura/gravação que executa, é altamente recomendável operá-lo a partir de uma unidade de RAM, pois isso aumentará ligeiramente sua velocidade e diminuirá o excesso de operações de leitura/gravação do disco. A saída final não deve exceder aproximadamente ~64MBs, mas aproximadamente ~1GB de espaço livre em disco ou RAM disponível é necessária durante a operação normal devido a arquivos de trabalho temporários e para evitar erros de leitura/gravação.
+
+---
+
+### Como usar:
+
+Observe que o SigTool NÃO é um aplicativo PHP baseado na web (ou aplicativo da web, ou web-app)! SigTool é um aplicativo PHP baseado em CLI (ou aplicativo da CLI, ou CLI-app) destinado a ser usado com terminal, shell, etc. Pode ser invocado chamando o binário PHP com o arquivo `sigtool.php` como seu primeiro argumento:
+
+`$ php sigtool.php`
+
+As informações de ajuda serão exibidas quando o SigTool for invocado, listando as bandeiras possíveis (segundo argumento) que podem ser usadas ao operar o SigTool.
+
+Bandeiras possíveis:
+- Sem argumentos: Exiba esta informação de ajuda.
+- `x`: Extraia arquivos de assinatura a partir de `daily.cvd` e` main.cvd`.
+- `p`: Processar arquivos de assinatura para uso com phpMussel.
+- `m`: Baixar `main.cvd` antes do processamento.
+- `d`: Baixar `daily.cvd` antes do processamento.
+- `u`: Atualizar SigTool (baixe `sigtool.php` novamente e die; nenhuma verificação realizada).
+
+Produção produzida são vários arquivos de assinatura para phpMussel gerados diretamente do banco de dados de assinaturas para ClamAV, em duas formas:
+- Arquivos de assinatura que podem ser inseridos diretamente no diretório `/vault/signatures/`.
+- Cópias dos arquivos de assinatura compactados com GZ que podem ser usados para atualizar o repositório `phpMussel/Signatures`.
+
+A saída é produzida diretamente no mesmo diretório que `sigtool.php`. Os arquivos originais e todos os arquivos de trabalho temporários serão deletados durante o curso da operação (então, se quiser manter cópias dos arquivos `daily.cvd` e `main.cvd`, você deve fazer cópias antes de processá-las).
+
+Se o arquivo YAML `signatures.dat` estiver incluído no mesmo diretório durante o processamento, informações de versão e checksums serão atualizados em conformidade (então, ao usar o SigTool para atualizar o repositório `phpMussel/Signatures`, isso deve ser incluído).
+
+*Nota: Se você é um usuário do phpMussel, lembre-se de que os arquivos de assinatura devem ser ATIVOS para que eles funcionem corretamente! Se você estiver usando o SigTool para gerar novos arquivos de assinatura, você pode "ativá-los" listando-os na diretiva de configuração "Active" da configuração do phpMussel. Se você estiver usando a página de atualizações do front-end para instalar e atualizar arquivos de assinatura, você pode "ativá-los" diretamente da página de atualizações de front-end. No entanto, o uso de ambos os métodos não é necessário. Além disso, para o melhor desempenho do phpMussel, recomenda-se que você use apenas os arquivos de assinatura que você precisa para sua instalação (por exemplo, se algum tipo particular de arquivo estiver na lista negra, você provavelmente não precisará de arquivos de assinatura correspondentes a esse tipo de arquivo; analisando arquivos que serão bloqueados de qualquer maneira é um trabalho supérfluo e pode diminuir significativamente o processo).*
+
+Uma demonstração vídeo para usar o SigTool está disponível no YouTube: __[youtu.be/f2LfjY1HzRI](https://youtu.be/f2LfjY1HzRI)__
+
+---
+
+### SigTool gerou lista de arquivos de assinatura:
+Arquivo de assinatura | Descrição
+---|---
+clamav.hdb | Destinado a todos os tipos de arquivos; Funciona com hashes de arquivo.
+clamav.htdb | Destinado a arquivos HTML; Funciona com dados normalizados em HTML.
+clamav_regex.htdb | Destinado a arquivos HTML; Funciona com dados normalizados em HTML; As assinaturas podem conter expressões regulares.
+clamav.mdb | Destinado a arquivos PE; Funciona com metadados PE seccionais.
+clamav.ndb | Destinado a todos os tipos de arquivos; Funciona com dados normalizados em ANSI.
+clamav_regex.ndb | Destinado a todos os tipos de arquivos; Funciona com dados normalizados em ANSI; As assinaturas podem conter expressões regulares.
+clamav.db | Destinado a todos os tipos de arquivos; Funciona com dados brutos.
+clamav_regex.db | Destinado a todos os tipos de arquivos; Funciona com dados brutos; As assinaturas podem conter expressões regulares.
+clamav_elf.db | Destinado a arquivos ELF; Funciona com dados brutos.
+clamav_elf_regex.db | Destinado a arquivos ELF; Funciona com dados brutos; As assinaturas podem conter expressões regulares.
+clamav_email.db | Destinado a arquivos EML; Funciona com dados brutos.
+clamav_email_regex.db | Destinado a arquivos EML; Funciona com dados brutos; As assinaturas podem conter expressões regulares.
+clamav_exe.db | Destinado a arquivos PE; Funciona com dados brutos.
+clamav_exe_regex.db | Destinado a arquivos PE; Funciona com dados brutos; As assinaturas podem conter expressões regulares.
+clamav_graphics.db | Destinado a arquivos de imagem; Funciona com dados brutos.
+clamav_graphics_regex.db | Destinado a arquivos de imagem; Funciona com dados brutos; As assinaturas podem conter expressões regulares.
+clamav_java.db | Destinado a arquivos Java; Funciona com dados brutos.
+clamav_java_regex.db | Destinado a arquivos Java; Funciona com dados brutos; As assinaturas podem conter expressões regulares.
+clamav_macho.db | Destinado a arquivos Mach-O; Funciona com dados brutos.
+clamav_macho_regex.db | Destinado a arquivos Mach-O; Funciona com dados brutos; As assinaturas podem conter expressões regulares.
+clamav_ole.db | Destinado a objetos OLE; Funciona com dados brutos.
+clamav_ole_regex.db | Destinado a objetos OLE; Funciona com dados brutos; As assinaturas podem conter expressões regulares.
+clamav_pdf.db | Destinado a arquivos PDF; Funciona com dados brutos.
+clamav_pdf_regex.db | Destinado a arquivos PDF; Funciona com dados brutos; As assinaturas podem conter expressões regulares.
+clamav_swf.db | Destinado a arquivos SWF; Funciona com dados brutos.
+clamav_swf_regex.db | Destinado a arquivos SWF; Funciona com dados brutos; As assinaturas podem conter expressões regulares.
+
+---
+
+### Nota sobre extensões de arquivo de assinatura:
+*Esta informação será expandida no futuro.*
+
+- __cedb__: Arquivos de assinatura complexo estendida (este é um formato criado para o phpMussel, e não tem nada a ver com o banco de dados de assinaturas para ClamAV; o SigTool não gera nenhum arquivo de assinatura usando esta extensão; estes são escritos manualmente para o repositório `phpMussel/Signatures`; `clamav.cedb` contém adaptações de algumas assinaturas obsoletas de versões anteriores do banco de dados de assinaturas para ClamAV que são consideradas como tendo continuado utilidade para phpMussel). Arquivos de assinatura que funcionam com várias regras baseadas em metadados estendidos gerados pelo phpMussel usam essa extensão.
+- __db__: Arquivos de assinatura padrão (estes são extraídos dos arquivos de assinatura `.ndb` contido por `daily.cvd` e `main.cvd`). Arquivos de assinatura que funcionam diretamente com o conteúdo do arquivo usam essa extensão.
+- __fdb__: Arquivos de assinatura do nome do arquivo (o banco de dados de assinaturas para ClamAV anteriormente era compatível com assinaturas de nomes de arquivos, mas não mais; o SigTool não gera nenhum arquivo de assinatura usando esta extensão; mantido devido à continuidade da utilidade para phpMussel). Arquivos de assinatura que funcionam com nomes de arquivos usam essa extensão.
+- __hdb__: Arquivos de assinatura hash (estes são extraídos dos arquivos de assinatura `.hdb` contido por `daily.cvd` e `main.cvd`). Arquivos de assinatura que funcionam com hashes de arquivos usam essa extensão.
+- __htdb__: Arquivos de assinatura HTML (estes são extraídos dos arquivos de assinatura `.ndb` contido por `daily.cvd` e `main.cvd`). Arquivos de assinatura que funcionam com conteúdo normalizado em HTML usam essa extensão.
+- __mdb__: Arquivos de assinatura PE seccionais (estes são extraídos dos arquivos de assinatura `.mdb` contido por `daily.cvd` e `main.cvd`). Arquivos de assinatura que funcionam com metadados PE seccionais usam essa extensão.
+- __medb__: Arquivos de assinatura PE estendida (este é um formato criado para o phpMussel, e não tem nada a ver com o banco de dados de assinaturas para ClamAV; o SigTool não gera nenhum arquivo de assinatura usando esta extensão; estes são escritos manualmente para o repositório `phpMussel/Signatures`). Arquivos de assinatura que funcionam com metadados PE (além de metadados PE seccionais) usam essa extensão.
+- __ndb__: Arquivos de assinatura normalizados (estes são extraídos dos arquivos de assinatura `.ndb` contido por `daily.cvd` e `main.cvd`). Arquivos de assinatura que funcionam com conteúdo normalizado em ANSI usam essa extensão.
+- __udb__: Arquivos de assinatura URL (este é um formato criado para o phpMussel, e não tem nada a ver com o banco de dados de assinaturas para ClamAV; SigTool não *atualmente* gera nenhum arquivo de assinatura usando esta extensão, embora isso possa mudar no futuro; atualmente, estes são escritos manualmente para o repositório `phpMussel/Signatures`). Arquivos de assinatura que funcionam com URLs usam essa extensão.
+- __ldb__: Arquivos de assinatura lógica (estes *eventualmente*, para uma versão do SigTool no futuro, será extraídos dos arquivos de assinatura `.ldb` contido por `daily.cvd` e `main.cvd`, mas ainda não são suportados pelo SigTool ou phpMussel). Arquivos de assinatura que funcionam com várias regras lógicas usam essa extensão.
+
+
+---
+
+Última atualização: 2 Setembro 2017 (2017.09.02).
