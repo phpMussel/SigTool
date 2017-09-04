@@ -3,6 +3,7 @@ Generates signatures for [phpMussel](https://github.com/phpMussel/phpMussel) usi
 
 ---
 
+
 ### How to install:
 
 Before installing, please check the requirements. If these aren't met, SigTool won't operate correctly.
@@ -18,6 +19,7 @@ SigTool can operate normally from a disk or storage medium in the same manner as
 
 ---
 
+
 ### How to use:
 
 Note that SigTool is NOT a web-based PHP application (or web-app)! SigTool is a CLI-based PHP application (or CLI-app) intended to be used with terminal, shell, etc. It can be invoked by calling the PHP binary with the `sigtool.php` file as its first argument:
@@ -30,12 +32,16 @@ More information can be found in the documentation herein.
 
 ---
 
+
 ### Documentation:
 - **[English](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.en.md)**
+- **[Español](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.es.md)**
 - **[Français](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.fr.md)**
 - **[Bahasa Indonesia](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.id.md)**
+- **[Italiano](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.it.md)**
 - **[Português](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.pt.md)**
 
 ---
 
-*Last modified: 3 September 2017 (2017.09.03).*
+
+*Last modified: 4 September 2017 (2017.09.04).*

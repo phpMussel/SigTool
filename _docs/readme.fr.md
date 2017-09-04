@@ -13,9 +13,10 @@ SigTool peut fonctionner normalement à partir d'un disque ou d'un support de st
 
 ---
 
+
 ### Comment utiliser :
 
-Notez que SigTool n'est PAS une application PHP basée sur le Web (ou web-app) ! SigTool est une application PHP basée sur la CLI (ou CLI-app), destiné à être utilisé avec le terminal, shell, etc. Il peut être invoqué en appelant le binaire PHP avec le fichier `sigtool.php` comme son premier argument :
+Notez que SigTool n'est PAS une application Web basée sur PHP (ou web-app) ! SigTool est une application CLI basée sur PHP (ou CLI-app), destiné à être utilisé avec le terminal, shell, etc. Il peut être invoqué en appelant le binaire PHP avec le fichier `sigtool.php` comme son premier argument :
 
 `$ php sigtool.php`
 
@@ -42,6 +43,7 @@ Si le fichier YAML `signatures.dat` est inclus dans le même répertoire lors du
 Une démonstration vidéo pour l'utilisation de SigTool est disponible sur YouTube : __[youtu.be/f2LfjY1HzRI](https://youtu.be/f2LfjY1HzRI)__
 
 ---
+
 
 ### Liste des fichiers de signatures générés par SigTool:
 Fichier de signatures | Description
@@ -75,6 +77,7 @@ clamav_swf_regex.db | Cible les fichiers SWF ; Fonctionne avec des données bru
 
 ---
 
+
 ### Remarque concernant les extensions de fichiers de signature :
 *Cette information sera élargie à l'avenir.*
 
@@ -92,4 +95,5 @@ clamav_swf_regex.db | Cible les fichiers SWF ; Fonctionne avec des données bru
 
 ---
 
-*Dernière mise à jour : 29 Août 2017 (2017.08.29).*
+
+*Dernière modification : 4 Septembre 2017 (2017.09.04).*

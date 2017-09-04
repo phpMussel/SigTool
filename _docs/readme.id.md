@@ -13,9 +13,10 @@ SigTool dapat beroperasi secara normal dari media disk atau media penyimpanan de
 
 ---
 
+
 ### Bagaimana cara menggunakan:
 
-Perhatikan bahwa SigTool BUKAN aplikasi PHP berbasis web (atau web-app)! SigTool adalah aplikasi PHP berbasis CLI (atau CLI-app) dimaksudkan untuk digunakan dengan terminal, shell, dll. Hal ini dapat dipanggil dengan memanggil biner PHP dengan file `sigtool.php` sebagai argumen pertamanya:
+Perhatikan bahwa SigTool BUKAN aplikasi web berbasis PHP (atau web-app)! SigTool adalah aplikasi CLI berbasis PHP (atau CLI-app) dimaksudkan untuk digunakan dengan terminal, shell, dll. Hal ini dapat dipanggil dengan memanggil biner PHP dengan file `sigtool.php` sebagai argumen pertamanya:
 
 `$ php sigtool.php`
 
@@ -42,6 +43,7 @@ Jika file YAML `signatures.dat` disertakan dalam direktori yang sama saat mempro
 Demonstrasi video untuk menggunakan SigTool tersedia di YouTube: __[youtu.be/f2LfjY1HzRI](https://youtu.be/f2LfjY1HzRI)__
 
 ---
+
 
 ### SigTool menghasilkan daftar file tanda tangan:
 File tanda tangan | Deskripsi
@@ -75,6 +77,7 @@ clamav_swf_regex.db | Menargetkan file SWF; Bekerja dengan data mentah; Tanda ta
 
 ---
 
+
 ### Catatan mengenai ekstensi file tanda tangan:
 *Informasi ini akan diperluas ke depan.*
 
@@ -92,4 +95,5 @@ clamav_swf_regex.db | Menargetkan file SWF; Bekerja dengan data mentah; Tanda ta
 
 ---
 
-*Modifikasi terakhir: 3 September 2017 (2017.09.03).*
+
+*Modifikasi terakhir: 4 September 2017 (2017.09.04).*
