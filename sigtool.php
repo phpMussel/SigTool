@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v0.2.0-DEV (last modified: 2017.08.22).
+ * SigTool v0.2.0-DEV (last modified: 2017.09.05).
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
  * Package location: GitHub <https://github.com/phpMussel/SigTool>.
@@ -354,6 +354,7 @@ class SigTool
                 ["\x37", 'LogicBomb'],
                 ["\x38", 'CyberBomb'],
                 ["\x39", 'Malvertisement'],
+                ["\x3D", 'Encrypted'],
                 ["\x3F", 'BadURL'],
             ] as $Param) {
                 $Data = preg_replace([
@@ -394,7 +395,7 @@ $RunMode = !empty($argv[1]) ? strtolower($argv[1]) : '';
 /** L10N. */
 $L10N = [
     'Help' =>
-        " SigTool v0.2.0-DEV (last modified: 2017.08.22).\n" .
+        " SigTool v0.2.0-DEV (last modified: 2017.09.05).\n" .
         " Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.\n\n" .
         " Syntax:\n" .
         "  \$ php sigtool.php [arguments]\n" .
@@ -767,9 +768,15 @@ if (strpos($RunMode, 'p') !== false) {
             $Offset = 0;
             $SigsNDB = substr_count($FileData, "\n");
             $SigsThis = 0;
+            $Percent = '';
 
             while (($Pos = strpos($FileData, "\n", $Offset)) !== false) {
-                echo sprintf("\r                                       \r%s (%s/%s)...", $L10N['Processing'], $SigsThis++, $SigsNDB);
+                $Last = $Percent;
+                $Percent = number_format(($SigsThis / $SigsNDB) * 100, 2) . '%';
+                $SigsThis++;
+                if ($Percent !== $Last) {
+                    echo sprintf("\r%s %s", $L10N['Processing'], $Percent);
+                }
                 $ThisLine = substr($FileData, $Offset, $Pos - $Offset);
                 $Offset = $Pos + 1;
                 if (strpos($ThisLine, ':') === false) {
