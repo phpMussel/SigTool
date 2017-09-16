@@ -15,10 +15,19 @@ Versioning guidelines for SemVer can be found at: http://www.semver.org/
 
 - [2017.08.29-09.05; Documentation; Maikuolan]: Completed translation for the
   SigTool README documentation into Spanish, French, Indonesian, Italian,
-  Dutch, Portuguese. This totals 7 different language versions of the README
-  documentation now available.
+  Dutch, and Portuguese. This totals 7 different language versions of the
+  README documentation now available.
 
 - [2017.09.05; Sub-minor code change; Maikuolan]: Improved progress display.
+
+- [2017.09.10; Documentation; Maikuolan]: Completed translation for the
+  SigTool README documentation into Vietnamese. This totals 8 different
+  language versions of the README documentation now available.
+
+- [2017.09.16; Documentation; Maikuolan]: Completed translation for the
+  SigTool README documentation into Chinese (simplified and traditional). This
+  totals 10 different language versions of the README documentation now
+  available.
 
 === Version/Release 0.1.0 ===
 FIRST TAGGED RELEASE.
