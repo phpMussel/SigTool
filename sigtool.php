@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v0.2.0-DEV (last modified: 2017.09.05).
+ * SigTool v0.2.0-DEV (last modified: 2017.09.19).
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
  * Package location: GitHub <https://github.com/phpMussel/SigTool>.
@@ -31,7 +31,8 @@ class SigTool
     public $SafeReadSize = 131072;
 
     /** Fix variables. */
-    public function __construct() {
+    public function __construct()
+    {
         $this->UA = sprintf($this->UA, $this->Ver);
     }
 

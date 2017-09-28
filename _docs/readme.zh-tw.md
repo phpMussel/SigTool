@@ -24,7 +24,7 @@ SigTool可以像任何其他PHP腳本從磁盤或存儲介質一樣運行。​�
 
 可以使用的參數：
 - 沒有參數：顯示此幫助信息。
-- `x`：從`daily.cvd`和`main.cvd'中提取簽名文件。
+- `x`：從`daily.cvd`和`main.cvd`中提取簽名文件。
 - `p`：處理用於phpMussel的簽名文件。
 - `m`：在處理之前下載`main.cvd`。
 - `d`：在處理之前下載`daily.cvd`。
