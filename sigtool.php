@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v0.2.0-DEV (last modified: 2017.09.19).
+ * SigTool v0.2.0 (last modified: 2018.01.20).
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
  * Package location: GitHub <https://github.com/phpMussel/SigTool>.
@@ -16,7 +16,7 @@
 class SigTool
 {
     /** Script version. */
-    public $Ver = '0.2.0-DEV';
+    public $Ver = '0.2.0';
 
     /** Script user agent. */
     public $UA = 'SigTool v%s (https://github.com/phpMussel/SigTool)';

@@ -7,6 +7,11 @@ Versioning guidelines for SemVer can be found at: http://www.semver.org/
 
 === Changes made since last versioned release ===
 
+(none)
+
+=== Version/Release 0.2.0 ===
+MINOR RELEASE.
+
 - [2017.08.22; Minor code change; Maikuolan]: Added new options for offsets in
   signatures. Removed some duplicated code. Removed processing for terminal
   offsets (I don't think these really exist in ClamAV signatures, and what I
@@ -28,6 +33,9 @@ Versioning guidelines for SemVer can be found at: http://www.semver.org/
   SigTool README documentation into Chinese (simplified and traditional). This
   totals 10 different language versions of the README documentation now
   available.
+
+Caleb M (Maikuolan),
+Jan 20, 2018.
 
 === Version/Release 0.1.0 ===
 FIRST TAGGED RELEASE.
