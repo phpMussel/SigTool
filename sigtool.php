@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v0.2.0 (last modified: 2018.01.20).
+ * SigTool v0.2.1 (last modified: 2018.06.20).
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
  * Package location: GitHub <https://github.com/phpMussel/SigTool>.
@@ -89,13 +89,11 @@ class SigTool
         $Key = $Value = $SendTo = '';
         $TabLen = $SoL = 0;
         while ($SoL !== false) {
-            if (($EoL = strpos($In, "\n", $SoL)) === false) {
-                $ThisLine = substr($In, $SoL);
-            } else {
-                $ThisLine = substr($In, $SoL, $EoL - $SoL);
-            }
+            $ThisLine = (
+                ($EoL = strpos($In, "\n", $SoL)) === false
+            ) ? substr($In, $SoL) : substr($In, $SoL, $EoL - $SoL);
             $SoL = ($EoL === false) ? false : $EoL + 1;
-            $ThisLine = preg_replace(["/#.*$/", "/\x20+$/"], '', $ThisLine);
+            $ThisLine = preg_replace(['/#.*$/', '/\s+$/'], '', $ThisLine);
             if (empty($ThisLine) || $ThisLine === "\n") {
                 continue;
             }
