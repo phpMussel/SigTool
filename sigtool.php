@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v0.2.1 (last modified: 2018.06.20).
+ * SigTool v0.2.1 (last modified: 2018.06.28).
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
  * Package location: GitHub <https://github.com/phpMussel/SigTool>.
@@ -16,7 +16,10 @@
 class SigTool
 {
     /** Script version. */
-    public $Ver = '0.2.0';
+    public $Ver = '0.2.1';
+
+    /** Last modified date. */
+    public $Modified = '2018.06.28';
 
     /** Script user agent. */
     public $UA = 'SigTool v%s (https://github.com/phpMussel/SigTool)';
@@ -391,22 +394,25 @@ class SigTool
 /** Fetch arguments. */
 $RunMode = !empty($argv[1]) ? strtolower($argv[1]) : '';
 
+/** Initialise SigTool object. */
+$SigTool = new SigTool();
+
 /** L10N. */
 $L10N = [
-    'Help' =>
-        " SigTool v0.2.0-DEV (last modified: 2017.09.05).\n" .
-        " Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.\n\n" .
-        " Syntax:\n" .
-        "  \$ php sigtool.php [arguments]\n" .
-        " Example:\n" .
-        "  php sigtool.php xpmd\n" .
-        " Arguments (all are OFF by default; include to turn ON):\n" .
-        "  - No arguments: Display this help information.\n" .
-        "  - x Extract signature files from daily.cvd and main.cvd.\n" .
-        "  - p Process signature files for use with phpMussel.\n" .
-        "  - m Download main.cvd before processing.\n" .
-        "  - d Download daily.cvd before processing.\n" .
-        "  - u Update SigTool (redownloads sigtool.php and dies; no checks performed).\n\n",
+    'Help' => sprintf(
+        ' SigTool v%1$s (last modified: %2$s).%3$s%4$s%5$s%6$s%7$s%8$s%9$s%10$s%11$s',
+        $SigTool->Ver,
+        $SigTool->Modified,
+        "\n Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.\n\n",
+        " Syntax:\n  \$ php sigtool.php [arguments]\n Example:\n  php sigtool.php xpmd\n",
+        " Arguments (all are OFF by default; include to turn ON):\n",
+        "  - No arguments: Display this help information.\n",
+        "  - x Extract signature files from daily.cvd and main.cvd.\n",
+        "  - p Process signature files for use with phpMussel.\n",
+        "  - m Download main.cvd before processing.\n",
+        "  - d Download daily.cvd before processing.\n",
+        "  - u Update SigTool (redownloads sigtool.php and dies; no checks performed).\n\n"
+    ),
     'Accessing' => ' Accessing %s ...',
     'Deleting' => ' Deleting %s ...',
     'Done' => " Done!\n",
@@ -432,9 +438,6 @@ if ($RunMode === '') {
     die($L10N['Help']);
 }
 
-/** Initialise SigTool object. */
-$SigTool = new SigTool();
-
 /**
  * We'll use Zürich time for our timezone (closest approximate to CET, and
  * required for our "Y.z.B" dates to actually make sense).
@@ -450,11 +453,10 @@ if (strpos($RunMode, 'u') !== false) {
         $Terminate();
     }
     echo $L10N['Done'] . sprintf($L10N['Writing'], 'sigtool.php');
-    if (file_put_contents($SigTool->fixPath(__DIR__ . '/sigtool.php'), $Data)) {
-        echo $L10N['Done'];
-    } else {
+    if (!file_put_contents($SigTool->fixPath(__DIR__ . '/sigtool.php'), $Data)) {
         $Terminate();
     }
+    echo $L10N['Done'];
     die;
 }
 
@@ -467,11 +469,10 @@ if (strpos($RunMode, 'm') !== false) {
         $Terminate();
     }
     echo $L10N['Done'] . sprintf($L10N['Writing'], 'main.cvd');
-    if (file_put_contents($SigTool->fixPath(__DIR__ . '/main.cvd'), $Data)) {
-        echo $L10N['Done'];
-    } else {
+    if (!file_put_contents($SigTool->fixPath(__DIR__ . '/main.cvd'), $Data)) {
         $Terminate();
     }
+    echo $L10N['Done'];
     unset($Data);
 }
 
@@ -484,11 +485,10 @@ if (strpos($RunMode, 'd') !== false) {
         $Terminate();
     }
     echo $L10N['Done'] . sprintf($L10N['Writing'], 'daily.cvd');
-    if (file_put_contents($SigTool->fixPath(__DIR__ . '/daily.cvd'), $Data)) {
-        echo $L10N['Done'];
-    } else {
+    if (!file_put_contents($SigTool->fixPath(__DIR__ . '/daily.cvd'), $Data)) {
         $Terminate();
     }
+    echo $L10N['Done'];
     unset($Data);
 }
 
@@ -624,8 +624,8 @@ if (strpos($RunMode, 'p') !== false) {
 
     /** Main sequence. */
     foreach ([
-        ['daily.hdb', 'main.hdb', '~([0-9a-f]{32}\:[0-9]+\:)([^\n]+)\n~', "\\1\x1A\x20\x10\x10\\2\n", 'clamav.hdb', "\x20", 16777216],
-        ['daily.mdb', 'main.mdb', '~([0-9]+\:[0-9a-f]{32}\:)([^\n]+)\n~', "\\1\x1A\x20\x10\x10\\2\n", 'clamav.mdb', "\xA0", 16777216],
+        ['daily.hdb', 'main.hdb', '~([\da-f]{32}\:\d+\:)([^\n]+)\n~', "\\1\x1A\x20\x10\x10\\2\n", 'clamav.hdb', "\x20", 16777216],
+        ['daily.mdb', 'main.mdb', '~(\d+\:[\da-f]{32}\:)([^\n]+)\n~', "\\1\x1A\x20\x10\x10\\2\n", 'clamav.mdb', "\xA0", 16777216],
         ['daily.ndb', 'main.ndb', '~^([^:\n]+\:)~m', "\x1A\x20\x10\x10\\1", 'clamav.ndb', false, 0],
     ] as $Set) {
 
@@ -769,6 +769,54 @@ if (strpos($RunMode, 'p') !== false) {
             $SigsThis = 0;
             $Percent = '';
 
+            /** Signature type to standard signature file pointer correlations. */
+            $CorrelationsStandard = [
+                'clamav.db',
+                'clamav_exe.db',
+                'clamav_ole.db',
+                'clamav.htdb',
+                'clamav_email.db',
+                'clamav_graphics.db',
+                'clamav_elf.db',
+                'clamav.ndb',
+                'clamav_macho.db',
+                'clamav_pdf.db',
+                'clamav_swf.db',
+                'clamav_java.db'
+            ];
+
+            /** Signature type to regex signature file pointer correlations. */
+            $CorrelationsRegex = [
+                'clamav_regex.db',
+                'clamav_exe_regex.db',
+                'clamav_ole_regex.db',
+                'clamav_regex.htdb',
+                'clamav_email_regex.db',
+                'clamav_graphics_regex.db',
+                'clamav_elf_regex.db',
+                'clamav_regex.ndb',
+                'clamav_macho_regex.db',
+                'clamav_pdf_regex.db',
+                'clamav_swf_regex.db',
+                'clamav_java_regex.db'
+            ];
+
+            /** Target guess to signature type correlations. */
+            $CorrelationsTargetGuess = [
+                "\x11" => 1,
+                "\x12" => 1,
+                "\x13" => 1,
+                "\x14" => 6,
+                "\x15" => 9,
+                "\x17" => 4,
+                "\x19" => 12,
+                "\x1B" => 5,
+                "\x1C" => 2,
+                "\x1D" => 3,
+                "\x25" => 10,
+                "\x26" => 11
+            ];
+
             while (($Pos = strpos($FileData, "\n", $Offset)) !== false) {
                 $Last = $Percent;
                 $Percent = number_format(($SigsThis / $SigsNDB) * 100, 2) . '%';
@@ -821,31 +869,13 @@ if (strpos($RunMode, 'p') !== false) {
                 /** Try to avoid dumping into general signatures whenever possible. */
                 if ($SigType === 0) {
                     $TargetGuess = substr($SigName, 2, 1);
-                    if ($TargetGuess === "\x11" || $TargetGuess === "\x12" || $TargetGuess === "\x13") {
-                        $SigType = 1;
-                    } elseif ($TargetGuess === "\x14") {
-                        $SigType = 6;
-                    } elseif ($TargetGuess === "\x15") {
-                        $SigType = 9;
-                    } elseif ($TargetGuess === "\x17") {
-                        $SigType = 4;
-                    } elseif ($TargetGuess === "\x19") {
-                        $SigType = 12;
-                    } elseif ($TargetGuess === "\x1B") {
-                        $SigType = 5;
-                    } elseif ($TargetGuess === "\x1C") {
-                        $SigType = 2;
-                    } elseif ($TargetGuess === "\x1D") {
-                        $SigType = 3;
-                    } elseif ($TargetGuess === "\x25") {
-                        $SigType = 10;
-                    } elseif ($TargetGuess === "\x26") {
-                        $SigType = 11;
+                    if (!empty($CorrelationsTargetGuess[$TargetGuess])) {
+                        $SigType = $CorrelationsTargetGuess[$TargetGuess];
                     }
                 }
 
                 /** Assign to the appropriate signature file (regex). */
-                if (preg_match('/[^a-f0-9*]/i', $SigHex)) {
+                if (preg_match('/[^a-f\d*]/i', $SigHex)) {
 
                     /**
                      * Handle PCRE conversion here (ClamAV to phpMussel formats).
@@ -892,30 +922,8 @@ if (strpos($RunMode, 'p') !== false) {
                     $ThisLine = $SigName . ':' . $SigHex . $StartStop . "\n";
 
                     /** Add to file based on signature type (regex). */
-                    if ($SigType === 0) {
-                        $FileSets['clamav_regex.db'] .= $ThisLine;
-                    } elseif ($SigType === 1) {
-                        $FileSets['clamav_exe_regex.db'] .= $ThisLine;
-                    } elseif ($SigType === 2) {
-                        $FileSets['clamav_ole_regex.db'] .= $ThisLine;
-                    } elseif ($SigType === 3) {
-                        $FileSets['clamav_regex.htdb'] .= $ThisLine;
-                    } elseif ($SigType === 4) {
-                        $FileSets['clamav_email_regex.db'] .= $ThisLine;
-                    } elseif ($SigType === 5) {
-                        $FileSets['clamav_graphics_regex.db'] .= $ThisLine;
-                    } elseif ($SigType === 6) {
-                        $FileSets['clamav_elf_regex.db'] .= $ThisLine;
-                    } elseif ($SigType === 7) {
-                        $FileSets['clamav_regex.ndb'] .= $ThisLine;
-                    } elseif ($SigType === 9) {
-                        $FileSets['clamav_macho_regex.db'] .= $ThisLine;
-                    } elseif ($SigType === 10) {
-                        $FileSets['clamav_pdf_regex.db'] .= $ThisLine;
-                    } elseif ($SigType === 11) {
-                        $FileSets['clamav_swf_regex.db'] .= $ThisLine;
-                    } elseif ($SigType === 12) {
-                        $FileSets['clamav_java_regex.db'] .= $ThisLine;
+                    if (!empty($CorrelationsRegex[$SigType])) {
+                        $FileSets[$CorrelationsRegex[$SigType]] .= $ThisLine;
                     }
 
                 /** Assign to the appropriate signature file (non-regex). */
@@ -928,30 +936,8 @@ if (strpos($RunMode, 'p') !== false) {
                     $ThisLine = $SigName . ':' . $SigHex . $StartStop . "\n";
 
                     /** Add to file based on signature type (non-regex). */
-                    if ($SigType === 0) {
-                        $FileSets['clamav.db'] .= $ThisLine;
-                    } elseif ($SigType === 1) {
-                        $FileSets['clamav_exe.db'] .= $ThisLine;
-                    } elseif ($SigType === 2) {
-                        $FileSets['clamav_ole.db'] .= $ThisLine;
-                    } elseif ($SigType === 3) {
-                        $FileSets['clamav.htdb'] .= $ThisLine;
-                    } elseif ($SigType === 4) {
-                        $FileSets['clamav_email.db'] .= $ThisLine;
-                    } elseif ($SigType === 5) {
-                        $FileSets['clamav_graphics.db'] .= $ThisLine;
-                    } elseif ($SigType === 6) {
-                        $FileSets['clamav_elf.db'] .= $ThisLine;
-                    } elseif ($SigType === 7) {
-                        $FileSets['clamav.ndb'] .= $ThisLine;
-                    } elseif ($SigType === 9) {
-                        $FileSets['clamav_macho.db'] .= $ThisLine;
-                    } elseif ($SigType === 10) {
-                        $FileSets['clamav_pdf.db'] .= $ThisLine;
-                    } elseif ($SigType === 11) {
-                        $FileSets['clamav_swf.db'] .= $ThisLine;
-                    } elseif ($SigType === 12) {
-                        $FileSets['clamav_java.db'] .= $ThisLine;
+                    if (!empty($CorrelationsStandard[$SigType])) {
+                        $FileSets[$CorrelationsStandard[$SigType]] .= $ThisLine;
                     }
 
                 }
