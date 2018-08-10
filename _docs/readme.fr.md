@@ -7,7 +7,7 @@ Avant l'installation, vérifiez les conditions requises. Si ceux-ci ne sont pas 
 - &gt;= 1Go d'espace disque libre (si vous travaillez directement à partir du disque) ou RAM disponible (si vous utilisez un disque RAM; recommandé).
 - Capacité d'opérer PHP en mode CLI (invite de commande, le terminal, shell, etc).
 
-SigTool existe en tant que fichier PHP autonome et n'a pas de dépendances externes (autres que les conditions énumérées ci-dessus), et donc, la seule chose que vous devez faire pour "l'installer", c'est télécharger `sigtool.php`.
+SigTool existe en tant que fichier PHP autonome et n'a pas de dépendances externes (autres que les conditions énumérées ci-dessus), et donc, la seule chose que vous devez faire pour « l'installer », c'est télécharger `sigtool.php`.
 
 SigTool peut fonctionner normalement à partir d'un disque ou d'un support de stockage de la même manière que tout autre script PHP. Cependant, en raison du grand nombre d'opérations de lecture/écriture qu'il effectue, il est fortement recommandé de l'utiliser à partir d'un disque RAM, pour la raison qu'il augmentera légèrement sa vitesse et diminuera les opérations excédentaires de lecture/écriture du disque. La sortie finale ne doit pas dépasser environ ~64Mo, mais environ ~1Go d'espace disque libre ou RAM disponible est requis pendant le fonctionnement normal en raison de fichiers de travail temporaires et afin d'éviter les erreurs de lecture/écriture.
 
@@ -38,14 +38,14 @@ La sortie est produite directement dans le même répertoire que `sigtool.php`. 
 
 Si le fichier YAML `signatures.dat` est inclus dans le même répertoire lors du traitement, les informations de version et les sommes de contrôle seront mises à jour en conséquence (donc, lorsque vous utilisez SigTool pour mettre à jour le référentiel `phpMussel/Signatures`, cela devrait être inclus).
 
-*Note : Si vous êtes un utilisateur phpMussel, n'oubliez pas que les fichiers de signatures doivent être ACTIF pour qu'ils fonctionnent correctement ! Si vous utilisez SigTool pour générer de nouveaux fichiers de signatures, vous pouvez les "activer" en les répertoriant dans la directive de configuration de phpMussel, "Active". Si vous utilisez la page des mises à jour avant pour installer et mettre à jour les fichiers de signatures, vous pouvez les "activer" directement à partir de la page de mise à jour de l'accès frontal. Cependant, l'utilisation des deux méthodes n'est pas nécessaire. Aussi, pour une performance de phpMussel optimale, il est recommandé d'utiliser uniquement les fichiers de signature dont vous avez besoin pour votre installation (par exemple, si un type particulier de fichier est en liste noire, vous n'aurez probablement pas besoin de fichiers de signatures correspondant à ce type de fichier ; l'analyse des fichiers qui seront bloqués de toute façon est un travail superflu et peut considérablement ralentir le processus d'analyse).*
+*Note : Si vous êtes un utilisateur phpMussel, n'oubliez pas que les fichiers de signatures doivent être ACTIF pour qu'ils fonctionnent correctement ! Si vous utilisez SigTool pour générer de nouveaux fichiers de signatures, vous pouvez les « activer » en les répertoriant dans la directive de configuration de phpMussel, « Active ». Si vous utilisez la page des mises à jour avant pour installer et mettre à jour les fichiers de signatures, vous pouvez les « activer » directement à partir de la page de mise à jour de l'accès frontal. Cependant, l'utilisation des deux méthodes n'est pas nécessaire. Aussi, pour une performance de phpMussel optimale, il est recommandé d'utiliser uniquement les fichiers de signature dont vous avez besoin pour votre installation (par exemple, si un type particulier de fichier est en liste noire, vous n'aurez probablement pas besoin de fichiers de signatures correspondant à ce type de fichier ; l'analyse des fichiers qui seront bloqués de toute façon est un travail superflu et peut considérablement ralentir le processus d'analyse).*
 
 Une démonstration vidéo pour l'utilisation de SigTool est disponible sur YouTube : __[youtu.be/f2LfjY1HzRI](https://youtu.be/f2LfjY1HzRI)__
 
 ---
 
 
-### Liste des fichiers de signatures générés par SigTool:
+### Liste des fichiers de signatures générés par SigTool :
 Fichier de signatures | Description
 ---|---
 clamav.hdb | Cibles tous les types de fichiers ; Fonctionne avec des hachages de fichiers.
