@@ -1,11 +1,12 @@
+[![Join the chat at https://gitter.im/phpMussel2/Lobby](https://badges.gitter.im/phpMussel2/Lobby.svg)](https://gitter.im/phpMussel2/Lobby)
 [![PHP >= 7.0.0](https://img.shields.io/badge/PHP-%3E%3D%207.0.0-8892bf.svg)](https://maikuolan.github.io/Compatibility-Charts/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg)](http://makeapullrequest.com)
 
 ## SigTool.
-Generates signatures for [phpMussel](https://github.com/phpMussel/phpMussel) using main.cvd and daily.cvd from [ClamAV](http://www.clamav.net/).
+Generates signatures for [phpMussel](https://github.com/phpMussel/phpMussel) using main.cvd and daily.cvd from [ClamAV](https://www.clamav.net/).
 
 ---
-
 
 ### How to install:
 
@@ -22,7 +23,6 @@ SigTool can operate normally from a disk or storage medium in the same manner as
 
 ---
 
-
 ### How to use:
 
 Note that SigTool is NOT a web-based PHP application (or web-app)! SigTool is a CLI-based PHP application (or CLI-app) intended to be used with terminal, shell, etc. It can be invoked by calling the PHP binary with the `sigtool.php` file as its first argument:
@@ -34,7 +34,6 @@ Help information will be displayed when SigTool is invoked, listing the possible
 More information can be found in the documentation herein.
 
 ---
-
 
 ### Documentation:
 - **[English](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.en.md)**
@@ -50,5 +49,4 @@ More information can be found in the documentation herein.
 
 ---
 
-
-*Last modified: 16 September 2017 (2017.09.16).*
+*Last modified: 3 September 2018 (2018.09.03).*
