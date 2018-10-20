@@ -7,7 +7,20 @@ Versioning guidelines for SemVer can be found at: http://www.semver.org/
 
 === Changes made since last versioned release ===
 
+(none)
+
+=== Version/Release 0.2.1 ===
+PATCH RELEASE.
+
 - [2018.06.28; Sub-minor code change; Maikuolan]: Refactoring.
+
+- [2018.10.20; Sub-minor code change; Maikuolan]: Added some code to simplify
+  some of the syntax normally used by ClamAV signatures, and added some code to
+  remove some specific signatures during the signature file generation process
+  that can otherwise sometimes trip up PCRE during the scan process.
+
+Caleb M (Maikuolan),
+October 20, 2018.
 
 === Version/Release 0.2.0 ===
 MINOR RELEASE.

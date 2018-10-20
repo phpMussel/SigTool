@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v0.2.1 (last modified: 2018.06.28).
+ * SigTool v0.2.1 (last modified: 2018.10.20).
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
  * Package location: GitHub <https://github.com/phpMussel/SigTool>.
@@ -19,7 +19,7 @@ class SigTool
     public $Ver = '0.2.1';
 
     /** Last modified date. */
-    public $Modified = '2018.06.28';
+    public $Modified = '2018.10.20';
 
     /** Script user agent. */
     public $UA = 'SigTool v%s (https://github.com/phpMussel/SigTool)';
@@ -368,13 +368,24 @@ class SigTool
                 ], $Data);
             }
             $Data = preg_replace([
-                '~([^a-z0-9])(?:Agent|General|Generic)([.-])~i', /** Let's reduce our footprint. :-) */
-                '~([^a-z0-9])Downloader([.-])~i', /** CVDs use both; Let's normalise it. */
-                '~^[^\:\n]+\:[^\n]+[\[\]][^\n]*$~m', /** ClamAV signature format documentation is unclear about what "[]" means. */
-                '~^.*This ClamAV version has reached End of Life.*$\n~im' /** Don't need these in phpMussel signatures! */
+                /** Let's reduce our footprint. :-) */
+                '~([^a-z0-9])(?:Agent|General|Generic)([.-])~i',
+
+                /** CVDs use both; Let's normalise it. */
+                '~([^a-z0-9])Downloader([.-])~i',
+
+                /** ClamAV signature format documentation is unclear about what "[]" means. */
+                '~^[^\:\n]+\:[^\n]+[\[\]][^\n]*$~m',
+
+                /** PCRE trips over capture groups at this range sometimes. Let's play it safe and ditch the affected signatures. */
+                '~^.*\{-?(?:\d{4,})\}.*$\n~m',
+
+                /** Not needed in the final generated signature files. */
+                '~^.*This ClamAV version has reached End of Life.*$\n~im'
             ], [
                 '\1X\2',
                 '\1Dldr\2',
+                '',
                 '',
                 ''
             ], $Data);
@@ -817,6 +828,7 @@ if (strpos($RunMode, 'p') !== false) {
                 "\x26" => 11
             ];
 
+            /** Begin working through individual signatures. */
             while (($Pos = strpos($FileData, "\n", $Offset)) !== false) {
                 $Last = $Percent;
                 $Percent = number_format(($SigsThis / $SigsNDB) * 100, 2) . '%';
@@ -877,21 +889,17 @@ if (strpos($RunMode, 'p') !== false) {
                 /** Assign to the appropriate signature file (regex). */
                 if (preg_match('/[^a-f\d*]/i', $SigHex)) {
 
-                    /**
-                     * Handle PCRE conversion here (ClamAV to phpMussel formats).
-                     * Note that this may need to be changed/adapted in the future upon
-                     * relevant changes in the source file occurring (currently accounts
-                     * for what we already know about the present, but not for what may
-                     * occur in or may be planned for the future).
-                     */
+                    /** Convert from ClamAV's pattern syntax to PCRE syntax. */
                     $SigHex = preg_replace([
-                        '~\{([0-9]+)-([0-9]+)\}~',
-                        '~\{([0-9]+)-\}~',
-                        '~\{-([0-9]+)\}~',
-                        '~\{([0-9]+)\}~',
+                        '~^.*\{-?(?:\d{4,})\}.*$~',
+                        '~\{(\d+)-(?:\d{4,})?\}~',
+                        '~\{(\d+)-(\d+)\}~',
+                        '~\{-(\d+)\}~',
+                        '~\{(\d+)\}~',
                     ], [
-                        '(?:..){\1,\2}',
+                        '',
                         '(?:..){\1,}',
+                        '(?:..){\1,\2}',
                         '(?:..){0,\1}',
                         '(?:..){\1}',
                     ], str_replace([
@@ -901,8 +909,6 @@ if (strpos($RunMode, 'p') !== false) {
                         '{0-1}',
                         '{0-}',
                         '{1-}',
-                        '(30|31|32|33|34|35|36|37|38|39)',
-                        '(31|32|33|34|35|36|37|38|39)',
                         '(22|27)',
                         '(27|22)',
                     ], [
@@ -912,11 +918,60 @@ if (strpos($RunMode, 'p') !== false) {
                         '.?',
                         '.*',
                         '.+',
-                        '3[0-9]',
-                        '3[1-9]',
                         '2[27]',
                         '2[27]',
                     ], $SigHex));
+
+                    /** Possible character range. */
+                    $CharRange = ['0', 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'];
+
+                    /** Simplify all the (xx|xx|xx|xx...) stuff into something smaller and more readable. */
+                    foreach ($CharRange as $Char) {
+                        $InnerCharRange = $CharRange;
+                        while (true) {
+                            $Replacer = '(';
+                            foreach ($InnerCharRange as $InnerChar) {
+                                $Replacer .= $Char . $InnerChar . '|';
+                            }
+                            $Replacer = substr($Replacer, 0, -1) . ')';
+                            $FinalLast = array_pop($InnerCharRange) ?: '';
+                            $InnerCharCount = count($InnerCharRange);
+                            if (!$InnerCharCount) {
+                                break;
+                            }
+                            if ($InnerCharCount === 9) {
+                                $Replacement = $Char . '\d';
+                            } elseif ($InnerCharCount < 9) {
+                                $Replacement = $Char . '[0-' . $FinalLast . ']';
+                            } else {
+                                $Replacement = $InnerCharCount === 10 ? $Char . '[\da]' : $Char . '[\da-' . $FinalLast . ']';
+                            }
+                            $SigHex = str_replace($Replacer, $Replacement, $SigHex);
+                        }
+                    }
+
+                    /** Upper-lower case stuff, and further simplification. */
+                    foreach ($CharRange as $Char) {
+                        $SigHex = str_replace([
+                            '(4' . $Char . '|6' . $Char . ')',
+                            '(6' . $Char . '|4' . $Char . ')',
+                            '(5' . $Char . '|7' . $Char . ')',
+                            '(7' . $Char . '|5' . $Char . ')',
+                            '(?:..){4}',
+                            '(?:..){3}',
+                            '(?:..){2}',
+                            '(?:..){1}'
+                        ], [
+                            '[46]' . $Char,
+                            '[46]' . $Char,
+                            '[57]' . $Char,
+                            '[57]' . $Char,
+                            '.{8}',
+                            '.{6}',
+                            '....',
+                            '..'
+                        ], $SigHex);
+                    }
 
                     /** Newly formatted signature line. */
                     $ThisLine = $SigName . ':' . $SigHex . $StartStop . "\n";
