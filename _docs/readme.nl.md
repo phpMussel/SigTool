@@ -24,29 +24,29 @@ Hulpinformatie wordt weergegeven wanneer SigTool wordt ingeroepen, waarbij de mo
 
 Mogelijke vlaggen:
 - Geen argumenten: Laat deze hulpinformatie zien.
-- `x`: Extract signature bestanden uit `daily.cvd` en `main.cvd`.
-- `p`: Verwerk signature bestanden voor gebruik met phpMussel.
+- `x`: Extract signatuurbestanden uit `daily.cvd` en `main.cvd`.
+- `p`: Verwerk signatuurbestanden voor gebruik met phpMussel.
 - `m`: Download `main.cvd` voor verwerking.
 - `d`: Download `daily.cvd` voor verwerking.
 - `u`: Update SigTool (downloadt `sigtool.php` opnieuw en dies; geen controles uitgevoerd).
 
-Output geproduceerd is verschillende phpMussel signature bestanden die direct uit de ClamAV signatures database worden gegenereerd, in twee vormen:
-- Signature bestanden die direct in de `/vault/signatures/` map kunnen worden ingevoegd.
-- GZ-gecomprimeerde kopieën van de signature bestanden die kunnen worden gebruikt om de `phpMussel/Signatures` repository te updaten.
+Output geproduceerd is verschillende phpMussel signatuurbestanden die direct uit de ClamAV signatures database worden gegenereerd, in twee vormen:
+- Signatuurbestanden die direct in de `/vault/signatures/` map kunnen worden ingevoegd.
+- GZ-gecomprimeerde kopieën van de signatuurbestanden die kunnen worden gebruikt om de `phpMussel/Signatures` repository te updaten.
 
-De output wordt direct in dezelfde map als `sigtool.php` geproduceerd. Bronbestanden en alle tijdelijke werkbestanden worden tijdens het gebruik verwijderd (dus, als u kopieën van `daily.cvd` en `main.cvd` wilt houden, u moet kopieën maken voordat u de signature bestanden verwerkt).
+De output wordt direct in dezelfde map als `sigtool.php` geproduceerd. Bronbestanden en alle tijdelijke werkbestanden worden tijdens het gebruik verwijderd (dus, als u kopieën van `daily.cvd` en `main.cvd` wilt houden, u moet kopieën maken voordat u de signatuurbestanden verwerkt).
 
 Bij verwerking, als het `signatures.dat` YAML-bestand in dezelfde map is opgenomen, versie informatie en controlesummers worden dienovereenkomstig bijgewerkt (dus, wanneer u SigTool gebruikt om de `phpMussel/Signatures` repository te updaten, dit moet worden opgenomen).
 
-*Opmerking: Als u een phpMussel-gebruiker bent, houd er rekening mee dat de signature bestanden ACTIVE moeten zijn om ervoor te zorgen dat ze correct werken! Als u SigTool gebruikt om nieuwe signature bestanden te genereren, u kunt ze "activeren" door ze te vermelden in de phpMussel "Active" configuratie richtlijn. Als u de frontend updates pagina gebruikt om signature bestanden te installeren en bij te werken, u kunt ze direct "activeren" vanaf de frontend updates pagina. Echter, het gebruik van beide methoden is niet nodig. Ook, voor optimale phpMussel prestaties, het wordt aanbevolen dat u alleen de signature bestanden gebruikt die u nodig heeft voor uw installatie (bijv., als een bepaald type bestand op zwarte lijst staat, u heeft waarschijnlijk geen signature bestanden nodig die overeenkomen met dat bestandstype; het analyseren van bestanden die in ieder geval geblokkeerd worden, is overbodig werk en kan het scanproces aanzienlijk vertragen).*
+*Opmerking: Als u een phpMussel-gebruiker bent, houd er rekening mee dat de signatuurbestanden ACTIVE moeten zijn om ervoor te zorgen dat ze correct werken! Als u SigTool gebruikt om nieuwe signatuurbestanden te genereren, u kunt ze "activeren" door ze te vermelden in de phpMussel "Active" configuratie richtlijn. Als u de frontend updates pagina gebruikt om signatuurbestanden te installeren en bij te werken, u kunt ze direct "activeren" vanaf de frontend updates pagina. Echter, het gebruik van beide methoden is niet nodig. Ook, voor optimale phpMussel prestaties, het wordt aanbevolen dat u alleen de signatuurbestanden gebruikt die u nodig heeft voor uw installatie (bijv., als een bepaald type bestand op zwarte lijst staat, u heeft waarschijnlijk geen signatuurbestanden nodig die overeenkomen met dat bestandstype; het analyseren van bestanden die in ieder geval geblokkeerd worden, is overbodig werk en kan het scanproces aanzienlijk vertragen).*
 
 Een video demonstratie voor het gebruik van SigTool is beschikbaar op YouTube: __[youtu.be/f2LfjY1HzRI](https://youtu.be/f2LfjY1HzRI)__
 
 ---
 
 
-### SigTool gegenereerde signature bestanden lijst:
-Signature bestand | Beschrijving
+### SigTool gegenereerde signatuurbestanden lijst:
+Signatuurbestand | Beschrijving
 ---|---
 clamav.hdb | Bedoeld voor alle soorten bestanden; Werkt met bestand hashes.
 clamav.htdb | Bedoeld voor HTML-bestanden; Werkt met HTML-genormaliseerde gegevens.
@@ -78,22 +78,22 @@ clamav_swf_regex.db | Bedoeld voor SWF-bestanden; Werkt met rauwe data; Signatur
 ---
 
 
-### Opmerking over de extensie van de signature bestanden:
+### Opmerking over de extensie van de signatuurbestanden:
 *Deze informatie wordt in de toekomst uitgebreid.*
 
-- __cedb__: Complexe uitgebreide signature bestanden (dit is een formaat gemaakt voor phpMussel, en heeft niets te maken met de ClamAV signatures database; SigTool genereert geen signature bestanden met deze extensie; deze worden handmatig voor de `phpMussel/Signatures` repository geschreven; `clamav.cedb` bevat aanpassingen van een aantal verouderde signatures van eerdere versies van de ClamAV signatures database die beschouwd worden als nog steeds bruikbaar voor phpMussel). Signature bestanden die werken met verschillende regels gebaseerd op uitgebreide metadata die door phpMussel worden gegenereerd, gebruiken deze extensie.
-- __db__: Standaard signature bestanden (deze worden geëxtraheerd uit de `.ndb` signature bestanden die zijn opgenomen in `daily.cvd` en `main.cvd`). Signature bestanden die direct werken met bestandsinhoud gebruiken deze extensie.
-- __fdb__: Bestandsnaam signature bestanden (de ClamAV signatures database heeft voorheen de bestandsnaam signatures ondersteund, maar niet meer; SigTool genereert geen signature bestanden met deze extensie; gehandhaafd door voortdurende bruikbaarheid voor phpMussel). Signature bestanden die werken met bestandsnamen gebruiken deze extensie.
-- __hdb__: Hash signature bestanden (deze worden geëxtraheerd uit de `.hdb` signature bestanden die zijn opgenomen in `daily.cvd` en `main.cvd`). Signature bestanden die werken met file hashes gebruiken deze extensie.
-- __htdb__: HTML signature bestanden (deze worden geëxtraheerd uit de `.ndb` signature bestanden die zijn opgenomen in `daily.cvd` en `main.cvd`). Signature bestanden die werken met HTML-genormaliseerde bestandsinhoud gebruiken deze extensie.
-- __mdb__: PE sectionale signature bestanden (deze worden geëxtraheerd uit de `.mdb` signature bestanden die zijn opgenomen in `daily.cvd` en `main.cvd`). Signature bestanden die werken met PE sectionele metadata gebruiken deze extensie.
-- __medb__: PE uitgebreide signature bestanden (dit is een formaat gemaakt voor phpMussel, en heeft niets te maken met de ClamAV signatures database; SigTool genereert geen signature bestanden met deze extensie; deze worden handmatig voor de `phpMussel/Signatures` repository geschreven). Signature bestanden die werken met PE-metadata (andere dan PE-sectiemetadata) gebruiken deze extensie.
-- __ndb__: Normaliseerde signature bestanden (deze worden geëxtraheerd uit de `.ndb` signature bestanden die zijn opgenomen in `daily.cvd` en `main.cvd`). Signature bestanden die werken met ANSI-genormaliseerde bestandsinhoud gebruiken deze extensie.
-- __udb__: URL signature bestanden (dit is een formaat gemaakt voor phpMussel, en heeft niets te maken met de ClamAV signatures database; SigTool genereert *momenteel* geen signature bestanden met deze extensie, hoewel dit in de toekomst kan veranderen; momenteel worden deze handmatig voor de `phpMussel/Signatures` repository geschreven). Signature bestanden die werken met URL's gebruiken deze extensie.
-- __ldb__: Logische signature bestanden (deze zullen *uiteindelijk*, voor een toekomstige SigTool-versie, uit de `.ldb` signature bestanden die zijn opgenomen in `daily.cvd` en `main.cvd` worden geëxtraheerd, maar zijn nog niet ondersteund door SigTool of phpMussel). Signature bestanden die werken met verschillende logische regels gebruiken deze extensie.
+- __cedb__: Complexe uitgebreide signatuurbestanden (dit is een formaat gemaakt voor phpMussel, en heeft niets te maken met de ClamAV signatures database; SigTool genereert geen signatuurbestanden met deze extensie; deze worden handmatig voor de `phpMussel/Signatures` repository geschreven; `clamav.cedb` bevat aanpassingen van een aantal verouderde signatures van eerdere versies van de ClamAV signatures database die beschouwd worden als nog steeds bruikbaar voor phpMussel). Signatuurbestanden die werken met verschillende regels gebaseerd op uitgebreide metadata die door phpMussel worden gegenereerd, gebruiken deze extensie.
+- __db__: Standaard signatuurbestanden (deze worden geëxtraheerd uit de `.ndb` signatuurbestanden die zijn opgenomen in `daily.cvd` en `main.cvd`). Signatuurbestanden die direct werken met bestandsinhoud gebruiken deze extensie.
+- __fdb__: Bestandsnaam signatuurbestanden (de ClamAV signatures database heeft voorheen de bestandsnaam signatures ondersteund, maar niet meer; SigTool genereert geen signatuurbestanden met deze extensie; gehandhaafd door voortdurende bruikbaarheid voor phpMussel). Signatuurbestanden die werken met bestandsnamen gebruiken deze extensie.
+- __hdb__: Hash signatuurbestanden (deze worden geëxtraheerd uit de `.hdb` signatuurbestanden die zijn opgenomen in `daily.cvd` en `main.cvd`). Signatuurbestanden die werken met file hashes gebruiken deze extensie.
+- __htdb__: HTML signatuurbestanden (deze worden geëxtraheerd uit de `.ndb` signatuurbestanden die zijn opgenomen in `daily.cvd` en `main.cvd`). Signatuurbestanden die werken met HTML-genormaliseerde bestandsinhoud gebruiken deze extensie.
+- __mdb__: PE sectionale signatuurbestanden (deze worden geëxtraheerd uit de `.mdb` signatuurbestanden die zijn opgenomen in `daily.cvd` en `main.cvd`). Signatuurbestanden die werken met PE sectionele metadata gebruiken deze extensie.
+- __medb__: PE uitgebreide signatuurbestanden (dit is een formaat gemaakt voor phpMussel, en heeft niets te maken met de ClamAV signatures database; SigTool genereert geen signatuurbestanden met deze extensie; deze worden handmatig voor de `phpMussel/Signatures` repository geschreven). Signatuurbestanden die werken met PE-metadata (andere dan PE-sectiemetadata) gebruiken deze extensie.
+- __ndb__: Normaliseerde signatuurbestanden (deze worden geëxtraheerd uit de `.ndb` signatuurbestanden die zijn opgenomen in `daily.cvd` en `main.cvd`). Signatuurbestanden die werken met ANSI-genormaliseerde bestandsinhoud gebruiken deze extensie.
+- __udb__: URL signatuurbestanden (dit is een formaat gemaakt voor phpMussel, en heeft niets te maken met de ClamAV signatures database; SigTool genereert *momenteel* geen signatuurbestanden met deze extensie, hoewel dit in de toekomst kan veranderen; momenteel worden deze handmatig voor de `phpMussel/Signatures` repository geschreven). Signatuurbestanden die werken met URL's gebruiken deze extensie.
+- __ldb__: Logische signatuurbestanden (deze zullen *uiteindelijk*, voor een toekomstige SigTool-versie, uit de `.ldb` signatuurbestanden die zijn opgenomen in `daily.cvd` en `main.cvd` worden geëxtraheerd, maar zijn nog niet ondersteund door SigTool of phpMussel). Signatuurbestanden die werken met verschillende logische regels gebruiken deze extensie.
 
 
 ---
 
 
-*Laatst gewijzigd: 5 September 2017 (2017.09.05).*
+*Laatst gewijzigd: 15 Oktober 2018 (2018.10.15).*
