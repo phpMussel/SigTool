@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v0.2.1 (last modified: 2018.10.20).
+ * SigTool v0.2.2 (last modified: 2018.10.23).
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
  * Package location: GitHub <https://github.com/phpMussel/SigTool>.
@@ -16,10 +16,10 @@
 class SigTool
 {
     /** Script version. */
-    public $Ver = '0.2.1';
+    public $Ver = '0.2.2';
 
     /** Last modified date. */
-    public $Modified = '2018.10.20';
+    public $Modified = '2018.10.23';
 
     /** Script user agent. */
     public $UA = 'SigTool v%s (https://github.com/phpMussel/SigTool)';
@@ -378,7 +378,7 @@ class SigTool
                 '~^[^\:\n]+\:[^\n]+[\[\]][^\n]*$~m',
 
                 /** PCRE trips over capture groups at this range sometimes. Let's play it safe and ditch the affected signatures. */
-                '~^.*\{-?(?:\d{4,})\}.*$\n~m',
+                '~^.*\{(?:-?\d{4,}|\d{4,}-)\}.*$\n~m',
 
                 /** Not needed in the final generated signature files. */
                 '~^.*This ClamAV version has reached End of Life.*$\n~im'
@@ -886,12 +886,15 @@ if (strpos($RunMode, 'p') !== false) {
                     }
                 }
 
+                /** Normalise to lower-case. */
+                $SigHex = strtolower($SigHex);
+
                 /** Assign to the appropriate signature file (regex). */
                 if (preg_match('/[^a-f\d*]/i', $SigHex)) {
 
                     /** Convert from ClamAV's pattern syntax to PCRE syntax. */
                     $SigHex = preg_replace([
-                        '~^.*\{-?(?:\d{4,})\}.*$~',
+                        '~^.*\{(?:-?\d{4,}|\d{4,}-)\}.*$~',
                         '~\{(\d+)-(?:\d{4,})?\}~',
                         '~\{(\d+)-(\d+)\}~',
                         '~\{-(\d+)\}~',
@@ -946,13 +949,13 @@ if (strpos($RunMode, 'p') !== false) {
                             } else {
                                 $Replacement = $InnerCharCount === 10 ? $Char . '[\da]' : $Char . '[\da-' . $FinalLast . ']';
                             }
-                            $SigHex = str_replace($Replacer, $Replacement, $SigHex);
+                            $SigHex = str_ireplace($Replacer, $Replacement, $SigHex);
                         }
                     }
 
                     /** Upper-lower case stuff, and further simplification. */
                     foreach ($CharRange as $Char) {
-                        $SigHex = str_replace([
+                        $SigHex = str_ireplace([
                             '(4' . $Char . '|6' . $Char . ')',
                             '(6' . $Char . '|4' . $Char . ')',
                             '(5' . $Char . '|7' . $Char . ')',
@@ -971,6 +974,27 @@ if (strpos($RunMode, 'p') !== false) {
                             '....',
                             '..'
                         ], $SigHex);
+                    }
+
+                    /** Reduce footprint. */
+                    foreach ($CharRange as $Char) {
+                        $Matches = [];
+                        $Lengths = [];
+                        if (preg_match_all('~' . $Char . '{16,}~', $SigHex, $Matches) !== false && isset($Matches[0])) {
+                            foreach ($Matches[0] as $Match) {
+                                $Lengths[] = strlen($Match);
+                            }
+                            rsort($Lengths);
+                        }
+                        foreach ($Lengths as $Length) {
+                            $SigHex = preg_replace_callback(
+                                '~(?P<_before>[^' . $Char . '])' . $Char . '{' . $Length . '}(?P<_after>[^' . $Char . '])~',
+                                function ($Matches) use ($Char, $Length) {
+                                    return $Matches['_before'] . $Char . '{' . $Length . '}' . $Matches['_after'];
+                                },
+                                $SigHex
+                            );
+                        }
                     }
 
                     /** Newly formatted signature line. */

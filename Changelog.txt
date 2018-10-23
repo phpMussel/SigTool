@@ -9,6 +9,16 @@ Versioning guidelines for SemVer can be found at: http://www.semver.org/
 
 (none)
 
+=== Version/Release 0.2.2 ===
+PATCH RELEASE.
+
+- [2018.10.23; Sub-minor code change; Maikuolan]: Improved signature file
+  optimisation to reduce signature file footprint and to filter out some more
+  possibly problematic signatures.
+
+Caleb M (Maikuolan),
+October 23, 2018.
+
 === Version/Release 0.2.1 ===
 PATCH RELEASE.
 
