@@ -4,10 +4,15 @@
     "keywords": ["phpmussel","signatures","generator","sigtool","clamav"],
     "license": "MIT",
     "support": {
-        "issues": "https://github.com/phpMussel/SigTool/issues",
-        "source": "https://github.com/phpMussel/SigTool"
+        "chat": "https://gitter.im/phpMussel2/Lobby",
+        "issues": "https://github.com/phpmussel/sigtool/issues",
+        "source": "https://github.com/phpmussel/sigtool"
     },
     "require": {
         "php": ">=7.0.3"
+    },
+    "suggest": {
+        "php": ">=7.2.0 (this package performs significantly better with PHP >= 7.2.0).",
+        "phpmussel/phpmussel": "PHP-based anti-virus anti-trojan anti-malware solution (the package that SigTool is designed to write signatures for)."
     }
 }
