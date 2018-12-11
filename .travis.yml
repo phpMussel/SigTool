@@ -1,10 +1,15 @@
 language: php
+
 php:
   - '7.0'
   - '7.1'
   - '7.2'
+  - '7.3'
+
 before_script:
   - phpenv config-rm xdebug.ini
+
 script: phpunit .travis.php
+
 notifications:
   email: false
