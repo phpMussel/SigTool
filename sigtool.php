@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v0.2.2 (last modified: 2018.10.23).
+ * SigTool v0.2.3 (last modified: 2018.12.19).
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
  * Package location: GitHub <https://github.com/phpMussel/SigTool>.
@@ -16,10 +16,10 @@
 class SigTool
 {
     /** Script version. */
-    public $Ver = '0.2.2';
+    public $Ver = '0.2.3';
 
     /** Last modified date. */
-    public $Modified = '2018.10.23';
+    public $Modified = '2018.12.19';
 
     /** Script user agent. */
     public $UA = 'SigTool v%s (https://github.com/phpMussel/SigTool)';
@@ -124,46 +124,7 @@ class SigTool
                 }
                 $SendTo = '';
             }
-            if (substr($ThisLine, -1) === ':') {
-                $Key = substr($ThisLine, $ThisTab, -1);
-                $KeyLen = strlen($Key);
-                $KeyLow = strtolower($Key);
-                $this->normalise($Key, $KeyLen, $KeyLow);
-                if (!isset($Arr[$Key])) {
-                    $Arr[$Key] = false;
-                }
-            } elseif (substr($ThisLine, $ThisTab, 2) === '- ') {
-                $Value = substr($ThisLine, $ThisTab + 2);
-                $ValueLen = strlen($Value);
-                $ValueLow = strtolower($Value);
-                $this->normalise($Value, $ValueLen, $ValueLow);
-                if ($ValueLen > 0) {
-                    $Arr[] = $Value;
-                }
-            } elseif (($DelPos = strpos($ThisLine, ': ')) !== false) {
-                $Key = substr($ThisLine, $ThisTab, $DelPos - $ThisTab);
-                $KeyLen = strlen($Key);
-                $KeyLow = strtolower($Key);
-                $this->normalise($Key, $KeyLen, $KeyLow);
-                if (!$Key) {
-                    return false;
-                }
-                $Value = substr($ThisLine, $ThisTab + $KeyLen + 2);
-                $ValueLen = strlen($Value);
-                $ValueLow = strtolower($Value);
-                $this->normalise($Value, $ValueLen, $ValueLow);
-                if ($ValueLen > 0) {
-                    $Arr[$Key] = $Value;
-                }
-            } elseif (strpos($ThisLine, ':') === false && strlen($ThisLine) > 1) {
-                $Key = $ThisLine;
-                $KeyLen = strlen($Key);
-                $KeyLow = strtolower($Key);
-                $this->normalise($Key, $KeyLen, $KeyLow);
-                if (!isset($Arr[$Key])) {
-                    $Arr[$Key] = false;
-                }
-            }
+            $this->processLine($ThisLine, $ThisTab, $Key, $Value, $SendTo, $Arr);
         }
         if (!empty($SendTo) && !empty($Key)) {
             if (!isset($Arr[$Key])) {
@@ -174,6 +135,64 @@ class SigTool
             }
         }
         return true;
+    }
+
+    /**
+     * Process one line of YAML. Parameters reference variables set by calling method.
+     *
+     * @param string $ThisLine
+     * @param string $ThisTab
+     * @param string|int $Key
+     * @param string|int|bool $Value
+     * @param array $Arr
+     * @param bool $VM
+     * @return bool Usable by validator mode.
+     */
+    private function processLine(&$ThisLine, &$ThisTab, &$Key, &$Value, &$Arr)
+    {
+        if (substr($ThisLine, -1) === ':') {
+            $Key = substr($ThisLine, $ThisTab, -1);
+            $KeyLen = strlen($Key);
+            $KeyLow = strtolower($Key);
+            $this->normalise($Key, $KeyLen, $KeyLow);
+            if (!isset($Arr[$Key])) {
+                $Arr[$Key] = false;
+            }
+        } elseif (substr($ThisLine, $ThisTab, 2) === '- ') {
+            $Value = substr($ThisLine, $ThisTab + 2);
+            $ValueLen = strlen($Value);
+            $ValueLow = strtolower($Value);
+            $this->normalise($Value, $ValueLen, $ValueLow);
+            if ($ValueLen > 0) {
+                $Arr[] = $Value;
+            }
+        } elseif (($DelPos = strpos($ThisLine, ': ')) !== false) {
+            $Key = substr($ThisLine, $ThisTab, $DelPos - $ThisTab);
+            $KeyLen = strlen($Key);
+            $KeyLow = strtolower($Key);
+            $this->normalise($Key, $KeyLen, $KeyLow);
+            if (!$Key) {
+                if (substr($ThisLine, $ThisTab, $DelPos - $ThisTab + 2) !== '0: ') {
+                    return false;
+                }
+                $Key = 0;
+            }
+            $Value = substr($ThisLine, $ThisTab + $KeyLen + 2);
+            $ValueLen = strlen($Value);
+            $ValueLow = strtolower($Value);
+            $this->normalise($Value, $ValueLen, $ValueLow);
+            if ($ValueLen > 0) {
+                $Arr[$Key] = $Value;
+            }
+        } elseif (strpos($ThisLine, ':') === false && strlen($ThisLine) > 1) {
+            $Key = $ThisLine;
+            $KeyLen = strlen($Key);
+            $KeyLow = strtolower($Key);
+            $this->normalise($Key, $KeyLen, $KeyLow);
+            if (!isset($Arr[$Key])) {
+                $Arr[$Key] = false;
+            }
+        }
     }
 
     /**

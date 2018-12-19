@@ -7,7 +7,10 @@ Versioning guidelines for SemVer can be found at: http://www.semver.org/
 
 === Changes made since last versioned release ===
 
-(none)
+- [2018.12.19; Sub-minor code change; Maikuolan]: Split apart the YAML handler
+  a little more (doesn't change anything functionally, but should help to
+  slightly reduce complaints sometimes made by certain code quality checkers
+  and such). It's also less messy now to use an integer value of zero as a key.
 
 === Version/Release 0.2.2 ===
 PATCH RELEASE.
