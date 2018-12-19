@@ -124,7 +124,7 @@ class SigTool
                 }
                 $SendTo = '';
             }
-            $this->processLine($ThisLine, $ThisTab, $Key, $Value, $SendTo, $Arr);
+            $this->processLine($ThisLine, $ThisTab, $Key, $Value, $Arr);
         }
         if (!empty($SendTo) && !empty($Key)) {
             if (!isset($Arr[$Key])) {
@@ -145,7 +145,6 @@ class SigTool
      * @param string|int $Key
      * @param string|int|bool $Value
      * @param array $Arr
-     * @param bool $VM
      * @return bool Usable by validator mode.
      */
     private function processLine(&$ThisLine, &$ThisTab, &$Key, &$Value, &$Arr)
