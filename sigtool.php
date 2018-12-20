@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v0.2.3 (last modified: 2018.12.19).
+ * SigTool v0.2.3 (last modified: 2018.12.20).
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
  * Package location: GitHub <https://github.com/phpMussel/SigTool>.
@@ -8,10 +8,10 @@
  */
 
 /**
- * SigTool class contains any relevant non-core methods (class functions)
- * required by SigTool, mostly (but not entirely) adapted from the closures
- * available in the ./vault/functions.php file of the phpMussel package, used
- * for handling YAML data, signature shorthand, etc.
+ * SigTool class contains any methods required by SigTool, mostly (but not
+ * entirely) adapted from the closures available in the ./vault/functions.php
+ * file of the phpMussel package, used for handling YAML data, signature
+ * shorthand, etc.
  */
 class SigTool
 {
@@ -19,7 +19,7 @@ class SigTool
     public $Ver = '0.2.3';
 
     /** Last modified date. */
-    public $Modified = '2018.12.19';
+    public $Modified = '2018.12.20';
 
     /** Script user agent. */
     public $UA = 'SigTool v%s (https://github.com/phpMussel/SigTool)';
@@ -145,7 +145,6 @@ class SigTool
      * @param string|int $Key
      * @param string|int|bool $Value
      * @param array $Arr
-     * @return bool Usable by validator mode.
      */
     private function processLine(&$ThisLine, &$ThisTab, &$Key, &$Value, &$Arr)
     {
@@ -194,9 +193,7 @@ class SigTool
         }
     }
 
-    /**
-     * Parse locally.
-     */
+    /** Parse locally. */
     public function readIn()
     {
         $Arr = &$this->Arr;
@@ -206,6 +203,8 @@ class SigTool
 
     /**
      * Set raw data.
+     *
+     * @param string $Raw The raw data.
      */
     public function setRaw(string $Raw)
     {
@@ -214,6 +213,10 @@ class SigTool
 
     /**
      * Reconstruct level.
+     *
+     * @param array $Arr The array to reconstruct from.
+     * @param string $Out The reconstructed YAML.
+     * @param int $Depth The level depth.
      */
     private function inner(array $Arr, string &$Out, int $Depth = 0)
     {
@@ -244,9 +247,7 @@ class SigTool
         }
     }
 
-    /**
-     * Reconstruct new raw data from data array.
-     */
+    /** Reconstruct new raw data from data array. */
     public function reconstruct()
     {
         $Arr = $this->Arr;
@@ -255,9 +256,15 @@ class SigTool
         return $New . "\n";
     }
 
-    /** Use cURL to fetch files. */
-    public function fetch($URI, $Timeout = 600) {
-
+    /**
+     * Use cURL to fetch files.
+     *
+     * @param string $URI The resource to fetch.
+     * @param int $Timeout An optional timeout.
+     * @return string The cURL response (the fetched resource).
+     */
+    public function fetch($URI, $Timeout = 600)
+    {
         /** Initialise the cURL session. */
         $Request = curl_init($URI);
 
@@ -287,8 +294,13 @@ class SigTool
         return $Response;
     }
 
-    /** Apply shorthand to signature names and remove any unwanted lines. */
-    public function shorthand(&$Data) {
+    /**
+     * Apply shorthand to signature names and remove any unwanted lines.
+     *
+     * @param string $Data The verbatim signature name or identifier.
+     */
+    public function shorthand(&$Data)
+    {
         while (true) {
             $Check = md5($Data) . ':' . strlen($Data);
             foreach ([
@@ -413,8 +425,14 @@ class SigTool
         }
     }
 
-    /** Fix path (we get funky results for "__DIR__ . '/'" in some cases, on some systems). */
-    public function fixPath($Path) {
+    /**
+     * Fix path (we get funky results for "__DIR__ . '/'" in some cases, on some systems).
+     *
+     * @param string $Path
+     * @return string
+     */
+    public function fixPath($Path)
+    {
         return str_replace(['\/', '\\', '/\\'], '/', $Path);
     }
 
