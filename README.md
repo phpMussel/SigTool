@@ -37,6 +37,7 @@ More information can be found in the documentation herein.
 
 ### Documentation:
 - **[English](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.en.md)**
+- **[Deutsch](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.de.md)**
 - **[Español](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.es.md)**
 - **[Français](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.fr.md)**
 - **[Bahasa Indonesia](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.id.md)**
@@ -49,4 +50,4 @@ More information can be found in the documentation herein.
 
 ---
 
-*Last modified: 3 September 2018 (2018.09.03).*
+*Last modified: 23 December 2018 (2018.12.23).*
