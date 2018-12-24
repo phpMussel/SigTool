@@ -1,12 +1,13 @@
 [![Join the chat at https://gitter.im/phpMussel2/Lobby](https://badges.gitter.im/phpMussel2/Lobby.svg)](https://gitter.im/phpMussel2/Lobby)
-[![PHP >= 7.0.0](https://img.shields.io/badge/PHP-%3E%3D%207.0.0-8892bf.svg)](https://maikuolan.github.io/Compatibility-Charts/)
+[![PHP >= 7.0.3](https://img.shields.io/badge/PHP-%3E%3D%207.0.0-8892bf.svg)](https://maikuolan.github.io/Compatibility-Charts/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg)](http://makeapullrequest.com)
 
 ## SigTool.
-Generates signatures for [phpMussel](https://github.com/phpMussel/phpMussel) using main.cvd and daily.cvd from [ClamAV](https://www.clamav.net/).
+Generates signatures for **[phpMussel](https://github.com/phpMussel/phpMussel)** using `main.cvd` and `daily.cvd` from **[ClamAV](https://www.clamav.net/)**.
 
 ---
+
 
 ### How to install:
 
@@ -23,6 +24,7 @@ SigTool can operate normally from a disk or storage medium in the same manner as
 
 ---
 
+
 ### How to use:
 
 Note that SigTool is NOT a web-based PHP application (or web-app)! SigTool is a CLI-based PHP application (or CLI-app) intended to be used with terminal, shell, etc. It can be invoked by calling the PHP binary with the `sigtool.php` file as its first argument:
@@ -35,6 +37,7 @@ More information can be found in the documentation herein.
 
 ---
 
+
 ### Documentation:
 - **[English](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.en.md)**
 - **[Deutsch](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.de.md)**
@@ -44,10 +47,12 @@ More information can be found in the documentation herein.
 - **[Italiano](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.it.md)**
 - **[Nederlandse](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.nl.md)**
 - **[Português](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.pt.md)**
+- **[Русский](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.ru.md)**
 - **[Tiếng Việt](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.vi.md)**
 - **[中文（简体）](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.zh.md)**
 - **[中文（傳統）](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.zh-tw.md)**
 
 ---
 
-*Last modified: 23 December 2018 (2018.12.23).*
+
+Last Updated: 23 December 2018 (2018.12.23).
