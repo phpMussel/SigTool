@@ -5,11 +5,11 @@ Vor der Installation, bitte überprüfen Sie, was erforderlich ist. Wenn was erf
 #### Erforderlich:
 - PHP &gt;= `7.0.3` mit zlib + phar unterstützung.
 - &gt;= 1GB freier Festplattenspeicher (wenn direkt von der Festplatte arbeiten) oder verfügbarer RAM (wenn Sie ein RAM-Laufwerk verwenden; empfohlen).
-- Möglichkeit für PHP im CLI-Modus zu betreiben (commandEingabeaufforderung, Terminal, Shell, u.s.w.).
+- Möglichkeit für PHP im CLI-Modus zu betreiben (Eingabeaufforderung, Terminal, Shell, u.s.w.).
 
 SigTool existiert als eigenständige PHP-Datei und hat keine externen Abhängigkeiten (abgesehen von den oben aufgeführten), und so, um es zu "installieren", müssen Sie `sigtool.php` herunterladen (nichts anderes wird benötigt).
 
-SigTool kann auf normale Weise von einem Datenträger oder Speichermedium auf die gleiche Weise wie jedes andere PHP-Skript arbeiten. Aufgrund jedoch die großen Anzahl der ausgeführten Lese/Schreibvorgänge, es wird dringend empfohlen, es von einem RAM-Laufwerk aus zu betreiben, weil dies seine Geschwindigkeit etwas erhöhen und überschüssige Lese/Schreibvorgänge reduzieren. Die endgültige Ausgabe sollte ungefähr ~64MB nicht überschreiten, aber im normalen Betrieb sind ungefähr ~1GB freier Festplattenspeicher oder verfügbarer RAM erforderlich aufgrund temporärer Arbeitsdateien und um Lese/Schreibfehler zu vermeiden.
+SigTool kann auf normale Weise von einem Datenträger oder Speichermedium auf die gleiche Weise wie jedes andere PHP-Skript arbeiten. Aufgrund jedoch der großen Anzahl der ausgeführten Lese/Schreibvorgänge, es wird dringend empfohlen, es von einem RAM-Laufwerk aus zu betreiben, weil dies seine Geschwindigkeit etwas erhöhen und überschüssige Lese/Schreibvorgänge reduzieren. Die endgültige Ausgabe sollte ungefähr ~64MB nicht überschreiten, aber im normalen Betrieb sind ungefähr ~1GB freier Festplattenspeicher oder verfügbarer RAM erforderlich aufgrund temporärer Arbeitsdateien und um Lese/Schreibfehler zu vermeiden.
 
 ---
 
@@ -35,6 +35,8 @@ Die Ausgabe ist verschiedenen phpMussel-Signaturdateien, direkt aus der ClamAV-S
 - GZ-komprimierte Kopien der Signaturdateien, mit denen das `phpMussel/Signatures`-Repository aktualisiert werden kann.
 
 Die Ausgabe wird direkt in demselben Verzeichnis wie `sigtool.php` erzeugt. Quelldateien und alle temporären Arbeitsdateien werden im laufenden Betrieb gelöscht (so, wenn Sie Kopien von `daily.cvd` und `main.cvd` behalten möchten, Sie sollten Kopien erstellen, bevor Sie die Signaturdateien verarbeiten).
+
+Wenn Sie mit SigTool neue Signaturdateien erstellen, kann es sein dass der Antiviren-Scanner Ihres Computers versucht, die neu erstellten Signaturdateien zu löschen oder in die Quarantäne zu stellen. Dies ist darauf zurückzuführen, dass die Signaturdateien manchmal Daten enthalten, die den Daten sehr ähnlich sind, nach denen Ihr Antivirus beim Scannen sucht. Die von SigTool erzeugten Signaturdateien enthalten jedoch keinen ausführbaren Code und sind völlig harmlos. Wenn dieses Problem auftritt, können Sie versuchen, Ihren Antiviren-Scanner vorübergehend zu deaktivieren, oder Ihren Antiviren-Scanner so konfigurieren, dass das Verzeichnis, in dem Sie neue Signaturdateien erstellen, in die Whitelist aufgenommen wird.
 
 Wenn sich die `signatures.dat` YAML-Datei bei der Verarbeitung in demselben Verzeichnis befindet, Versionsinformationen und Prüfsummen werden entsprechend aktualisiert (so, wenn Sie SigTool verwenden um das `phpMussel/Signatures`-Repository zu aktualisieren, dies sollte enthalten sein).
 
@@ -96,4 +98,4 @@ clamav_swf_regex.db | Es handelt sich um SWF-Dateien; Funktioniert mit Rohdaten;
 ---
 
 
-Zuletzt aktualisiert: 23 Dezember 2018 (2018.12.23).
+Zuletzt aktualisiert: 26 Dezember 2018 (2018.12.26).

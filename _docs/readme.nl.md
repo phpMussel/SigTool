@@ -36,6 +36,8 @@ Output geproduceerd is verschillende phpMussel signatuurbestanden die direct uit
 
 De output wordt direct in dezelfde map als `sigtool.php` geproduceerd. Bronbestanden en alle tijdelijke werkbestanden worden tijdens het gebruik verwijderd (dus, als u kopieën van `daily.cvd` en `main.cvd` wilt houden, u moet kopieën maken voordat u de signatuurbestanden verwerkt).
 
+Wanneer u SigTool gebruikt om nieuwe signatuurbestanden te genereren, is het mogelijk dat de antivirus-scanner van uw computer de nieuw gegenereerde signatuurbestanden probeert te verwijderen of in quarantaine te plaatsen. Dit gebeurt omdat de signatuurbestanden soms gegevens bevatten die erg lijken op de gegevens waarnaar uw antivirus-scanner zoekt tijdens het scannen. De signatuurbestanden gegenereerd door SigTool bevatten echter geen uitvoerbare code en zijn volledig goedaardig. Als u dit probleem ondervindt, kunt u proberen uw antivirus-scanner tijdelijk uit te schakelen, of uw antivirus-scanner configureren om de bestandsmap op de witte lijst opnemen waar u nieuwe signatuurbestanden genereert.
+
 Bij verwerking, als het `signatures.dat` YAML-bestand in dezelfde map is opgenomen, versie informatie en controlesummers worden dienovereenkomstig bijgewerkt (dus, wanneer u SigTool gebruikt om de `phpMussel/Signatures` repository te updaten, dit moet worden opgenomen).
 
 *Opmerking: Als u een phpMussel-gebruiker bent, houd er rekening mee dat de signatuurbestanden ACTIVE moeten zijn om ervoor te zorgen dat ze correct werken! Als u SigTool gebruikt om nieuwe signatuurbestanden te genereren, u kunt ze "activeren" door ze te vermelden in de phpMussel "Active" configuratie richtlijn. Als u de frontend updates pagina gebruikt om signatuurbestanden te installeren en bij te werken, u kunt ze direct "activeren" vanaf de frontend updates pagina. Echter, het gebruik van beide methoden is niet nodig. Ook, voor optimale phpMussel prestaties, het wordt aanbevolen dat u alleen de signatuurbestanden gebruikt die u nodig heeft voor uw installatie (bijv., als een bepaald type bestand op zwarte lijst staat, u heeft waarschijnlijk geen signatuurbestanden nodig die overeenkomen met dat bestandstype; het analyseren van bestanden die in ieder geval geblokkeerd worden, is overbodig werk en kan het scanproces aanzienlijk vertragen).*
@@ -96,4 +98,4 @@ clamav_swf_regex.db | Bedoeld voor SWF-bestanden; Werkt met rauwe data; Signatur
 ---
 
 
-*Laatst gewijzigd: 15 Oktober 2018 (2018.10.15).*
+Laatste Bijgewerkt: 26 December 2018 (2018.12.26).

@@ -36,6 +36,8 @@ Các cờ có sẵn:
 
 Đầu ra được sản xuất trực tiếp vào cùng thư mục với `sigtool.php`. Các tập tin nguồn và tất cả các tập tin tạm thời sẽ bị xóa trong quá trình hoạt động (vì thế, nếu bạn muốn giữ bản sao của `daily.cvd` và `main.cvd`, bạn nên tạo bản sao trước khi xử lý tập tin chữ ký).
 
+Khi sử dụng SigTool để tạo tập tin chữ ký mới, có thể trình quét vi-rút máy tính của bạn có thể cố gắng xóa hoặc cách ly các tập tin chữ ký mới. Điều này xảy ra bởi vì đôi khi, các tập tin chữ ký có thể chứa dữ liệu rất giống với dữ liệu mà trình quét vi-rút của bạn tìm kiếm khi quét. Tuy nhiên, các tập tin chữ ký được tạo bởi SigTool không chứa bất kỳ mã thực thi nào và hoàn toàn lành tính. Nếu bạn gặp phải vấn đề này, bạn có thể thử tắt tạm thời trình quét vi-rút của bạn, hoặc định cấu hình trình quét vi-rút của bạn để đưa danh sách trắng vào thư mục nơi bạn đang tạo tập tin chữ ký mới.
+
 Nếu tập tin YAML `signatures.dat` được bao gồm trong cùng một thư mục khi xử lý, thông tin phiên bản và tổng kiểm tra sẽ được cập nhật tương ứng (vì thế, khi sử dụng SigTool để cập nhật repository `phpMussel/Signatures`, điều này nên được bao gồm).
 
 *Lưu ý: Nếu bạn là người dùng phpMussel, xin hãy nhớ rằng tập tin chữ ký phải được KÍCH HOẠT để làm việc chính xác! Nếu bạn đang sử dụng SigTool để tạo ra các tập tin chữ ký mới, bạn có thể "kích hoạt" chúng bằng cách liệt kê chúng trong cấu hình "Active" của cấu hình phpMussel. Nếu bạn đang sử dụng trang cập nhật của front-end để cài đặt và cập nhật tập tin chữ ký, bạn có thể "kích hoạt" chúng trực tiếp từ trang cập nhật của front-end. Tuy nhiên, sử dụng cả hai phương pháp là không cần thiết. Ngoài ra, cho hiệu suất tối ưu phpMussel, chúng tôi khuyên bạn chỉ nên sử dụng tập tin chữ ký mà bạn cần cho cài đặt của bạn (ví dụ, nếu một số loại tập tin cụ thể bị liệt vào danh sách đen, có thể bạn sẽ không cần các tập tin chữ ký tương ứng với loại tập tin đó; phân tích các tập tin mà sẽ bị chặn dù sao là công việc không cần thiết và có thể làm chậm đáng kể quá trình quét).*
@@ -96,4 +98,4 @@ clamav_swf_regex.db | Nhắm mục tiêu các tập tin SWF; Làm việc với d
 ---
 
 
-*Sửa đổi lần cuối: 9 Tháng Chín 2017 (2017.09.09).*
+Lần cuối cập nhật: 26 Tháng Mười Hai 2018 (2018.12.26).

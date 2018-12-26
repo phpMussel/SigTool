@@ -1,5 +1,5 @@
 [![Join the chat at https://gitter.im/phpMussel2/Lobby](https://badges.gitter.im/phpMussel2/Lobby.svg)](https://gitter.im/phpMussel2/Lobby)
-[![PHP >= 7.0.3](https://img.shields.io/badge/PHP-%3E%3D%207.0.0-8892bf.svg)](https://maikuolan.github.io/Compatibility-Charts/)
+[![PHP >= 7.0.3](https://img.shields.io/badge/PHP-%3E%3D%207.0.3-8892bf.svg)](https://maikuolan.github.io/Compatibility-Charts/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg)](http://makeapullrequest.com)
 
@@ -45,6 +45,8 @@ More information can be found in the documentation herein.
 - **[Français](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.fr.md)**
 - **[Bahasa Indonesia](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.id.md)**
 - **[Italiano](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.it.md)**
+- **[日本語](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.ja.md)**
+- **[한국어](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.ko.md)**
 - **[Nederlandse](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.nl.md)**
 - **[Português](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.pt.md)**
 - **[Русский](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.ru.md)**
@@ -55,4 +57,4 @@ More information can be found in the documentation herein.
 ---
 
 
-Last Updated: 23 December 2018 (2018.12.23).
+Last Updated: 24 December 2018 (2018.12.24).

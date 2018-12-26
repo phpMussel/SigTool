@@ -36,6 +36,8 @@ Produção produzida são vários arquivos de assinatura para phpMussel gerados 
 
 A saída é produzida diretamente no mesmo diretório que `sigtool.php`. Os arquivos originais e todos os arquivos de trabalho temporários serão deletados durante o curso da operação (então, se quiser manter cópias dos arquivos `daily.cvd` e `main.cvd`, você deve fazer cópias antes de processá-las).
 
+Quando usar o SigTool para gerar novos arquivos de assinatura, é possível que o antivírus do computador tente excluir ou colocar em quarentena os arquivos de assinatura novos gerados. Isso acontece porque, às vezes, os arquivos de assinatura podem conter dados muito semelhantes aos dados que o seu antivírus procura ao análise. No entanto, os arquivos de assinatura gerados pelo SigTool não contêm nenhum código executável e são completamente benignos. Se você encontrar esse problema, poderá tentar desativar temporariamente o antivírus, ou configurar o antivírus para colocar na lista branca o diretório em que está gerando novos arquivos de assinatura.
+
 Se o arquivo YAML `signatures.dat` estiver incluído no mesmo diretório durante o processamento, informações de versão e checksums serão atualizados em conformidade (então, ao usar o SigTool para atualizar o repositório `phpMussel/Signatures`, isso deve ser incluído).
 
 *Nota: Se você é um usuário do phpMussel, lembre-se de que os arquivos de assinatura devem ser ATIVOS para que eles funcionem corretamente! Se você estiver usando o SigTool para gerar novos arquivos de assinatura, você pode "ativá-los" listando-os na diretiva de configuração "Active" da configuração do phpMussel. Se você estiver usando a página de atualizações do front-end para instalar e atualizar arquivos de assinatura, você pode "ativá-los" diretamente da página de atualizações de front-end. No entanto, o uso de ambos os métodos não é necessário. Além disso, para o melhor desempenho do phpMussel, recomenda-se que você use apenas os arquivos de assinatura que você precisa para sua instalação (por exemplo, se algum tipo particular de arquivo estiver na lista negra, você provavelmente não precisará de arquivos de assinatura correspondentes a esse tipo de arquivo; analisando arquivos que serão bloqueados de qualquer maneira é um trabalho supérfluo e pode diminuir significativamente o processo).*
@@ -96,4 +98,4 @@ clamav_swf_regex.db | Destinado a arquivos SWF; Funciona com dados brutos; As as
 ---
 
 
-*Última modificado: 4 Setembro 2017 (2017.09.04).*
+Última Atualização: 26 Dezembro de 2018 (2018.12.26).

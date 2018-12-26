@@ -36,6 +36,8 @@ Output yang dihasilkan adalah berbagai file tanda tangan phpMussel yang dihasilk
 
 Output diproduksi langsung ke direktori yang sama dengan `sigtool.php`. File sumber dan semua file kerja sementara akan dihapus selama operasi berlangsung (jadi, jika Anda ingin menyimpan salinan `daily.cvd` dan `main.cvd`, Anda harus membuat salinan sebelum memproses file tanda tangan).
 
+Saat menggunakan SigTool untuk membuat file tanda tangan baru, mungkin pemindai anti-virus komputer Anda dapat mencoba untuk menghapus atau mengkarantina file tanda tangan yang baru dibuat. Ini terjadi karena kadang-kadang, file tanda tangan mungkin berisi data yang sangat mirip dengan data yang dicari oleh anti-virus Anda saat memindai. Namun, file tanda tangan yang dibuatkan oleh SigTool tidak mengandung kode yang dapat dieksekusi, dan sepenuhnya jinak. Jika Anda mengalami masalah ini, Anda dapat mencoba untuk menonaktifkan sementara pemindai anti-virus Anda, atau mengkonfigurasi pemindai anti-virus Anda untuk dimasukkan ke dalam daftar putih direktori tempat Anda membuat file tanda tangan baru.
+
 Jika file YAML `signatures.dat` disertakan dalam direktori yang sama saat memproses, informasi versi dan checksum akan diperbarui sesuai dengan itu (jadi, saat menggunakan SigTool untuk memperbarui repositori `phpMussel/Signatures`, ini harus disertakan).
 
 *Catatan: Jika Anda pengguna phpMussel, harap diingat bahwa file tanda tangan harus AKTIF agar mereka dapat bekerja dengan benar! Jika Anda menggunakan SigTool untuk menghasilkan file tanda tangan baru, Anda dapat "mengaktifkan" mereka dengan mencantumkannya di direktif konfigurasi "Active" dalam phpMussel. Jika Anda menggunakan halaman pembaruan bagian depan untuk menginstal dan memperbarui file tanda tangan, Anda bisa "mengaktifkan" mereka langsung dari halaman pembaruan bagian depan. Namun, menggunakan kedua metode tersebut tidaklah perlu. Juga, untuk kinerja optimal phpMussel, sebaiknya Anda hanya menggunakan file tanda tangan yang Anda butuhkan untuk instalasi Anda (misalnya, jika beberapa jenis file tertentu dimasukkan dalam daftar hitam, Anda mungkin tidak memerlukan file tanda tangan yang sesuai dengan jenis file tersebut; menganalisis file yang akan diblokir tetap adalah pekerjaan yang berlebihan dan secara signifikan dapat memperlambat proses pemindaian).*
@@ -96,4 +98,4 @@ clamav_swf_regex.db | Menargetkan file SWF; Bekerja dengan data mentah; Tanda ta
 ---
 
 
-*Modifikasi terakhir: 4 September 2017 (2017.09.04).*
+Terakhir Diperbarui: 26 Desember 2018 (2018.12.26).

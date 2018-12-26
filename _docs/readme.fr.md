@@ -4,7 +4,7 @@ Avant l'installation, vérifiez les conditions requises. Si ceux-ci ne sont pas 
 
 #### Les conditions requises :
 - PHP &gt;= `7.0.3` avec support de zlib + Phar.
-- &gt;= 1Go d'espace disque libre (si vous travaillez directement à partir du disque) ou RAM disponible (si vous utilisez un disque RAM; recommandé).
+- &gt;= 1Go d'espace disque libre (si vous travaillez directement à partir du disque) ou RAM disponible (si vous utilisez un disque RAM ; recommandé).
 - Capacité d'opérer PHP en mode CLI (invite de commande, le terminal, shell, etc).
 
 SigTool existe en tant que fichier PHP autonome et n'a pas de dépendances externes (autres que les conditions énumérées ci-dessus), et donc, la seule chose que vous devez faire pour « l'installer », c'est télécharger `sigtool.php`.
@@ -28,13 +28,15 @@ Drapeaux possibles :
 - `p` : Procurez-vous des fichiers de signature à utiliser avec phpMussel.
 - `m` : Télécharger `main.cvd` avant le traitement.
 - `d` : Télécharger `daily.cvd` avant le traitement.
-- `u` : Mettre à jour SigTool (télécharge `sigtool.php` à nouveau et die; aucun contrôle effectué).
+- `u` : Mettre à jour SigTool (télécharge `sigtool.php` à nouveau et die ; aucun contrôle effectué).
 
 La sortie produite est divers fichiers de signature pour phpMussel, généré directement à partir de la base de données de signature pour ClamAV, sous deux formes :
 - Fichiers de signatures qui peuvent être insérés directement dans le répertoire `/vault/signatures/`.
 - Copies des fichiers de signatures compressés avec GZ qui peuvent être utilisés pour mettre à jour le référentiel `phpMussel/Signatures`.
 
 La sortie est produite directement dans le même répertoire que `sigtool.php`. Les fichiers source et tous les fichiers de travail temporaire seront supprimés au cours de l'opération (donc, si vous souhaitez conserver des copies des fichiers `daily.cvd` et `main.cvd`, vous devriez faire des copies avant de les traiter).
+
+Quand vous utilisez SigTool pour générer de nouveaux fichiers de signatures, il est possible que l'analyseur antivirus de votre ordinateur tente de supprimer ou de mettre en quarantaine les fichiers de signatures nouvellement générés. Cela est dû au fait que les fichiers de signatures peuvent parfois contenir des données très similaires à celles que votre anti-virus recherche lors de l'analyse. Cependant, les fichiers de signatures générés par SigTool ne contiennent aucun code exécutable, et sont totalement inoffensifs. Si vous rencontrez ce problème, vous pouvez essayer de désactiver temporairement votre analyseur antivirus, ou configurer de manière à ce que le répertoire dans lequel vous générez de nouveaux fichiers de signatures soit ajouté à la liste blanche.
 
 Si le fichier YAML `signatures.dat` est inclus dans le même répertoire lors du traitement, les informations de version et les sommes de contrôle seront mises à jour en conséquence (donc, lorsque vous utilisez SigTool pour mettre à jour le référentiel `phpMussel/Signatures`, cela devrait être inclus).
 
@@ -96,4 +98,4 @@ clamav_swf_regex.db | Cible les fichiers SWF ; Fonctionne avec des données bru
 ---
 
 
-*Dernière modification : 4 Septembre 2017 (2017.09.04).*
+Dernière mise à jour : 26 Décembre 2018 (2018.12.26).

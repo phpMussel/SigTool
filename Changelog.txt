@@ -12,8 +12,9 @@ Versioning guidelines for SemVer can be found at: http://www.semver.org/
   slightly reduce complaints sometimes made by certain code quality checkers
   and such). It's also less messy now to use an integer value of zero as a key.
 
-- [2018.12.23; Documentation; Maikuolan]: Completed translating the SigTool
-  README to German. This totals 11 translations now available.
+- [2018.12.23-25; Documentation; Maikuolan]: Completed translating the SigTool
+  README to German, Russian, Korean, and Japanese. This totals 14 translations
+  now available.
 
 === Version/Release 0.2.2 ===
 PATCH RELEASE.

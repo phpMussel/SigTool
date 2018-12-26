@@ -13,6 +13,7 @@ SigTool puede funcionar normalmente desde un disco o medio de almacenamiento de 
 
 ---
 
+
 ### Cómo utilizar:
 
 Tenga en cuenta que SigTool NO es una aplicación web basada en PHP (o web-app)! SigTool es una aplicación CLI basada en PHP (o CLI-app) destinado a ser utilizado con terminal, shell, etc. Se puede invocar llamando al binario PHP con el archivo `sigtool.php` como su primer argumento:
@@ -35,6 +36,8 @@ La salida producida es varios archivos de firmas para phpMussel generados direct
 
 La salida se produce directamente en el mismo directorio que `sigtool.php`. Los archivos fuente y todos los archivos de trabajo temporales se borrarán durante el curso de la operación (por lo tanto, si desea guardar copias de `daily.cvd` y `main.cvd`, debe hacer copias antes de procesar los archivos de firmas).
 
+Cuando lo usar SigTool para generar nuevos archivos de firmas, es posible que el analizador antivirus de su computadora intentará eliminar o poner en cuarentena los archivos de firmas generados. Esto puede ocurrir porque, a veces, los archivos de firmas pueden contener datos muy similares a los datos que su antivirus busca al escanear. Sin embargo, los archivos de firmas generados por SigTool no contienen ningún código ejecutable y son completamente benignos. Si encuentra este problema, puede intentar desactivar temporalmente su analizador antivirus, o configurar su antivirus para incluir en la lista blanca el directorio donde está generando los archivos de firmas nuevos.
+
 Si el archivo de YAML `signatures.dat` se incluye en el mismo directorio al procesar, la información de la versión y las sumas de comprobación se actualizarán en consecuencia (por lo tanto, al usar SigTool para actualizar el repositorio `phpMussel/Signatures`, esto debe ser incluido).
 
 *Nota: Si eres un usuario de phpMussel, por favor recuerda que los archivos de firma deben estar ACTIVOS para que funcionen correctamente. Si utiliza SigTool para generar nuevos archivos de firmas, puedes "activarlos" enumerándolos en la directiva de configuración "Active" de phpMussel. Si está utilizando la página de actualizaciones del front-end para instalar y actualizar archivos de firmas, usted puede "activar" ellos directamente de allí. Aunque, no es necesario usar ambos métodos. Además, para un rendimiento óptimo de phpMussel, se recomienda que sólo utilice los archivos de firmas que necesita para su instalación (p.ej., si algún tipo particular de archivo está en la lista negra, probablemente no necesitará archivos de firmas correspondientes a ese tipo de archivo; analizar los archivos que se bloquearán de todos modos es un trabajo superfluo y puede ralentizar significativamente el proceso de escaneo).*
@@ -42,6 +45,7 @@ Si el archivo de YAML `signatures.dat` se incluye en el mismo directorio al proc
 Una demostración de vídeo para usar SigTool está disponible en YouTube: __[youtu.be/f2LfjY1HzRI](https://youtu.be/f2LfjY1HzRI)__
 
 ---
+
 
 ### Lista de archivos de firmas generados por SigTool:
 Archivo de firmas | Descripción
@@ -75,6 +79,7 @@ clamav_swf_regex.db | Destinado a archivos SWF; Funciona con datos sin procesar;
 
 ---
 
+
 ### Nota relativa a las extensiones de archivos de firmas:
 *Esta información se ampliará en el futuro.*
 
@@ -92,4 +97,5 @@ clamav_swf_regex.db | Destinado a archivos SWF; Funciona con datos sin procesar;
 
 ---
 
-*Última modificación: 4 Septiembre 2017 (2017.09.04).*
+
+Última Actualización: 26 Diciembre de 2018 (2018.12.26).

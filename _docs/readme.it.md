@@ -36,6 +36,8 @@ L'output prodotto è vari file di firme per phpMussel generati direttamente dal 
 
 L'output viene prodotto direttamente nella stessa directory come `sigtool.php`. I file di origine e tutti i file di lavoro temporanei verranno eliminati durante il funzionamento (quindi, se vuoi mantenere copie di file `daily.cvd` e `main.cvd`, è necessario eseguire copie prima di elaborare i file di firme).
 
+Quando si utilizza SigTool per generare nuovi file di firma, è possibile che lo scanner antivirus del computer tenti di eliminare o mettere in quarantena i file di firma nuovi generati. Ciò accade perché a volte i file delle firme possono contenere dati molto simili ai dati che il tuo anti-virus cerca durante la scansione. Tuttavia, i file di firma generati da SigTool non contengono alcun codice eseguibile e sono completamente benigni. Se si verifica questo problema, disabilitare temporaneamente lo scanner anti-virus, o configurare lo scanner anti-virus per aggiungi alla lista bianca la cartella in cui generi nuovi file di firma a volte può aiutare.
+
 Se il file YAML `signatures.dat` è incluso nella stessa directory durante il processo, le informazioni sulla versione e le checksum verranno aggiornate di conseguenza (quindi, quando si utilizza SigTool per aggiornare il repository `phpMussel/Signatures`, questo dovrebbe essere incluso).
 
 *Nota: Se sei un utente phpMussel, ricorda che i file di firme devono essere ACTIVE per poter funzionare correttamente! Se stai utilizzando SigTool per generare nuovi file di firme, è possibile "attivarli" inserendoli nella direttiva di configurazione "Active" di phpMussel. Se stai utilizzando la pagina degli aggiornamenti del front-end per installare e aggiornare i file delle firme, è possibile "attivarli" direttamente da lì. Tuttavia, non è necessario utilizzare entrambi i metodi. Inoltre, per prestazioni ottimali di phpMussel, è consigliabile utilizzare solo i file di firme necessari per l'installazione (per esempio, se un determinato tipo di file è nella lista nera, probabilmente non avrai bisogno del file di firme corrispondenti a quel tipo di file; l'analisi dei file che sarà bloccata comunque è un lavoro superfluo e può significativamente rallentare il processo di scansione).*
@@ -95,4 +97,4 @@ clamav_swf_regex.db | Destinato ai file SWF; Funziona con dati non processati; L
 ---
 
 
-*Ultima modifica: 4 Settembre 2017 (2017.09.04).*
+Ultimo Aggiornamento: 26 Dicembre 2018 (2018.12.26).
