@@ -9,7 +9,8 @@
         "source": "https://github.com/phpMussel/SigTool"
     },
     "require": {
-        "php": ">=7.0.3"
+        "php": ">=7.0.3",
+        "ext-pcre": "*"
     },
     "suggest": {
         "php": ">=7.2.0 (this package performs significantly better with PHP >= 7.2.0).",
