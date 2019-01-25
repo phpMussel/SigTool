@@ -7,6 +7,11 @@ Versioning guidelines for SemVer can be found at: https://semver.org/
 
 === Changes made since last versioned release ===
 
+(none)
+
+=== Version/Release 0.2.3 ===
+PATCH RELEASE.
+
 - [2018.12.19; Sub-minor code change; Maikuolan]: Split apart the YAML handler
   a little more (doesn't change anything functionally, but should help to
   slightly reduce complaints sometimes made by certain code quality checkers
@@ -15,6 +20,14 @@ Versioning guidelines for SemVer can be found at: https://semver.org/
 - [2018.12.23-25; Documentation; Maikuolan]: Completed translating the SigTool
   README to German, Russian, Korean, and Japanese. This totals 14 translations
   now available.
+
+- [2019.01.25; Sub-minor code change; Maikuolan]: Upped the hashing algo used
+  for generating checksums by default from MD5 to SHA256, seeing as the latter
+  is already supported by phpMussel anyhow (thus having zero implementation
+  cost).
+
+Caleb M (Maikuolan),
+January 25, 2019.
 
 === Version/Release 0.2.2 ===
 PATCH RELEASE.

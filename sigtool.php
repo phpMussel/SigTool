@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v0.2.3 (last modified: 2018.12.20).
+ * SigTool v0.2.3 (last modified: 2019.01.25).
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
  * Package location: GitHub <https://github.com/phpMussel/SigTool>.
@@ -19,7 +19,7 @@ class SigTool
     public $Ver = '0.2.3';
 
     /** Last modified date. */
-    public $Modified = '2018.12.20';
+    public $Modified = '2019.01.25';
 
     /** Script user agent. */
     public $UA = 'SigTool v%s (https://github.com/phpMussel/SigTool)';
@@ -138,7 +138,7 @@ class SigTool
     }
 
     /**
-     * Process one line of YAML. Parameters reference variables set by calling method.
+     * Process a single line of YAML. Parameters reference variables set by calling method.
      *
      * @param string $ThisLine
      * @param string $ThisTab
@@ -302,7 +302,7 @@ class SigTool
     public function shorthand(&$Data)
     {
         while (true) {
-            $Check = md5($Data) . ':' . strlen($Data);
+            $Check = hash('sha256', $Data) . ':' . strlen($Data);
             foreach ([
                 ["\x11", 'Win'],
                 ["\x12", 'W(?:in)?32'],
@@ -419,7 +419,7 @@ class SigTool
                 '',
                 ''
             ], $Data);
-            if (md5($Data) . ':' . strlen($Data) === $Check) {
+            if (hash('sha256', $Data) . ':' . strlen($Data) === $Check) {
                 break;
             }
         }
@@ -750,7 +750,7 @@ if (strpos($RunMode, 'p') !== false) {
             if (!empty($Set[5]) && !empty($Set[4]) && !empty($Meta[$Set[4]]['Files']['Checksum'][0]) && !empty($Meta[$Set[4]]['Version'])) {
                 /** We use the format Y.z.B for signature file versioning. */
                 $Meta[$Set[4]]['Version'] = date('Y.z.B', time());
-                $Meta[$Set[4]]['Files']['Checksum'][0] = md5($FileData) . ':' . strlen($FileData);
+                $Meta[$Set[4]]['Files']['Checksum'][0] = hash('sha256', $FileData) . ':' . strlen($FileData);
             }
 
             echo $L10N['Done'];
@@ -1065,7 +1065,7 @@ if (strpos($RunMode, 'p') !== false) {
                 if (!empty($Meta[$FileSet]['Files']['Checksum'][0]) && !empty($Meta[$FileSet]['Version'])) {
                     /** We use the format Y.z.B for signature file versioning. */
                     $Meta[$FileSet]['Version'] = date('Y.z.B', time());
-                    $Meta[$FileSet]['Files']['Checksum'][0] = md5($FileData) . ':' . strlen($FileData);
+                    $Meta[$FileSet]['Files']['Checksum'][0] = hash('sha256', $FileData) . ':' . strlen($FileData);
                 }
                 file_put_contents($SigTool->fixPath(__DIR__ . '/' . $FileSet), $FileData);
                 $Handle = gzopen($SigTool->fixPath(__DIR__ . '/' . $FileSet . '.gz'), 'wb');
