@@ -7,7 +7,7 @@ Antes da instalação, verifique os requisitos. Se estes não forem atendidos, o
 - &gt;= 1GB de espaço livre no disco (se estiver trabalhando diretamente do disco) ou RAM disponível (se estiver usando uma unidade de RAM; recomendado).
 - Capacidade de operar o PHP no modo CLI (prompt de comando, terminal, shell, etc).
 
-O SigTool existe como um arquivo PHP autônomo e não possui dependências externas (além dos requisitos listados acima), e entao, o único que você precisa fazer para "instalá-lo", é baixar `sigtool.php`.
+O SigTool existe como um arquivo PHP autônomo e não possui dependências externas (além dos requisitos listados acima), e então, o único que você precisa fazer para "instalá-lo", é baixar `sigtool.php`.
 
 O SigTool pode operar normalmente a partir de um disco ou suporte de armazenamento da mesma maneira que qualquer outro script PHP. Contudo, devido ao grande número de operações de leitura/gravação que executa, é altamente recomendável operá-lo a partir de uma unidade de RAM, pois isso aumentará ligeiramente sua velocidade e diminuirá o excesso de operações de leitura/gravação do disco. A saída final não deve exceder aproximadamente ~64MBs, mas aproximadamente ~1GB de espaço livre em disco ou RAM disponível é necessária durante a operação normal devido a arquivos de trabalho temporários e para evitar erros de leitura/gravação.
 
