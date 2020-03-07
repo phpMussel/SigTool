@@ -9,6 +9,30 @@ Versioning guidelines for SemVer can be found at: https://semver.org/
 
 (none)
 
+=== Version/Release 1.0.0 ===
+MAJOR RELEASE (BACKWARDS COMPATIBLE).
+
+- [2020.03.01; Maikuolan]: Renamed "sigtool.php" to "SigTool.php" to align the
+  name of the file more closely to the name of the class. Added a separate YAML
+  class to handle all YAML functionality; SigTool will now extend that YAML
+  class, instead of trying to define any YAML functionality itself (strictly
+  speaking, this violates the idea of SigTool existing purely as a singular
+  file, free of any dependencies; but, having now two files instead of one, in
+  my opinion, isn't really a big deal, and its more maintainable now anyway, so
+  I think, a good way to proceed moving forward; this violation is also the
+  reason why I've opted to mark this release as a major release, as opposed to
+  minor or patch). Added some code to guard against regular expression-based
+  signatures that contain quantifiers that might exceed PCRE's limits, which
+  could result in compilation failure.
+
+- [2020.03.07; Bug-fix; Maikuolan]: A reconstructed "signatures.dat", after
+  processing new signature files, should be prefixed by "---"; not by
+  "0: false". The code wasn't properly accommodating this; Fixed.
+  Refer github.com/phpMussel/SigTool/issues/5
+
+Caleb M (Maikuolan),
+March 7, 2020.
+
 === Version/Release 0.2.3 ===
 PATCH RELEASE.
 

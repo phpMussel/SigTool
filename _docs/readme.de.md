@@ -7,7 +7,7 @@ Vor der Installation, bitte überprüfen Sie, was erforderlich ist. Wenn was erf
 - &gt;= 1GB freier Festplattenspeicher (wenn direkt von der Festplatte arbeiten) oder verfügbarer RAM (wenn Sie ein RAM-Laufwerk verwenden; empfohlen).
 - Möglichkeit für PHP im CLI-Modus zu betreiben (Eingabeaufforderung, Terminal, Shell, u.s.w.).
 
-SigTool existiert als eigenständige PHP-Datei und hat keine externen Abhängigkeiten (abgesehen von den oben aufgeführten), und so, um es zu "installieren", müssen Sie `sigtool.php` herunterladen (nichts anderes wird benötigt).
+Um SigTool zu installieren, laden Sie einfach `SigTool.php` und `YAML.php` herunter. :-)
 
 SigTool kann auf normale Weise von einem Datenträger oder Speichermedium auf die gleiche Weise wie jedes andere PHP-Skript arbeiten. Aufgrund jedoch der großen Anzahl der ausgeführten Lese/Schreibvorgänge, es wird dringend empfohlen, es von einem RAM-Laufwerk aus zu betreiben, weil dies seine Geschwindigkeit etwas erhöhen und überschüssige Lese/Schreibvorgänge reduzieren. Die endgültige Ausgabe sollte ungefähr ~64MB nicht überschreiten, aber im normalen Betrieb sind ungefähr ~1GB freier Festplattenspeicher oder verfügbarer RAM erforderlich aufgrund temporärer Arbeitsdateien und um Lese/Schreibfehler zu vermeiden.
 
@@ -16,9 +16,9 @@ SigTool kann auf normale Weise von einem Datenträger oder Speichermedium auf di
 
 ### Benutzung:
 
-Beachten Sie dass SigTool ist KEINE PHP-basierte Web-App! SigTool ist eine PHP-basierte CLI-App, bestimmt zur Verwendung mit Terminal, Shell, u.s.w. Es kann aufgerufen werden, indem die PHP-Binärdatei mit der Datei `sigtool.php` als erstes Argument aufgerufen:
+Beachten Sie dass SigTool ist KEINE PHP-basierte Web-App! SigTool ist eine PHP-basierte CLI-App, bestimmt zur Verwendung mit Terminal, Shell, u.s.w. Es kann aufgerufen werden, indem die PHP-Binärdatei mit der Datei `SigTool.php` als erstes Argument aufgerufen:
 
-`$ php sigtool.php`
+`$ php SigTool.php`
 
 Hilfeinformationen werden angezeigt, wenn SigTool aufgerufen wird, der möglichen Flaggen auflistet (das zweite Argument), die beim Betrieb von SigTool verwendet werden können.
 
@@ -28,13 +28,13 @@ Möglichen Flaggen:
 - `p`: Verarbeitet Signaturdateien zur Verwendung mit phpMussel.
 - `m`: Holt `main.cvd` vor der Verarbeitung.
 - `d`: Holt `daily.cvd` vor der Verarbeitung.
-- `u`: Aktualisiert SigTool (lädt `sigtool.php` erneut herunter und die; es werden keine Prüfungen durchgeführt).
+- `u`: Aktualisiert SigTool (lädt `SigTool.php` erneut herunter und die; es werden keine Prüfungen durchgeführt).
 
 Die Ausgabe ist verschiedenen phpMussel-Signaturdateien, direkt aus der ClamAV-Signaturdatenbank in zwei Formen generiert:
 - Signaturdateien, die direkt in das `/vault/signatures/`-Verzeichnis eingefügt werden können.
 - GZ-komprimierte Kopien der Signaturdateien, mit denen das `phpMussel/Signatures`-Repository aktualisiert werden kann.
 
-Die Ausgabe wird direkt in demselben Verzeichnis wie `sigtool.php` erzeugt. Quelldateien und alle temporären Arbeitsdateien werden im laufenden Betrieb gelöscht (so, wenn Sie Kopien von `daily.cvd` und `main.cvd` behalten möchten, Sie sollten Kopien erstellen, bevor Sie die Signaturdateien verarbeiten).
+Die Ausgabe wird direkt in demselben Verzeichnis wie `SigTool.php` erzeugt. Quelldateien und alle temporären Arbeitsdateien werden im laufenden Betrieb gelöscht (so, wenn Sie Kopien von `daily.cvd` und `main.cvd` behalten möchten, Sie sollten Kopien erstellen, bevor Sie die Signaturdateien verarbeiten).
 
 Wenn Sie mit SigTool neue Signaturdateien erstellen, kann es sein dass der Antiviren-Scanner Ihres Computers versucht, die neu erstellten Signaturdateien zu löschen oder in die Quarantäne zu stellen. Dies ist darauf zurückzuführen, dass die Signaturdateien manchmal Daten enthalten, die den Daten sehr ähnlich sind, nach denen Ihr Antivirus beim Scannen sucht. Die von SigTool erzeugten Signaturdateien enthalten jedoch keinen ausführbaren Code und sind völlig harmlos. Wenn dieses Problem auftritt, können Sie versuchen, Ihren Antiviren-Scanner vorübergehend zu deaktivieren, oder Ihren Antiviren-Scanner so konfigurieren, dass das Verzeichnis, in dem Sie neue Signaturdateien erstellen, in die Whitelist aufgenommen wird.
 
@@ -98,4 +98,4 @@ clamav_swf_regex.db | Es handelt sich um SWF-Dateien; Funktioniert mit Rohdaten;
 ---
 
 
-Zuletzt aktualisiert: 26 Dezember 2018 (2018.12.26).
+Zuletzt aktualisiert: 7 März 2020 (2020.03.07).

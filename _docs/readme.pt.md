@@ -7,7 +7,7 @@ Antes da instalação, verifique os requisitos. Se estes não forem atendidos, o
 - &gt;= 1GB de espaço livre no disco (se estiver trabalhando diretamente do disco) ou RAM disponível (se estiver usando uma unidade de RAM; recomendado).
 - Capacidade de operar o PHP no modo CLI (prompt de comando, terminal, shell, etc).
 
-O SigTool existe como um arquivo PHP autônomo e não possui dependências externas (além dos requisitos listados acima), e então, o único que você precisa fazer para "instalá-lo", é baixar `sigtool.php`.
+Para instalar o SigTool, basta baixar `SigTool.php` e `YAML.php`. :-)
 
 O SigTool pode operar normalmente a partir de um disco ou suporte de armazenamento da mesma maneira que qualquer outro script PHP. Contudo, devido ao grande número de operações de leitura/gravação que executa, é altamente recomendável operá-lo a partir de uma unidade de RAM, pois isso aumentará ligeiramente sua velocidade e diminuirá o excesso de operações de leitura/gravação do disco. A saída final não deve exceder aproximadamente ~64MBs, mas aproximadamente ~1GB de espaço livre em disco ou RAM disponível é necessária durante a operação normal devido a arquivos de trabalho temporários e para evitar erros de leitura/gravação.
 
@@ -16,9 +16,9 @@ O SigTool pode operar normalmente a partir de um disco ou suporte de armazenamen
 
 ### Como usar:
 
-Observe que o SigTool NÃO é um aplicativo da Web baseado em PHP (ou web-app)! SigTool é um aplicativo da CLI baseado em PHP (ou CLI-app) destinado a ser usado com terminal, shell, etc. Pode ser invocado chamando o binário PHP com o arquivo `sigtool.php` como seu primeiro argumento:
+Observe que o SigTool NÃO é um aplicativo da Web baseado em PHP (ou web-app)! SigTool é um aplicativo da CLI baseado em PHP (ou CLI-app) destinado a ser usado com terminal, shell, etc. Pode ser invocado chamando o binário PHP com o arquivo `SigTool.php` como seu primeiro argumento:
 
-`$ php sigtool.php`
+`$ php SigTool.php`
 
 As informações de ajuda serão exibidas quando o SigTool for invocado, listando as bandeiras possíveis (segundo argumento) que podem ser usadas ao operar o SigTool.
 
@@ -28,13 +28,13 @@ Bandeiras possíveis:
 - `p`: Processar arquivos de assinatura para uso com phpMussel.
 - `m`: Baixar `main.cvd` antes do processamento.
 - `d`: Baixar `daily.cvd` antes do processamento.
-- `u`: Atualizar SigTool (baixe `sigtool.php` novamente e die; nenhuma verificação realizada).
+- `u`: Atualizar SigTool (baixe `SigTool.php` novamente e die; nenhuma verificação realizada).
 
 Produção produzida são vários arquivos de assinatura para phpMussel gerados diretamente do banco de dados de assinaturas para ClamAV, em duas formas:
 - Arquivos de assinatura que podem ser inseridos diretamente no diretório `/vault/signatures/`.
 - Cópias dos arquivos de assinatura compactados com GZ que podem ser usados para atualizar o repositório `phpMussel/Signatures`.
 
-A saída é produzida diretamente no mesmo diretório que `sigtool.php`. Os arquivos originais e todos os arquivos de trabalho temporários serão deletados durante o curso da operação (então, se quiser manter cópias dos arquivos `daily.cvd` e `main.cvd`, você deve fazer cópias antes de processá-las).
+A saída é produzida diretamente no mesmo diretório que `SigTool.php`. Os arquivos originais e todos os arquivos de trabalho temporários serão deletados durante o curso da operação (então, se quiser manter cópias dos arquivos `daily.cvd` e `main.cvd`, você deve fazer cópias antes de processá-las).
 
 Quando usar o SigTool para gerar novos arquivos de assinatura, é possível que o antivírus do computador tente excluir ou colocar em quarentena os arquivos de assinatura novos gerados. Isso acontece porque, às vezes, os arquivos de assinatura podem conter dados muito semelhantes aos dados que o seu antivírus procura ao análise. No entanto, os arquivos de assinatura gerados pelo SigTool não contêm nenhum código executável e são completamente benignos. Se você encontrar esse problema, poderá tentar desativar temporariamente o antivírus, ou configurar o antivírus para colocar na lista branca o diretório em que está gerando novos arquivos de assinatura.
 
@@ -98,4 +98,4 @@ clamav_swf_regex.db | Destinado a arquivos SWF; Funciona com dados brutos; As as
 ---
 
 
-Última Atualização: 26 Dezembro de 2018 (2018.12.26).
+Última Atualização: 7 de Março de 2020 (2020.03.07).

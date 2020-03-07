@@ -7,7 +7,7 @@ Controleer alstublieft de vereisten voordat u installeert. Als deze niet worden 
 - &gt;= 1GB vrije schijfruimte (als u rechtstreeks vanaf de schijf werkt) of beschikbare RAM (als u een RAM-station gebruikt; aanbevolen).
 - Vermogen om PHP te bedienen in de CLI-modus (command prompt, terminal, shell, enz).
 
-SigTool bestaat als een zelfstandig PHP bestand en heeft geen externe afhankelijkheden (afgezien van de bovenstaande eisen), en dus, het enige wat u moet doen om het te "installeren" is download `sigtool.php`.
+Om SigTool te installeren, download `SigTool.php` en `YAML.php`. :-)
 
 SigTool kan normaal gesproken vanuit een disk of opslagmedium op dezelfde manier werken als een ander PHP-script. Echter, door het grote aantal lees/schrijf operaties uitgevoerd, het wordt ten zeerste aanbevolen om het van een RAM-station te bedienen, aangezien dit de snelheid zal verhogen en de overmaat lees/schrijf operaties verminderen. De uiteindelijke uitvoer mag niet hoger zijn dan ongeveer ~64MB, maar ongeveer ~1GB vrije schijfruimte of beschikbaar RAM is vereist tijdens normale werking wegens tijdelijke werkbestanden en om lees/schrijf fouten te voorkomen.
 
@@ -16,9 +16,9 @@ SigTool kan normaal gesproken vanuit een disk of opslagmedium op dezelfde manier
 
 ### Hoe te gebruiken:
 
-Maak een notitie op dat SigTool NIET een PHP-gebaseerde web-applicatie (of web-app) is! SigTool is een PHP-gebaseerde CLI-applicatie (of CLI-app) bedoeld om gebruikt te worden met terminal, shell, enz. Het kan worden ingeroepen door het binaire PHP te bellen met het `sigtool.php` bestand als eerste argument:
+Maak een notitie op dat SigTool NIET een PHP-gebaseerde web-applicatie (of web-app) is! SigTool is een PHP-gebaseerde CLI-applicatie (of CLI-app) bedoeld om gebruikt te worden met terminal, shell, enz. Het kan worden ingeroepen door het binaire PHP te bellen met het `SigTool.php` bestand als eerste argument:
 
-`$ php sigtool.php`
+`$ php SigTool.php`
 
 Hulpinformatie wordt weergegeven wanneer SigTool wordt ingeroepen, waarbij de mogelijke vlaggen (tweede argument) worden vermeld die kunnen worden gebruikt bij het gebruik van SigTool.
 
@@ -28,13 +28,13 @@ Mogelijke vlaggen:
 - `p`: Verwerk signatuurbestanden voor gebruik met phpMussel.
 - `m`: Download `main.cvd` voor verwerking.
 - `d`: Download `daily.cvd` voor verwerking.
-- `u`: Update SigTool (downloadt `sigtool.php` opnieuw en dies; geen controles uitgevoerd).
+- `u`: Update SigTool (downloadt `SigTool.php` opnieuw en dies; geen controles uitgevoerd).
 
 Output geproduceerd is verschillende phpMussel signatuurbestanden die direct uit de ClamAV signatures database worden gegenereerd, in twee vormen:
 - Signatuurbestanden die direct in de `/vault/signatures/` map kunnen worden ingevoegd.
 - GZ-gecomprimeerde kopieën van de signatuurbestanden die kunnen worden gebruikt om de `phpMussel/Signatures` repository te updaten.
 
-De output wordt direct in dezelfde map als `sigtool.php` geproduceerd. Bronbestanden en alle tijdelijke werkbestanden worden tijdens het gebruik verwijderd (dus, als u kopieën van `daily.cvd` en `main.cvd` wilt houden, u moet kopieën maken voordat u de signatuurbestanden verwerkt).
+De output wordt direct in dezelfde map als `SigTool.php` geproduceerd. Bronbestanden en alle tijdelijke werkbestanden worden tijdens het gebruik verwijderd (dus, als u kopieën van `daily.cvd` en `main.cvd` wilt houden, u moet kopieën maken voordat u de signatuurbestanden verwerkt).
 
 Wanneer u SigTool gebruikt om nieuwe signatuurbestanden te genereren, is het mogelijk dat de antivirus-scanner van uw computer de nieuw gegenereerde signatuurbestanden probeert te verwijderen of in quarantaine te plaatsen. Dit gebeurt omdat de signatuurbestanden soms gegevens bevatten die erg lijken op de gegevens waarnaar uw antivirus-scanner zoekt tijdens het scannen. De signatuurbestanden gegenereerd door SigTool bevatten echter geen uitvoerbare code en zijn volledig goedaardig. Als u dit probleem ondervindt, kunt u proberen uw antivirus-scanner tijdelijk uit te schakelen, of uw antivirus-scanner configureren om de bestandsmap op de witte lijst opnemen waar u nieuwe signatuurbestanden genereert.
 
@@ -98,4 +98,4 @@ clamav_swf_regex.db | Bedoeld voor SWF-bestanden; Werkt met rauwe data; Signatur
 ---
 
 
-Laatste Bijgewerkt: 26 December 2018 (2018.12.26).
+Laatste Bijgewerkt: 7 Maart 2020 (2020.03.07).

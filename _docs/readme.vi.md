@@ -7,7 +7,7 @@ Trước khi cài đặt, vui lòng kiểm tra các yêu cầu. Nếu những đ
 - &gt;= 1GB không gian đĩa trống (nếu làm việc trực tiếp từ đĩa) hoặc bộ nhớ RAM có sẵn (nếu sử dụng một ổ đĩa RAM; được đề nghị).
 - Khả năng vận hành PHP trong chế độ CLI (dấu nhắc lệnh, terminal, shell, vv).
 
-SigTool là một tập tin PHP độc lập và không có bất kỳ phụ thuộc bên ngoài (khác với các yêu cầu được liệt kê ở trên), và như vậy, điều duy nhất bạn cần làm để "cài đặt" nó, được tải về `sigtool.php`.
+Để cài đặt SigTool, chỉ cần tải xuống `SigTool.php` và `YAML.php`. :-)
 
 SigTool có thể hoạt động bình thường từ đĩa hoặc phương tiện lưu trữ theo cách tương tự như bất kỳ tập lệnh PHP nào khác. Tuy nhiên, do số lượng lớn các hoạt động đọc và viết nó thực hiện, nó rất khuyến khích để vận hành nó từ một ổ đĩa RAM, bởi vì điều này sẽ hơi tăng tốc độ của nó và giảm hoạt động đọc và viết của đĩa thừa. Sản lượng cuối cùng không được vượt quá ~64MB, nhưng khoảng 1GB không gian đĩa trống hoặc RAM có sẵn là bắt buộc trong quá trình hoạt động bình thường bởi vì các tập tin tạm thời làm việc và để tránh lỗi.
 
@@ -16,9 +16,9 @@ SigTool có thể hoạt động bình thường từ đĩa hoặc phương ti�
 
 ### Cách sử dụng:
 
-Lưu ý rằng SigTool KHÔNG phải là một ứng dụng web dựa trên PHP (web-app)! SigTool là một ứng dụng CLI dựa trên PHP (CLI-app) dự định sẽ được sử dụng với terminal, shell, vv. Nó có thể được gọi bằng cách gọi các nhị phân PHP với tập tin `sigtool.php` làm đối số đầu tiên của nó:
+Lưu ý rằng SigTool KHÔNG phải là một ứng dụng web dựa trên PHP (web-app)! SigTool là một ứng dụng CLI dựa trên PHP (CLI-app) dự định sẽ được sử dụng với terminal, shell, vv. Nó có thể được gọi bằng cách gọi các nhị phân PHP với tập tin `SigTool.php` làm đối số đầu tiên của nó:
 
-`$ php sigtool.php`
+`$ php SigTool.php`
 
 Thông tin trợ giúp sẽ được hiển thị khi gọi SigTool, sẽ liệt kê các cờ có sẵn (đối số thứ hai) có thể được sử dụng khi gọi SigTool.
 
@@ -28,13 +28,13 @@ Các cờ có sẵn:
 - `p`: Xử lý các tập tin chữ ký để sử dụng với phpMussel.
 - `m`: Tải xuống `main.cvd` trước khi xử lý.
 - `d`: Tải xuống `daily.cvd` trước khi xử lý.
-- `u`: Cập nhật SigTool (tải xuống `sigtool.php` lại và die; không kiểm tra được thực hiện).
+- `u`: Cập nhật SigTool (tải xuống `SigTool.php` lại và die; không kiểm tra được thực hiện).
 
 Đầu ra được sản xuất là các tập tin chữ ký phpMussel khác nhau được tạo trực tiếp từ cơ sở dữ liệu chữ ký ClamAV, theo hai hình thức:
 - Chữ ký có thể được chèn trực tiếp vào thư mục `/vault/signatures/`.
 - Bản sao của các tập tin chữ ký được nén bằng GZ có thể được sử dụng để cập nhật repository `phpMussel/Signatures`.
 
-Đầu ra được sản xuất trực tiếp vào cùng thư mục với `sigtool.php`. Các tập tin nguồn và tất cả các tập tin tạm thời sẽ bị xóa trong quá trình hoạt động (vì thế, nếu bạn muốn giữ bản sao của `daily.cvd` và `main.cvd`, bạn nên tạo bản sao trước khi xử lý tập tin chữ ký).
+Đầu ra được sản xuất trực tiếp vào cùng thư mục với `SigTool.php`. Các tập tin nguồn và tất cả các tập tin tạm thời sẽ bị xóa trong quá trình hoạt động (vì thế, nếu bạn muốn giữ bản sao của `daily.cvd` và `main.cvd`, bạn nên tạo bản sao trước khi xử lý tập tin chữ ký).
 
 Khi sử dụng SigTool để tạo tập tin chữ ký mới, có thể trình quét vi-rút máy tính của bạn có thể cố gắng xóa hoặc cách ly các tập tin chữ ký mới. Điều này xảy ra bởi vì đôi khi, các tập tin chữ ký có thể chứa dữ liệu rất giống với dữ liệu mà trình quét vi-rút của bạn tìm kiếm khi quét. Tuy nhiên, các tập tin chữ ký được tạo bởi SigTool không chứa bất kỳ mã thực thi nào và hoàn toàn lành tính. Nếu bạn gặp phải vấn đề này, bạn có thể thử tắt tạm thời trình quét vi-rút của bạn, hoặc định cấu hình trình quét vi-rút của bạn để đưa danh sách trắng vào thư mục nơi bạn đang tạo tập tin chữ ký mới.
 
@@ -98,4 +98,4 @@ clamav_swf_regex.db | Nhắm mục tiêu các tập tin SWF; Làm việc với d
 ---
 
 
-Lần cuối cập nhật: 26 Tháng Mười Hai 2018 (2018.12.26).
+Lần cuối cập nhật: 7 Tháng Ba 2020 (2020.03.07).

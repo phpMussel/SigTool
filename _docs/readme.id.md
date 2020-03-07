@@ -7,7 +7,7 @@ Sebelum menginstal, mohon periksa persyaratannya. Jika ini tidak terpenuhi, SigT
 - &gt;= 1GB ruang disk kosong (jika bekerja langsung dari disk) atau RAM yang tersedia (jika menggunakan drive RAM; direkomendasikan).
 - Kemampuan mengoperasikan PHP dalam modus CLI (command prompt, terminal, shell, dll).
 
-SigTool ada sebagai file PHP yang berdiri sendiri dan tidak memiliki dependensi eksternal (selain dari persyaratan yang tercantum di atas), dan sebagainya, satu-satunya hal yang perlu Anda lakukan untuk "menginstal" itu, adalah download `sigtool.php`.
+Untuk menginstal SigTool, cukup download `SigTool.php` dan `YAML.php`. :-)
 
 SigTool dapat beroperasi secara normal dari media disk atau media penyimpanan dengan cara yang sama seperti skrip PHP lainnya. Namun, karena banyaknya operasi baca/tulis yang dilakukan, sangat direkomendasikan untuk mengoperasikannya dari drive RAM, karena ini akan sedikit meningkatkan kecepatan dan mengurangi kelebihan operasi disk baca/tulis. Output akhir tidak boleh melebihi kira-kira ~64MBs, tapi kira-kira ~1GB ruang disk kosong atau RAM yang tersedia diperlukan selama operasi normal karena file kerja sementara dan untuk menghindari kesalahan baca/tulis.
 
@@ -16,9 +16,9 @@ SigTool dapat beroperasi secara normal dari media disk atau media penyimpanan de
 
 ### Bagaimana cara menggunakan:
 
-Perhatikan bahwa SigTool BUKAN aplikasi web berbasis PHP (atau web-app)! SigTool adalah aplikasi CLI berbasis PHP (atau CLI-app) dimaksudkan untuk digunakan dengan terminal, shell, dll. Hal ini dapat dipanggil dengan memanggil biner PHP dengan file `sigtool.php` sebagai argumen pertamanya:
+Perhatikan bahwa SigTool BUKAN aplikasi web berbasis PHP (atau web-app)! SigTool adalah aplikasi CLI berbasis PHP (atau CLI-app) dimaksudkan untuk digunakan dengan terminal, shell, dll. Hal ini dapat dipanggil dengan memanggil biner PHP dengan file `SigTool.php` sebagai argumen pertamanya:
 
-`$ php sigtool.php`
+`$ php SigTool.php`
 
 Informasi bantuan akan ditampilkan saat SigTool dipanggil, mencantumkan flag yang mungkin (argumen kedua) yang bisa digunakan saat mengoperasikan SigTool.
 
@@ -28,13 +28,13 @@ Bendera yang mungkin:
 - `p`: Proses file tanda tangan untuk digunakan dengan phpMussel.
 - `m`: Download `main.cvd` sebelum diproses.
 - `d`: Download `daily.cvd` sebelum diproses.
-- `u`: Perbarui SigTool (download `sigtool.php` lagi dan die; tidak ada pemeriksaan yang dilakukan).
+- `u`: Perbarui SigTool (download `SigTool.php` lagi dan die; tidak ada pemeriksaan yang dilakukan).
 
 Output yang dihasilkan adalah berbagai file tanda tangan phpMussel yang dihasilkan langsung dari database tanda tangan ClamAV, dalam dua bentuk:
 - File tanda tangan yang bisa dimasukkan langsung ke direktori `/vault/signatures/`.
 - Dikompresi GZ salinan dari file tanda tangan yang dapat digunakan untuk memperbarui repositori `phpMussel/Signatures`.
 
-Output diproduksi langsung ke direktori yang sama dengan `sigtool.php`. File sumber dan semua file kerja sementara akan dihapus selama operasi berlangsung (jadi, jika Anda ingin menyimpan salinan `daily.cvd` dan `main.cvd`, Anda harus membuat salinan sebelum memproses file tanda tangan).
+Output diproduksi langsung ke direktori yang sama dengan `SigTool.php`. File sumber dan semua file kerja sementara akan dihapus selama operasi berlangsung (jadi, jika Anda ingin menyimpan salinan `daily.cvd` dan `main.cvd`, Anda harus membuat salinan sebelum memproses file tanda tangan).
 
 Saat menggunakan SigTool untuk membuat file tanda tangan baru, mungkin pemindai anti-virus komputer Anda dapat mencoba untuk menghapus atau mengkarantina file tanda tangan yang baru dibuat. Ini terjadi karena kadang-kadang, file tanda tangan mungkin berisi data yang sangat mirip dengan data yang dicari oleh anti-virus Anda saat memindai. Namun, file tanda tangan yang dibuatkan oleh SigTool tidak mengandung kode yang dapat dieksekusi, dan sepenuhnya jinak. Jika Anda mengalami masalah ini, Anda dapat mencoba untuk menonaktifkan sementara pemindai anti-virus Anda, atau mengkonfigurasi pemindai anti-virus Anda untuk dimasukkan ke dalam daftar putih direktori tempat Anda membuat file tanda tangan baru.
 
@@ -98,4 +98,4 @@ clamav_swf_regex.db | Menargetkan file SWF; Bekerja dengan data mentah; Tanda ta
 ---
 
 
-Terakhir Diperbarui: 26 Desember 2018 (2018.12.26).
+Terakhir Diperbarui: 7 Maret 2020 (2020.03.07).

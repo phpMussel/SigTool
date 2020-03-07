@@ -7,7 +7,7 @@ Prima di installare, controllare i requisiti. Se questi non sono soddisfatti, Si
 - &gt;= 1GB di spazio libero su disco (se lavora direttamente dal disco) o RAM disponibile (se si utilizza un'unità RAM; consigliato).
 - Capacità di utilizzare PHP in modalità CLI (prompt dei comandi, terminal, shell, ecc).
 
-SigTool esiste come un file PHP autonomo e non dispone di dipendenze esterne (diversi dai requisiti elencati in precedenza), e così, l'unica cosa che devi fare per "installarlo", è scaricare `sigtool.php`.
+Per installare SigTool, basta scaricare `SigTool.php` e `YAML.php`. :-)
 
 SigTool può funzionare normalmente da un disco o da un supporto di memorizzazione nello stesso modo di qualsiasi altro script PHP. Tuttavia, a causa del numero elevato di operazioni di lettura/scrittura che esegue, è altamente consigliato per azionarlo da un'unità RAM, poichè ciò aumenterà leggermente la sua velocità e diminuirà le operazioni di lettura/scrittura di disco eccessivo. L'output finale non dovrebbe superare approssimativamente ~64MB, ma approssimativamente ~1GB di spazio libero su disco o RAM disponibile è necessario durante il normale funzionamento a causa di file temporanei di lavoro e per evitare errori di lettura/scrittura.
 
@@ -16,9 +16,9 @@ SigTool può funzionare normalmente da un disco o da un supporto di memorizzazio
 
 ### Come usare:
 
-Si noti che SigTool NON è un'applicazione web basata su PHP (o web-app)! SigTool è un'applicazione CLI basata su PHP (o CLI-app) destinato ad essere utilizzato con terminali, shell, ecc. Può essere invocato chiamando il binario PHP con il file `sigtool.php` come primo argomento:
+Si noti che SigTool NON è un'applicazione web basata su PHP (o web-app)! SigTool è un'applicazione CLI basata su PHP (o CLI-app) destinato ad essere utilizzato con terminali, shell, ecc. Può essere invocato chiamando il binario PHP con il file `SigTool.php` come primo argomento:
 
-`$ php sigtool.php`
+`$ php SigTool.php`
 
 Informazioni di aiuto verranno visualizzate quando viene invocato SigTool, elencando le flag possibile (secondo argomento) che possono essere utilizzate quando si utilizza SigTool.
 
@@ -28,13 +28,13 @@ Flag possibile:
 - `p`: Processare le file di firma per l'utilizzo con phpMussel.
 - `m`: Scaricare `main.cvd` prima di processare.
 - `d`: Scaricare `daily.cvd` prima di processare.
-- `u`: Aggiornare SigTool (scarica nuovamente `sigtool.php` e die; nessun controllo effettuato).
+- `u`: Aggiornare SigTool (scarica nuovamente `SigTool.php` e die; nessun controllo effettuato).
 
 L'output prodotto è vari file di firme per phpMussel generati direttamente dal database di firme per ClamAV, in due forme:
 - File di firme che possono essere inseriti direttamente nella cartella `/vault/signatures/`.
 - Copie dei file di firme compressi con GZ che possono essere utilizzati per aggiornare il repository `phpMussel/Signatures`.
 
-L'output viene prodotto direttamente nella stessa directory come `sigtool.php`. I file di origine e tutti i file di lavoro temporanei verranno eliminati durante il funzionamento (quindi, se vuoi mantenere copie di file `daily.cvd` e `main.cvd`, è necessario eseguire copie prima di elaborare i file di firme).
+L'output viene prodotto direttamente nella stessa directory come `SigTool.php`. I file di origine e tutti i file di lavoro temporanei verranno eliminati durante il funzionamento (quindi, se vuoi mantenere copie di file `daily.cvd` e `main.cvd`, è necessario eseguire copie prima di elaborare i file di firme).
 
 Quando si utilizza SigTool per generare nuovi file di firma, è possibile che lo scanner antivirus del computer tenti di eliminare o mettere in quarantena i file di firma nuovi generati. Ciò accade perché a volte i file delle firme possono contenere dati molto simili ai dati che il tuo anti-virus cerca durante la scansione. Tuttavia, i file di firma generati da SigTool non contengono alcun codice eseguibile e sono completamente benigni. Se si verifica questo problema, disabilitare temporaneamente lo scanner anti-virus, o configurare lo scanner anti-virus per aggiungi alla lista bianca la cartella in cui generi nuovi file di firma a volte può aiutare.
 
@@ -97,4 +97,4 @@ clamav_swf_regex.db | Destinato ai file SWF; Funziona con dati non processati; L
 ---
 
 
-Ultimo Aggiornamento: 26 Dicembre 2018 (2018.12.26).
+Ultimo Aggiornamento: 7 Marzo 2020 (2020.03.07).
