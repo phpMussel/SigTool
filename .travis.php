@@ -11,7 +11,7 @@
  * coverage or to provide a better guarantee of overall package efficacy.
  */
 
-require __DIR__ . '/sigtool.php';
+require __DIR__ . '/SigTool.php';
 
 $ClassNames = array('\PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
 $ClassExists = array(class_exists($ClassNames[0]), class_exists($ClassNames[1]));
