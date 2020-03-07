@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v1.0.0 (last modified: 2020.03.01).
+ * SigTool v1.0.0 (last modified: 2020.03.07).
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
  * Package location: GitHub <https://github.com/phpMussel/SigTool>.
@@ -15,7 +15,7 @@ class SigTool extends \Maikuolan\Common\YAML
     public $Ver = '1.0.0';
 
     /** Last modified date. */
-    public $Modified = '2020.03.01';
+    public $Modified = '2020.03.07';
 
     /** Script user agent. */
     public $UA = 'SigTool v%s (https://github.com/phpMussel/SigTool)';
@@ -412,6 +412,7 @@ if (strpos($RunMode, 'x') !== false) {
         echo $L10N['Done'] . sprintf($L10N['Deleting'], $Set);
         echo unlink($File) ? $L10N['Done'] : $L10N['Failed'];
     }
+
     /** Cleanup. */
     unset($ThisFile, $Files, $Pad);
 }
@@ -684,7 +685,7 @@ if (strpos($RunMode, 'p') !== false) {
                 }
 
                 /** Helps to prevent "Compilation failed: number too big in {} quantifier ..." errors. */
-                if (preg_match('/\{(?:\d{6,}|6[6-9]\d{3,}|65[6-9]\d{2,}|655[4-9]\d+|6553[6-9]),\}/', $ThisLine)) {
+                if (preg_match('/\{(?:\d{6,}|6[6-9]\d{3,}|65[6-9]\d{2,}|655[4-9]\d+|6553[6-9])/', $ThisLine)) {
                     continue;
                 }
 
@@ -777,7 +778,7 @@ if (strpos($RunMode, 'p') !== false) {
                     ], $SigHex));
 
                     /** Possible character range. */
-                    $CharRange = ['0', 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'];
+                    $CharRange = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
 
                     /** Simplify all the (xx|xx|xx|xx...) stuff into something smaller and more readable. */
                     foreach ($CharRange as $Char) {
@@ -876,8 +877,10 @@ if (strpos($RunMode, 'p') !== false) {
             foreach ($FileSets as $FileSet => $FileData) {
                 echo sprintf($L10N['Writing'], $FileSet);
                 if (!empty($Meta[$FileSet]['Files']['Checksum'][0]) && !empty($Meta[$FileSet]['Version'])) {
+
                     /** We use the format Y.z.B for signature file versioning. */
                     $Meta[$FileSet]['Version'] = date('Y.z.B', time());
+
                     $Meta[$FileSet]['Files']['Checksum'][0] = hash('sha256', $FileData) . ':' . strlen($FileData);
                 }
                 file_put_contents($SigTool->fixPath(__DIR__ . '/' . $FileSet), $FileData);
