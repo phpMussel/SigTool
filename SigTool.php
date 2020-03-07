@@ -50,6 +50,9 @@ class SigTool extends \Maikuolan\Common\YAML
      */
     public function setRaw(string $Raw)
     {
+        if (substr($Raw, 0, 4) === "---\n") {
+            $Raw = substr($Raw, 4);
+        }
         $this->Raw = $Raw;
     }
 
@@ -895,7 +898,7 @@ if (strpos($RunMode, 'p') !== false) {
     /** Update signatures.dat if necessary. */
     if (!empty($Meta)) {
         echo sprintf($L10N['Writing'], 'signatures.dat');
-        $NewMeta = $SigTool->reconstruct($SigTool->Arr);
+        $NewMeta = "---\n" . $SigTool->reconstruct($SigTool->Arr);
         $Handle = fopen($SigTool->fixPath(__DIR__ . '/signatures.dat'), 'wb');
         fwrite($Handle, $NewMeta);
         fclose($Handle);
