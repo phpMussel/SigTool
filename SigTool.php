@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v1.0.0 (last modified: 2020.03.07).
+ * SigTool v1.0.1 (last modified: 2020.12.05).
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
  * Package location: GitHub <https://github.com/phpMussel/SigTool>.
@@ -12,10 +12,10 @@ require __DIR__ . '/YAML.php';
 class SigTool extends \Maikuolan\Common\YAML
 {
     /** Script version. */
-    public $Ver = '1.0.0';
+    public $Ver = '1.0.1';
 
     /** Last modified date. */
-    public $Modified = '2020.03.07';
+    public $Modified = '2020.12.05';
 
     /** Script user agent. */
     public $UA = 'SigTool v%s (https://github.com/phpMussel/SigTool)';
@@ -235,7 +235,6 @@ class SigTool extends \Maikuolan\Common\YAML
     {
         return str_replace(['\/', '\\', '/\\'], '/', $Path);
     }
-
 }
 
 /** Fetch arguments. */
@@ -568,7 +567,6 @@ if (strpos($RunMode, 'p') !== false) {
                 echo unlink($SigTool->fixPath(__DIR__ . '/' . $File)) ? $L10N['Done'] : $L10N['Failed'];
             }
         }
-
     }
 
     /** NDB sequence. */
@@ -744,9 +742,7 @@ if (strpos($RunMode, 'p') !== false) {
                 /** Normalise to lower-case. */
                 $SigHex = strtolower($SigHex);
 
-                /** Assign to the appropriate signature file (regex). */
                 if (preg_match('/[^a-f\d*]/i', $SigHex)) {
-
                     /** Convert from ClamAV's pattern syntax to PCRE syntax. */
                     $SigHex = preg_replace([
                         '~^.*\{(?:-?\d{4,}|\d{4,}-)\}.*$~',
@@ -859,10 +855,7 @@ if (strpos($RunMode, 'p') !== false) {
                     if (!empty($CorrelationsRegex[$SigType])) {
                         $FileSets[$CorrelationsRegex[$SigType]] .= $ThisLine;
                     }
-
-                /** Assign to the appropriate signature file (non-regex). */
                 } else {
-
                     /** Wildcards and other tricks. */
                     $SigHex = str_replace('*', '>', $SigHex);
 
