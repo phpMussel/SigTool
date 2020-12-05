@@ -18,8 +18,8 @@ MAJOR RELEASE (BACKWARDS COMPATIBLE).
   class, instead of trying to define any YAML functionality itself (strictly
   speaking, this violates the idea of SigTool existing purely as a singular
   file, free of any dependencies; but, having now two files instead of one, in
-  my opinion, isn't really a big deal, and its more maintainable now anyway, so
-  I think, a good way to proceed moving forward; this violation is also the
+  my opinion, isn't really a big deal, and it's more maintainable now anyway,
+  so I think, a good way to proceed moving forward; this violation is also the
   reason why I've opted to mark this release as a major release, as opposed to
   minor or patch). Added some code to guard against regular expression-based
   signatures that contain quantifiers that might exceed PCRE's limits, which
