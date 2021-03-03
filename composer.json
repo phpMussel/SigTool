@@ -4,9 +4,11 @@
     "keywords": ["phpmussel","signatures","generator","sigtool","clamav"],
     "license": "MIT",
     "support": {
-        "chat": "https://gitter.im/phpMussel2/Lobby",
         "issues": "https://github.com/phpMussel/SigTool/issues",
-        "source": "https://github.com/phpMussel/SigTool"
+        "source": "https://github.com/phpMussel/SigTool",
+        "docs": "https://github.com/phpMussel/SigTool/tree/master/_docs",
+        "rss": "https://github.com/phpMussel/SigTool/releases.atom",
+        "chat": "https://gitter.im/phpMussel2/Lobby"
     },
     "require": {
         "php": ">=7.0.3",
