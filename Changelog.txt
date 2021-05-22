@@ -9,6 +9,14 @@ Versioning guidelines for SemVer can be found at: https://semver.org/
 
 (none)
 
+=== Version/Release 1.0.2 ===
+MAINTENANCE RELEASE.
+
+- [2021.05.22; Maikuolan]: Synced the YAML class to its latest version.
+
+Caleb M (Maikuolan),
+May 22, 2021.
+
 === Version/Release 1.0.1 ===
 MAINTENANCE RELEASE.
 

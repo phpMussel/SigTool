@@ -1,6 +1,6 @@
 <?php
 /**
- * YAML handler (last modified: 2019.12.26).
+ * YAML handler (last modified: 2021.05.22).
  *
  * This file is a part of the "common classes package", utilised by a number of
  * packages and projects, including CIDRAM and phpMussel.
@@ -9,25 +9,53 @@
  * License: GNU/GPLv2
  * @see LICENSE.txt
  *
- * "COMMON CLASSES PACKAGE" COPYRIGHT 2019 and beyond by Caleb Mazalevskis
- * (Maikuolan). Earliest iteration and deployment of "YAML handler" COPYRIGHT
- * 2016 and beyond by Caleb Mazalevskis (Maikuolan).
+ * "COMMON CLASSES PACKAGE" COPYRIGHT 2019 and beyond by Caleb Mazalevskis.
+ * *This particular class*, COPYRIGHT 2016 and beyond by Caleb Mazalevskis.
  *
- * Note: The YAML handler is intended to adequately serve the needs of the
- * packages and projects where it is implemented, but isn't a complete YAML
- * solution, instead supporting the YAML specification only to the bare minimum
- * required by those packages and projects known to implement it.
+ * Note: Some parts of the YAML specification aren't supported by this class.
+ * See the included documentation for more information.
  */
 
 namespace Maikuolan\Common;
 
 class YAML
 {
-    /** An array to contain all the data processed by the handler. */
+    /**
+     * @var array An array to contain all the data processed by the handler.
+     */
     public $Data = [];
 
-    /** Flag used for rendering multi-line values. */
+    /**
+     * @var bool Whether to render multi-line values.
+     */
     private $MultiLine = false;
+
+    /**
+     * @var bool Whether to render folded multi-line values.
+     */
+    private $MultiLineFolded = false;
+
+    /**
+     * @var string Default indent to use when reconstructing YAML data.
+     */
+    public $Indent = ' ';
+
+    /**
+     * @var int Single line to folded multi-line string length limit.
+     */
+    public $FoldedAt = 120;
+
+    /**
+     * @var array Used to cache any anchors found in the document.
+     */
+    public $Anchors = [];
+
+    /**
+     * @var string The tag/release the version of this file belongs to (might
+     *      be needed by some implementations to ensure compatibility).
+     * @link https://github.com/Maikuolan/Common/tags
+     */
+    const VERSION = '1.6.1';
 
     /**
      * Can optionally begin processing data as soon as the object is
@@ -35,8 +63,9 @@ class YAML
      * calls afterwards (though the former is recommended over the latter).
      *
      * @param string $In The data to process.
+     * @return void
      */
-    public function __construct(string $In = '')
+    public function __construct($In = '')
     {
         if ($In) {
             $this->process($In, $this->Data);
@@ -49,9 +78,30 @@ class YAML
      * @param string|int|bool $Value The value to be normalised.
      * @param int $ValueLen The length of the value to be normalised.
      * @param string|int|bool $ValueLow The value to be normalised, lowercased.
+     * @return void
      */
-    private function normaliseValue(&$Value, int $ValueLen, $ValueLow)
+    private function normaliseValue(&$Value, $ValueLen, $ValueLow)
     {
+        /** Check for anchors and populate if necessary. */
+        $AnchorMatches = [];
+        if (
+            preg_match('~^&([\dA-Za-z]+) +(.*)$~', $Value, $AnchorMatches) &&
+            isset($AnchorMatches[1], $AnchorMatches[2])
+        ) {
+            $Value = $AnchorMatches[2];
+            $this->Anchors[$AnchorMatches[1]] = $Value;
+            $ValueLen = strlen($Value);
+            $ValueLow = strtolower($Value);
+        } elseif (
+            preg_match('~^\*([\dA-Za-z]+)$~', $Value, $AnchorMatches) &&
+            isset($AnchorMatches[1], $this->Anchors[$AnchorMatches[1]])
+        ) {
+            $Value = $this->Anchors[$AnchorMatches[1]];
+            $ValueLen = strlen($Value);
+            $ValueLow = strtolower($Value);
+        }
+
+        /** Check for string quotes. */
         foreach ([
             ['"', '"', 1],
             ["'", "'", 1],
@@ -66,15 +116,18 @@ class YAML
                 return;
             }
         }
-        if ($ValueLow === 'true' || $ValueLow === 'y') {
+
+        if ($ValueLow === 'true' || $ValueLow === 'y' || $Value === '+') {
             $Value = true;
-        } elseif ($ValueLow === 'false' || $ValueLow === 'n') {
+        } elseif ($ValueLow === 'false' || $ValueLow === 'n' || $Value === '-') {
             $Value = false;
+        } elseif ($ValueLow === 'null' || $Value === '~') {
+            $Value = null;
         } elseif (substr($Value, 0, 2) === '0x' && ($HexTest = substr($Value, 2)) && !preg_match('/[^\da-f]/i', $HexTest) && !($ValueLen % 2)) {
             $Value = hex2bin($HexTest);
         } elseif (preg_match('~^\d+$~', $Value)) {
             $Value = (int)$Value;
-        } elseif (preg_match('~^\d+\.\d+$~', $Value)) {
+        } elseif (preg_match('~^(?:\d+\.\d+|\d+(?:\.\d+)?[Ee][-+]\d+)$~', $Value)) {
             $Value = (float)$Value;
         } elseif (!$ValueLen) {
             $Value = false;
@@ -89,13 +142,14 @@ class YAML
      * @param int $Depth Tab depth (inherited through recursion; ignore it).
      * @return bool True when entire process completes successfully. False to exit early.
      */
-    public function process(string $In, array &$Arr, int $Depth = 0): bool
+    public function process($In, array &$Arr, $Depth = 0)
     {
-        if (strpos($In, "\n") === false) {
+        if (!is_string($In) || strpos($In, "\n") === false) {
             return false;
         }
         if ($Depth === 0) {
             $this->MultiLine = false;
+            $this->MultiLineFolded = false;
         }
         $In = str_replace("\r", '', $In);
         $Key = $Value = $SendTo = '';
@@ -117,11 +171,15 @@ class YAML
                 if ($TabLen === 0) {
                     $TabLen = $ThisTab;
                 }
-                if (!$this->MultiLine) {
+                if (!$this->MultiLine && !$this->MultiLineFolded) {
                     $SendTo .= $ThisLine . "\n";
                 } else {
                     if ($SendTo) {
-                        $SendTo .= "\n";
+                        if ($this->MultiLine) {
+                            $SendTo .= "\n";
+                        } elseif (substr($ThisLine, $TabLen, 1) !== ' ' && substr($SendTo, -1) !== ' ') {
+                            $SendTo .= ' ';
+                        }
                     }
                     $SendTo .= substr($ThisLine, $TabLen);
                 }
@@ -132,7 +190,7 @@ class YAML
                 if (empty($Key)) {
                     return false;
                 }
-                if (!$this->MultiLine) {
+                if (!$this->MultiLine && !$this->MultiLineFolded) {
                     if (!isset($Arr[$Key]) || !is_array($Arr[$Key])) {
                         $Arr[$Key] = [];
                     }
@@ -149,7 +207,7 @@ class YAML
             }
         }
         if ($SendTo && !empty($Key)) {
-            if (!$this->MultiLine) {
+            if (!$this->MultiLine && !$this->MultiLineFolded) {
                 if (!isset($Arr[$Key]) || !is_array($Arr[$Key])) {
                     $Arr[$Key] = [];
                 }
@@ -173,9 +231,13 @@ class YAML
      * @param array $Arr Where to store the data.
      * @return bool True when entire process completes successfully. False to exit early.
      */
-    private function processLine(string &$ThisLine, int &$ThisTab, &$Key, &$Value, array &$Arr): bool
+    private function processLine(&$ThisLine, &$ThisTab, &$Key, &$Value, array &$Arr)
     {
-        if (substr($ThisLine, -1) === ':' && strpos($ThisLine, ': ') === false) {
+        if ($ThisLine === '---') {
+            $Key = '---';
+            $Value = false;
+            $Arr[$Key] = $Value;
+        } elseif (substr($ThisLine, -1) === ':' && strpos($ThisLine, ': ') === false) {
             $Key = substr($ThisLine, $ThisTab, -1);
             $KeyLen = strlen($Key);
             $KeyLow = strtolower($Key);
@@ -227,6 +289,7 @@ class YAML
             $Value = false;
         }
         $this->MultiLine = ($Value === '|');
+        $this->MultiLineFolded = ($Value === '>');
         return true;
     }
 
@@ -236,8 +299,9 @@ class YAML
      * @param array $Arr The array to reconstruct from.
      * @param string $Out The reconstructed YAML.
      * @param int $Depth The level depth.
+     * @return void
      */
-    private function processInner(array $Arr, string &$Out, int $Depth = 0)
+    private function processInner(array $Arr, &$Out, $Depth = 0)
     {
         $Sequential = (array_keys($Arr) === range(0, count($Arr) - 1));
         foreach ($Arr as $Key => $Value) {
@@ -245,26 +309,32 @@ class YAML
                 $Out .= "---\n";
                 continue;
             }
-            $ThisDepth = str_repeat(' ', $Depth);
+            $ThisDepth = str_repeat($this->Indent, $Depth);
             $Out .= $ThisDepth . ($Sequential ? '-' : $Key . ':');
             if (is_array($Value)) {
                 $Out .= "\n";
                 $this->processInner($Value, $Out, $Depth + 1);
                 continue;
-            } else {
-                $Out .= ' ';
             }
+            $Out .= $this->Indent;
             if ($Value === true) {
                 $Out .= 'true';
             } elseif ($Value === false) {
                 $Out .= 'false';
+            } elseif ($Value === null) {
+                $Out .= 'null';
             } elseif (preg_match('~[^\t\n\r\x20-\x7e\xa0-\xff]~', $Value)) {
                 $Out .= '0x' . strtolower(bin2hex($Value));
             } elseif (strpos($Value, "\n") !== false) {
-                $Value = str_replace("\n", "\n" . $ThisDepth . ' ', $Value);
-                $Out .= "|\n" . $ThisDepth . ' ' . $Value;
+                $Value = str_replace("\n", "\n" . $ThisDepth . $this->Indent, $Value);
+                $Out .= "|\n" . $ThisDepth . $this->Indent . $Value;
             } elseif (is_string($Value)) {
-                $Out .= '"' . $Value . '"';
+                if (strpos($Value, ' ') !== false && strlen($Value) >= $this->FoldedAt) {
+                    $Value = wordwrap($Value, $this->FoldedAt, "\n" . $ThisDepth . $this->Indent);
+                    $Out .= ">\n" . $ThisDepth . $this->Indent . $Value;
+                } else {
+                    $Out .= '"' . $Value . '"';
+                }
             } else {
                 $Out .= $Value;
             }
@@ -278,10 +348,20 @@ class YAML
      * @param array $Arr The array to reconstruct from.
      * @return string The reconstructed YAML.
      */
-    public function reconstruct(array $Arr): string
+    public function reconstruct(array $Arr)
     {
         $Out = '';
         $this->processInner($Arr, $Out);
         return $Out . "\n";
+    }
+
+    /**
+     * PHP's magic "__toString" method to act as an alias for "reconstruct".
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->reconstruct($this->Data);
     }
 }
