@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v1.0.1 (last modified: 2020.12.05).
+ * SigTool v1.0.3 (last modified: 2021.07.09).
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
  * Package location: GitHub <https://github.com/phpMussel/SigTool>.
@@ -11,31 +11,51 @@ require __DIR__ . '/YAML.php';
 
 class SigTool extends \Maikuolan\Common\YAML
 {
-    /** Script version. */
+    /**
+     * @var string Script version.
+     */
     public $Ver = '1.0.1';
 
-    /** Last modified date. */
-    public $Modified = '2020.12.05';
+    /**
+     * @var string Last modified date.
+     */
+    public $Modified = '2021.07.09';
 
-    /** Script user agent. */
+    /**
+     * @var string Script user agent.
+     */
     public $UA = 'SigTool v%s (https://github.com/phpMussel/SigTool)';
 
-    /** SigTool YAML data post-processed data array. */
+    /**
+     * @var array SigTool YAML data post-processed data array.
+     */
     public $Arr = [];
 
-    /** SigTool YAML data pre-processed raw data. */
+    /**
+     * @var string SigTool YAML data pre-processed raw data.
+     */
     public $Raw = '';
 
-    /** Safe file chunk size for when reading files. */
+    /**
+     * @var int Safe file chunk size for when reading files.
+     */
     public $SafeReadSize = 131072;
 
-    /** Fix variables. */
+    /**
+     * Fix variables during instantiation.
+     *
+     * @return void
+     */
     public function __construct()
     {
         $this->UA = sprintf($this->UA, $this->Ver);
     }
 
-    /** Parse locally. */
+    /**
+     * Parse locally.
+     *
+     * @return bool
+     */
     public function readIn()
     {
         $Arr = &$this->Arr;
@@ -47,6 +67,7 @@ class SigTool extends \Maikuolan\Common\YAML
      * Set raw data.
      *
      * @param string $Raw The raw data.
+     * @return void
      */
     public function setRaw(string $Raw)
     {
@@ -98,6 +119,7 @@ class SigTool extends \Maikuolan\Common\YAML
      * Apply shorthand to signature names and remove any unwanted lines.
      *
      * @param string $Data The verbatim signature name or identifier.
+     * @return void
      */
     public function shorthand(&$Data)
     {
@@ -342,7 +364,6 @@ if (strpos($RunMode, 'd') !== false) {
 
 /** Phase 3: Extract ClamAV signature files from daily.cvd and main.cvd packages. */
 if (strpos($RunMode, 'x') !== false) {
-
     /** Terminate if daily and main CVD files are missing. */
     if (!file_exists($SigTool->fixPath(__DIR__ . '/daily.cvd')) || !file_exists($SigTool->fixPath(__DIR__ . '/main.cvd'))) {
         $Terminate();
@@ -421,7 +442,6 @@ if (strpos($RunMode, 'x') !== false) {
 
 /** Phase 4: Process signature files for use with phpMussel. */
 if (strpos($RunMode, 'p') !== false) {
-
     /** Check if signatures.dat exists; If so, we'll read it for updating. */
     if (is_readable($SigTool->fixPath(__DIR__ . '/signatures.dat'))) {
         echo sprintf($L10N['Accessing'], 'signatures.dat');
@@ -478,7 +498,6 @@ if (strpos($RunMode, 'p') !== false) {
         ['daily.mdb', 'main.mdb', '~(\d+\:[\da-f]{32}\:)([^\n]+)\n~', "\\1\x1A\x20\x10\x10\\2\n", 'clamav.mdb', "\xA0", 16777216],
         ['daily.ndb', 'main.ndb', '~^([^:\n]+\:)~m', "\x1A\x20\x10\x10\\1", 'clamav.ndb', false, 0],
     ] as $Set) {
-
         /** Fetch and build. */
         if (file_exists($SigTool->fixPath(__DIR__ . '/' . $Set[0])) && file_exists($SigTool->fixPath(__DIR__ . '/' . $Set[1]))) {
             $UseMains = false;
@@ -715,7 +734,6 @@ if (strpos($RunMode, 'p') !== false) {
                     } elseif (substr($SigOffset, 0, 1) === 'S') {
                         $StartStop = ':'. $SigOffset;
                     } else {
-
                         /** Ignoring float shifts because we're not using them. */
                         if (($Comma = strpos($SigOffset, ',')) !== false) {
                             $Start = substr($SigOffset, 0, $Comma);
@@ -873,7 +891,6 @@ if (strpos($RunMode, 'p') !== false) {
             foreach ($FileSets as $FileSet => $FileData) {
                 echo sprintf($L10N['Writing'], $FileSet);
                 if (!empty($Meta[$FileSet]['Files']['Checksum'][0]) && !empty($Meta[$FileSet]['Version'])) {
-
                     /** We use the format Y.z.B for signature file versioning. */
                     $Meta[$FileSet]['Version'] = date('Y.z.B', time());
 
