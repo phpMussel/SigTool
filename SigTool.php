@@ -1,25 +1,29 @@
 <?php
 /**
- * SigTool v1.0.3 (last modified: 2021.07.09).
+ * SigTool v1.0.3 (last modified: 2021.07.15).
+ *
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
  * Package location: GitHub <https://github.com/phpMussel/SigTool>.
  * Author: Caleb M (Maikuolan) <https://github.com/Maikuolan>.
  */
 
+namespace phpMussel\SigTool;
+
 require __DIR__ . '/YAML.php';
+require __DIR__ . '/Zip.php';
 
 class SigTool extends \Maikuolan\Common\YAML
 {
     /**
      * @var string Script version.
      */
-    public $Ver = '1.0.1';
+    public $Ver = '1.0.3';
 
     /**
      * @var string Last modified date.
      */
-    public $Modified = '2021.07.09';
+    public $Modified = '2021.07.10';
 
     /**
      * @var string Script user agent.
@@ -268,18 +272,19 @@ $SigTool = new SigTool();
 /** L10N. */
 $L10N = [
     'Help' => sprintf(
-        ' SigTool v%1$s (last modified: %2$s).%3$s%4$s%5$s%6$s%7$s%8$s%9$s%10$s%11$s',
+        " SigTool v%s (last modified: %s).\n\n%s",
         $SigTool->Ver,
         $SigTool->Modified,
-        "\n Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.\n\n",
-        " Syntax:\n  \$ php SigTool.php [arguments]\n Example:\n  php SigTool.php xpmd\n",
-        " Arguments (all are OFF by default; include to turn ON):\n",
-        "  - No arguments: Display this help information.\n",
-        "  - x Extract signature files from daily.cvd and main.cvd.\n",
-        "  - p Process signature files for use with phpMussel.\n",
-        "  - m Download main.cvd before processing.\n",
-        "  - d Download daily.cvd before processing.\n",
-        "  - u Update SigTool (redownloads SigTool.php and dies; no checks performed).\n\n"
+        " Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.\n\n" .
+        " Syntax:\n  \$ php SigTool.php [arguments]\n\n Example:\n  php SigTool.php xpmd\n\n" .
+        " Arguments (all are OFF by default; include to turn ON):\n" .
+        "  - No arguments: Display this help information.\n" .
+        "  - x: Extract signature files from \"daily.cvd\" and \"main.cvd\".\n" .
+        "  - p: Process signature files for use with phpMussel.\n" .
+        "  - m: Download main.cvd before processing.\n" .
+        "  - d: Download daily.cvd before processing.\n" .
+        "  - u: Update SigTool (redownloads SigTool's files and dies;\n" .
+        "       doesn't perform any checks).\n\n"
     ),
     'Accessing' => ' Accessing %s ...',
     'Deleting' => ' Deleting %s ...',
@@ -289,16 +294,21 @@ $L10N = [
     'Processing' => ' Processing ...',
     'Sorting' => ' Sorting %s ...',
     'Writing' => ' Writing %s ...',
-    '_Error0' => ' Can\'t continue (problem on line %s)!',
+    '_Error0' => ' Error at line "%d"! SigTool terminated.',
+    '_Error1' => ' Writing to "%2$s" failed at line "%1$d"! SigTool terminated.',
+    '_Error2' => ' Reading from "%2$s" failed at line "%1$d"! SigTool terminated.',
+    '_Error3' => ' Fetching "%2$s" from the upstream failed at line "%1$d"! SigTool terminated.',
+    '_Error4' => ' Fetching "%2$s" blocked by upstream firewall at line "%1$d"! SigTool terminated.',
+    '_Error5' => ' Reading "%2$s" failed at line "%1$d"! "%2$s" could be corrupted! SigTool terminated.',
     '_Phase3_Step1' => ' Stripping ClamAV package header from %s ...',
     '_Phase3_Step2' => ' Decompressing %s (GZ) ...',
     '_Phase3_Step3' => ' Extracting contents from %s (TAR) to ' . __DIR__ . ' ...',
 ];
 
 /** Terminate with debug information. */
-$Terminate = function ($Err = '_Error0') use (&$L10N) {
+$Terminate = function ($Err = '_Error0', $Msg = '') use (&$L10N) {
     $Debug = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
-    die(sprintf($L10N[$Err], $Debug['line']) . "\n\n");
+    die(sprintf($L10N[$Err] ?? $L10N['_Error0'], $Debug['line'], $Msg) . "\n\n");
 };
 
 /** Display help information. */
@@ -314,16 +324,16 @@ date_default_timezone_set('Europe/Zurich');
 
 /** Updating SigTool. */
 if (strpos($RunMode, 'u') !== false) {
-    foreach (['SigTool.php', 'YAML.php'] as $File) {
+    foreach (['SigTool.php', 'YAML.php', 'Zip.php'] as $File) {
         echo sprintf($L10N['Downloading'], $File);
         try {
             $Data = $SigTool->fetch('https://raw.githubusercontent.com/phpMussel/SigTool/master/' . $File);
         } catch (\Exception $e) {
-            $Terminate();
+            $Terminate('_Error3', $File);
         }
         echo $L10N['Done'] . sprintf($L10N['Writing'], $File);
         if (!file_put_contents($SigTool->fixPath(__DIR__ . '/' . $File), $Data)) {
-            $Terminate();
+            $Terminate('_Error1', $File);
         }
         echo $L10N['Done'];
     }
@@ -336,11 +346,17 @@ if (strpos($RunMode, 'm') !== false) {
     try {
         $Data = $SigTool->fetch('http://database.clamav.net/main.cvd');
     } catch (\Exception $e) {
-        $Terminate();
+        $Terminate('_Error3', 'main.cvd');
+    }
+    if ($Data === '') {
+        $Terminate('_Error3', 'main.cvd');
+    }
+    if ($Data === 'error code: 1020') {
+        $Terminate('_Error4', 'main.cvd');
     }
     echo $L10N['Done'] . sprintf($L10N['Writing'], 'main.cvd');
     if (!file_put_contents($SigTool->fixPath(__DIR__ . '/main.cvd'), $Data)) {
-        $Terminate();
+        $Terminate('_Error1', 'main.cvd');
     }
     echo $L10N['Done'];
     unset($Data);
@@ -352,21 +368,32 @@ if (strpos($RunMode, 'd') !== false) {
     try {
         $Data = $SigTool->fetch('http://database.clamav.net/daily.cvd');
     } catch (\Exception $e) {
-        $Terminate();
+        $Terminate('_Error3', 'daily.cvd');
+    }
+    if ($Data === '') {
+        $Terminate('_Error3', 'daily.cvd');
+    }
+    if ($Data === 'error code: 1020') {
+        $Terminate('_Error4', 'daily.cvd');
     }
     echo $L10N['Done'] . sprintf($L10N['Writing'], 'daily.cvd');
     if (!file_put_contents($SigTool->fixPath(__DIR__ . '/daily.cvd'), $Data)) {
-        $Terminate();
+        $Terminate('_Error1', 'daily.cvd');
     }
     echo $L10N['Done'];
     unset($Data);
 }
 
-/** Phase 3: Extract ClamAV signature files from daily.cvd and main.cvd packages. */
+/** Phase 3: Extract ClamAV signature files from "daily.cvd" and "main.cvd" packages. */
 if (strpos($RunMode, 'x') !== false) {
-    /** Terminate if daily and main CVD files are missing. */
-    if (!file_exists($SigTool->fixPath(__DIR__ . '/daily.cvd')) || !file_exists($SigTool->fixPath(__DIR__ . '/main.cvd'))) {
-        $Terminate();
+    /** Terminate if daily.cvd is missing. */
+    if (!file_exists($SigTool->fixPath(__DIR__ . '/daily.cvd'))) {
+        $Terminate('_Error2', 'daily.cvd');
+    }
+
+    /** Terminate if main.cvd is missing. */
+    if (!file_exists($SigTool->fixPath(__DIR__ . '/main.cvd'))) {
+        $Terminate('_Error2', 'main.cvd');
     }
 
     foreach (['daily.cvd', 'main.cvd'] as $Set) {
@@ -374,12 +401,12 @@ if (strpos($RunMode, 'x') !== false) {
         $File = $SigTool->fixPath(__DIR__ . '/' . $Set);
         $Handle = [fopen($File, 'rb')];
         if (!is_resource($Handle[0])) {
-            $Terminate();
+            $Terminate('_Error2', $File);
         }
         fseek($Handle[0], 512);
         $Handle[1] = fopen($File . '.tmp', 'wb');
         if (!is_resource($Handle[1])) {
-            $Terminate();
+            $Terminate('_Error1', $File . '.tmp');
         }
         while (!feof($Handle[0])) {
             $FileData = fread($Handle[0], $SigTool->SafeReadSize);
@@ -392,11 +419,11 @@ if (strpos($RunMode, 'x') !== false) {
         echo $L10N['Done'] . sprintf($L10N['_Phase3_Step2'], $Set);
         $Handle = [gzopen($File, 'rb')];
         if (!is_resource($Handle[0])) {
-            $Terminate();
+            $Terminate('_Error2', $File);
         }
         $Handle[1] = fopen($File . '.tmp', 'wb');
         if (!is_resource($Handle[1])) {
-            $Terminate();
+            $Terminate('_Error2', $File . '.tmp');
         }
         while (!gzeof($Handle[0])) {
             $FileData = gzread($Handle[0], $SigTool->SafeReadSize);
@@ -411,25 +438,23 @@ if (strpos($RunMode, 'x') !== false) {
         $Handle = fopen($File, 'ab');
         fwrite($Handle, $Pad);
         fclose($Handle);
-        $Files = scandir('phar://' . $File);
-        if (is_array($Files)) {
-            foreach ($Files as $ThisFile) {
-                if (empty($ThisFile) || is_dir('phar://' . $File . '/' . $ThisFile)) {
-                    continue;
+        $Files = new Zip($File);
+        if ($Files->ErrorState !== 0) {
+            $Terminate('_Error5', $File);
+        }
+        while (true) {
+            $Name = $Files->EntryName();
+            $Data = $Files->EntryRead();
+            if ($Name !== '' && $Data !== '' && !$Files->EntryIsDirectory) {
+                $Handle = fopen($SigTool->fixPath(__DIR__ . '/' . $Name), 'wb');
+                if (!is_resource($Handle)) {
+                    $Terminate('_Error1', $ThisFile);
                 }
-                $Handle = [
-                    fopen($SigTool->fixPath('phar://' . $File . '/' . $ThisFile), 'rb'),
-                    fopen($SigTool->fixPath(__DIR__ . '/' . $ThisFile), 'wb')
-                ];
-                if (!is_resource($Handle[0]) || !is_resource($Handle[1])) {
-                    $Terminate();
-                }
-                while (!feof($Handle[0])) {
-                    $FileData = fread($Handle[0], $SigTool->SafeReadSize);
-                    fwrite($Handle[1], $FileData);
-                }
-                fclose($Handle[1]);
-                fclose($Handle[0]);
+                fwrite($Handle, $Data);
+                fclose($Handle);
+            }
+            if ($Files->EntryNext() === false) {
+                break;
             }
         }
         echo $L10N['Done'] . sprintf($L10N['Deleting'], $Set);
@@ -556,13 +581,13 @@ if (strpos($RunMode, 'p') !== false) {
 
             /** Write to file. */
             if (!is_resource($Handle = fopen($SigTool->fixPath(__DIR__ . '/' . $Set[4]), 'wb'))) {
-                $Terminate();
+                $Terminate('_Error1', $Set[4] . '.gz');
             }
             fwrite($Handle, $FileData);
             fclose($Handle);
             if ($Set[5]) {
                 if (!is_resource($Handle = gzopen($SigTool->fixPath(__DIR__ . '/' . $Set[4] . '.gz'), 'wb'))) {
-                    $Terminate();
+                    $Terminate('_Error1', $Set[4] . '.gz');
                 }
                 gzwrite($Handle, $FileData);
                 gzclose($Handle);
