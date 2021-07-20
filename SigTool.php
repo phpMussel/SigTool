@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v1.0.3 (last modified: 2021.07.15).
+ * SigTool v1.0.3 (last modified: 2021.07.20).
  *
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
@@ -11,7 +11,7 @@
 namespace phpMussel\SigTool;
 
 require __DIR__ . '/YAML.php';
-require __DIR__ . '/Zip.php';
+require __DIR__ . '/Cvd.php';
 
 class SigTool extends \Maikuolan\Common\YAML
 {
@@ -23,7 +23,7 @@ class SigTool extends \Maikuolan\Common\YAML
     /**
      * @var string Last modified date.
      */
-    public $Modified = '2021.07.10';
+    public $Modified = '2021.07.20';
 
     /**
      * @var string Script user agent.
@@ -287,9 +287,11 @@ $L10N = [
         "       doesn't perform any checks).\n\n"
     ),
     'Accessing' => ' Accessing %s ...',
+    'Decompressing' => ' Decompressing %s ...',
     'Deleting' => ' Deleting %s ...',
     'Done' => " Done!\n",
     'Downloading' => ' Downloading %s ...',
+    'Extracting_to_Cvd' => ' Extracting contents from %s to Cvd object ...',
     'Failed' => " Failed!\n",
     'Processing' => ' Processing ...',
     'Sorting' => ' Sorting %s ...',
@@ -299,10 +301,7 @@ $L10N = [
     '_Error2' => ' Reading from "%2$s" failed at line "%1$d"! SigTool terminated.',
     '_Error3' => ' Fetching "%2$s" from the upstream failed at line "%1$d"! SigTool terminated.',
     '_Error4' => ' Fetching "%2$s" blocked by upstream firewall at line "%1$d"! SigTool terminated.',
-    '_Error5' => ' Reading "%2$s" failed at line "%1$d"! "%2$s" could be corrupted! SigTool terminated.',
-    '_Phase3_Step1' => ' Stripping ClamAV package header from %s ...',
-    '_Phase3_Step2' => ' Decompressing %s (GZ) ...',
-    '_Phase3_Step3' => ' Extracting contents from %s (TAR) to ' . __DIR__ . ' ...',
+    '_Error5' => ' Reading "%2$s" failed at line "%1$d"! "%2$s" could be corrupted! SigTool terminated.'
 ];
 
 /** Terminate with debug information. */
@@ -324,7 +323,7 @@ date_default_timezone_set('Europe/Zurich');
 
 /** Updating SigTool. */
 if (strpos($RunMode, 'u') !== false) {
-    foreach (['SigTool.php', 'YAML.php', 'Zip.php'] as $File) {
+    foreach (['SigTool.php', 'YAML.php', 'Cvd.php'] as $File) {
         echo sprintf($L10N['Downloading'], $File);
         try {
             $Data = $SigTool->fetch('https://raw.githubusercontent.com/phpMussel/SigTool/master/' . $File);
@@ -386,83 +385,42 @@ if (strpos($RunMode, 'd') !== false) {
 
 /** Phase 3: Extract ClamAV signature files from "daily.cvd" and "main.cvd" packages. */
 if (strpos($RunMode, 'x') !== false) {
-    /** Terminate if daily.cvd is missing. */
-    if (!file_exists($SigTool->fixPath(__DIR__ . '/daily.cvd'))) {
-        $Terminate('_Error2', 'daily.cvd');
-    }
-
-    /** Terminate if main.cvd is missing. */
-    if (!file_exists($SigTool->fixPath(__DIR__ . '/main.cvd'))) {
-        $Terminate('_Error2', 'main.cvd');
-    }
-
     foreach (['daily.cvd', 'main.cvd'] as $Set) {
-        echo sprintf($L10N['_Phase3_Step1'], $Set);
         $File = $SigTool->fixPath(__DIR__ . '/' . $Set);
-        $Handle = [fopen($File, 'rb')];
-        if (!is_resource($Handle[0])) {
-            $Terminate('_Error2', $File);
+
+        /** Terminate if the file missing or unreadable. */
+        if (!file_exists($File) || !is_readable($File)) {
+            $Terminate('_Error2', $Set);
         }
-        fseek($Handle[0], 512);
-        $Handle[1] = fopen($File . '.tmp', 'wb');
-        if (!is_resource($Handle[1])) {
-            $Terminate('_Error1', $File . '.tmp');
-        }
-        while (!feof($Handle[0])) {
-            $FileData = fread($Handle[0], $SigTool->SafeReadSize);
-            fwrite($Handle[1], $FileData);
-        }
-        fclose($Handle[1]);
-        fclose($Handle[0]);
-        unlink($File);
-        rename($File . '.tmp', $File);
-        echo $L10N['Done'] . sprintf($L10N['_Phase3_Step2'], $Set);
-        $Handle = [gzopen($File, 'rb')];
-        if (!is_resource($Handle[0])) {
-            $Terminate('_Error2', $File);
-        }
-        $Handle[1] = fopen($File . '.tmp', 'wb');
-        if (!is_resource($Handle[1])) {
-            $Terminate('_Error2', $File . '.tmp');
-        }
-        while (!gzeof($Handle[0])) {
-            $FileData = gzread($Handle[0], $SigTool->SafeReadSize);
-            fwrite($Handle[1], $FileData);
-        }
-        fclose($Handle[1]);
-        gzclose($Handle[0]);
-        unlink($File);
-        rename($File . '.tmp', $File);
-        echo $L10N['Done'] . sprintf($L10N['_Phase3_Step3'], $Set);
-        $Pad = str_repeat("\x00", 512 - (filesize($File) % 512));
-        $Handle = fopen($File, 'ab');
-        fwrite($Handle, $Pad);
-        fclose($Handle);
-        $Files = new Zip($File);
+
+        echo sprintf($L10N['Decompressing'], $Set);
+        $Files = new Cvd($File);
+        echo $L10N['Done'] . sprintf($L10N['Extracting_to_Cvd'], $Set);
         if ($Files->ErrorState !== 0) {
             $Terminate('_Error5', $File);
         }
+        echo $L10N['Done'];
         while (true) {
             $Name = $Files->EntryName();
             $Data = $Files->EntryRead();
-            if ($Name !== '' && $Data !== '' && !$Files->EntryIsDirectory) {
+            if ($Name !== '' && $Data !== '' && $Files->EntryIsDirectory() === false) {
+                echo sprintf($L10N['Writing'], $Name);
                 $Handle = fopen($SigTool->fixPath(__DIR__ . '/' . $Name), 'wb');
                 if (!is_resource($Handle)) {
-                    $Terminate('_Error1', $ThisFile);
+                    $Terminate('_Error1', $Name);
                 }
                 fwrite($Handle, $Data);
                 fclose($Handle);
+                echo $L10N['Done'];
             }
             if ($Files->EntryNext() === false) {
                 break;
             }
         }
-        echo $L10N['Done'] . sprintf($L10N['Deleting'], $Set);
-        echo unlink($File) ? $L10N['Done'] : $L10N['Failed'];
     }
 
     /** Cleanup. */
-    unset($ThisFile, $Files, $Pad);
+    unset($Handle, $Data, $Name, $Files, $File, $Set);
 }
 
 /** Phase 4: Process signature files for use with phpMussel. */
