@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v1.0.3 (last modified: 2021.07.20).
+ * SigTool v1.0.3 (last modified: 2021.07.21).
  *
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
@@ -23,7 +23,7 @@ class SigTool extends \Maikuolan\Common\YAML
     /**
      * @var string Last modified date.
      */
-    public $Modified = '2021.07.20';
+    public $Modified = '2021.07.21';
 
     /**
      * @var string Script user agent.
@@ -44,6 +44,11 @@ class SigTool extends \Maikuolan\Common\YAML
      * @var int Safe file chunk size for when reading files.
      */
     public $SafeReadSize = 131072;
+
+    /**
+     * @var string Most recent line sent to output.
+     */
+    private $RecentLine = '';
 
     /**
      * Fix variables during instantiation.
@@ -261,6 +266,46 @@ class SigTool extends \Maikuolan\Common\YAML
     {
         return str_replace(['\/', '\\', '/\\'], '/', $Path);
     }
+
+    /**
+     * Output message.
+     *
+     * @param string $Message The message to output.
+     * @param bool $NewLine Whether to print to a new line.
+     * @return void
+     */
+    public function outputMessage($Message = '', $NewLine = false)
+    {
+        if ($Message) {
+            $this->RecentLine = wordwrap($Message, 64, "\n ");
+        }
+        if ($NewLine) {
+            echo "\n" . $this->RecentLine . ' <RAM ' . $this->formatSize(memory_get_usage()) . '>';
+            return;
+        }
+        echo "\r" . str_repeat(' ', 76) . "\r" . $this->RecentLine . ' <RAM ' . $this->formatSize(memory_get_usage()) . '>';
+    }
+
+    /**
+     * Format size.
+     *
+     * @param int $Size
+     * @return string Formatted size.
+     */
+    private function formatSize($Size)
+    {
+        $Scale = ['bytes', 'KB', 'MB', 'GB', 'TB'];
+        $Iterate = 0;
+        $Size = (int)$Size;
+        while ($Size > 1024) {
+            $Size /= 1024;
+            $Iterate++;
+            if ($Iterate > 3) {
+                break;
+            }
+        }
+        return number_format($Size, $Iterate === 0 ? 0 : 2) . ' ' . $Scale[$Iterate];
+    }
 }
 
 /** Fetch arguments. */
@@ -281,18 +326,18 @@ $L10N = [
         "  - No arguments: Display this help information.\n" .
         "  - x: Extract signature files from \"daily.cvd\" and \"main.cvd\".\n" .
         "  - p: Process signature files for use with phpMussel.\n" .
-        "  - m: Download main.cvd before processing.\n" .
-        "  - d: Download daily.cvd before processing.\n" .
+        "  - m: Download main.cvd before processing (deprecated).\n" .
+        "  - d: Download daily.cvd before processing (deprecated).\n" .
         "  - u: Update SigTool (redownloads SigTool's files and dies;\n" .
         "       doesn't perform any checks).\n\n"
     ),
     'Accessing' => ' Accessing %s ...',
     'Decompressing' => ' Decompressing %s ...',
     'Deleting' => ' Deleting %s ...',
-    'Done' => " Done!\n",
+    'Done' => " Done!",
     'Downloading' => ' Downloading %s ...',
     'Extracting_to_Cvd' => ' Extracting contents from %s to Cvd object ...',
-    'Failed' => " Failed!\n",
+    'Failed' => " Failed!",
     'Processing' => ' Processing ...',
     'Sorting' => ' Sorting %s ...',
     'Writing' => ' Writing %s ...',
@@ -304,13 +349,19 @@ $L10N = [
     '_Error5' => ' Reading "%2$s" failed at line "%1$d"! "%2$s" could be corrupted! SigTool terminated.'
 ];
 
-/** Terminate with debug information. */
-$Terminate = function ($Err = '_Error0', $Msg = '') use (&$L10N) {
+/**
+ * Terminate with debug information.
+ */
+$Terminate = function ($Err = '_Error0', $Msg = '') use (&$SigTool, &$L10N) {
     $Debug = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
-    die(sprintf($L10N[$Err] ?? $L10N['_Error0'], $Debug['line'], $Msg) . "\n\n");
+    $SigTool->outputMessage(sprintf($L10N[$Err] ?? $L10N['_Error0'], $Debug['line'], $Msg), true);
+    echo "\n\n";
+    die;
 };
 
-/** Display help information. */
+/**
+ * Display help information.
+ */
 if ($RunMode === '') {
     die($L10N['Help']);
 }
@@ -321,25 +372,31 @@ if ($RunMode === '') {
  */
 date_default_timezone_set('Europe/Zurich');
 
-/** Updating SigTool. */
+/**
+ * Updating SigTool.
+ */
 if (strpos($RunMode, 'u') !== false) {
     foreach (['SigTool.php', 'YAML.php', 'Cvd.php'] as $File) {
-        echo sprintf($L10N['Downloading'], $File);
+        $SigTool->outputMessage(sprintf($L10N['Downloading'], $File), true);
         try {
             $Data = $SigTool->fetch('https://raw.githubusercontent.com/phpMussel/SigTool/master/' . $File);
         } catch (\Exception $e) {
             $Terminate('_Error3', $File);
         }
-        echo $L10N['Done'] . sprintf($L10N['Writing'], $File);
+        $SigTool->outputMessage(sprintf($L10N['Downloading'], $File) . $L10N['Done']);
+        $SigTool->outputMessage(sprintf($L10N['Writing'], $File), true);
         if (!file_put_contents($SigTool->fixPath(__DIR__ . '/' . $File), $Data)) {
             $Terminate('_Error1', $File);
         }
-        echo $L10N['Done'];
+        $SigTool->outputMessage(sprintf($L10N['Writing'], $File) . $L10N['Done']);
     }
     die;
 }
 
-/** Phase 1: Download main.cvd. */
+/**
+ * @deprecated
+ * Phase 1: Download main.cvd.
+ */
 if (strpos($RunMode, 'm') !== false) {
     echo sprintf($L10N['Downloading'], 'main.cvd');
     try {
@@ -361,7 +418,10 @@ if (strpos($RunMode, 'm') !== false) {
     unset($Data);
 }
 
-/** Phase 2: Download daily.cvd. */
+/**
+ * @deprecated
+ * Phase 2: Download daily.cvd.
+ */
 if (strpos($RunMode, 'd') !== false) {
     echo sprintf($L10N['Downloading'], 'daily.cvd');
     try {
@@ -383,35 +443,38 @@ if (strpos($RunMode, 'd') !== false) {
     unset($Data);
 }
 
-/** Phase 3: Extract ClamAV signature files from "daily.cvd" and "main.cvd" packages. */
+/**
+ * Phase 3: Extract ClamAV signature files from "daily.cvd" and "main.cvd" packages.
+ */
 if (strpos($RunMode, 'x') !== false) {
     foreach (['daily.cvd', 'main.cvd'] as $Set) {
         $File = $SigTool->fixPath(__DIR__ . '/' . $Set);
 
-        /** Terminate if the file missing or unreadable. */
+        /** Terminate if the file is missing or unreadable. */
         if (!file_exists($File) || !is_readable($File)) {
             $Terminate('_Error2', $Set);
         }
 
-        echo sprintf($L10N['Decompressing'], $Set);
+        $SigTool->outputMessage(sprintf($L10N['Decompressing'], $Set), true);
         $Files = new Cvd($File);
-        echo $L10N['Done'] . sprintf($L10N['Extracting_to_Cvd'], $Set);
+        $SigTool->outputMessage(sprintf($L10N['Decompressing'], $Set) . $L10N['Done']);
+        $SigTool->outputMessage(sprintf($L10N['Extracting_to_Cvd'], $Set), true);
         if ($Files->ErrorState !== 0) {
             $Terminate('_Error5', $File);
         }
-        echo $L10N['Done'];
+        $SigTool->outputMessage(sprintf($L10N['Extracting_to_Cvd'], $Set) . $L10N['Done']);
         while (true) {
             $Name = $Files->EntryName();
             $Data = $Files->EntryRead();
             if ($Name !== '' && $Data !== '' && $Files->EntryIsDirectory() === false) {
-                echo sprintf($L10N['Writing'], $Name);
+                $SigTool->outputMessage(sprintf($L10N['Writing'], $Name), true);
                 $Handle = fopen($SigTool->fixPath(__DIR__ . '/' . $Name), 'wb');
                 if (!is_resource($Handle)) {
                     $Terminate('_Error1', $Name);
                 }
                 fwrite($Handle, $Data);
                 fclose($Handle);
-                echo $L10N['Done'];
+                $SigTool->outputMessage(sprintf($L10N['Writing'], $Name) . $L10N['Done']);
             }
             if ($Files->EntryNext() === false) {
                 break;
@@ -423,17 +486,19 @@ if (strpos($RunMode, 'x') !== false) {
     unset($Handle, $Data, $Name, $Files, $File, $Set);
 }
 
-/** Phase 4: Process signature files for use with phpMussel. */
+/**
+ * Phase 4: Process signature files for use with phpMussel.
+ */
 if (strpos($RunMode, 'p') !== false) {
     /** Check if signatures.dat exists; If so, we'll read it for updating. */
-    if (is_readable($SigTool->fixPath(__DIR__ . '/signatures.dat'))) {
-        echo sprintf($L10N['Accessing'], 'signatures.dat');
-        $Handle = fopen($SigTool->fixPath(__DIR__ . '/signatures.dat'), 'rb');
-        $SigTool->setRaw(fread($Handle, filesize($SigTool->fixPath(__DIR__ . '/signatures.dat'))));
+    if (is_readable(($DatFile = $SigTool->fixPath(__DIR__ . '/signatures.dat')))) {
+        $SigTool->outputMessage(sprintf($L10N['Accessing'], 'signatures.dat'), true);
+        $Handle = fopen($DatFile, 'rb');
+        $SigTool->setRaw(fread($Handle, filesize($DatFile)));
         fclose($Handle);
         $SigTool->readIn();
         $Meta = &$SigTool->Arr;
-        echo $L10N['Done'];
+        $SigTool->outputMessage(sprintf($L10N['Accessing'], 'signatures.dat') . $L10N['Done']);
     }
 
     /** Don't need these (not currently used by this tool or by phpMussel). */
@@ -460,6 +525,7 @@ if (strpos($RunMode, 'p') !== false) {
         'daily.pdb',
         'daily.sfp',
         'daily.wdb',
+        'main.cdb',
         'main.crb',
         'main.fp',
         'main.hdu',
@@ -470,8 +536,8 @@ if (strpos($RunMode, 'p') !== false) {
         'main.sfp',
     ] as $File) {
         if (file_exists($SigTool->fixPath(__DIR__ . '/' . $File))) {
-            echo sprintf($L10N['Deleting'], $File);
-            echo unlink($SigTool->fixPath(__DIR__ . '/' . $File)) ? $L10N['Done'] : $L10N['Failed'];
+            $SigTool->outputMessage(sprintf($L10N['Deleting'], $File), true);
+            $SigTool->outputMessage(sprintf($L10N['Deleting'], $File) . (unlink($SigTool->fixPath(__DIR__ . '/' . $File)) ? $L10N['Done'] : $L10N['Failed']));
         }
     }
 
@@ -486,9 +552,9 @@ if (strpos($RunMode, 'p') !== false) {
             $UseMains = false;
             $FileData = '';
             $Size = 0;
-            echo sprintf($L10N['Accessing'], $Set[0]);
+            $SigTool->outputMessage(sprintf($L10N['Accessing'], $Set[0]), true);
             if (!is_resource($Handle = fopen($SigTool->fixPath(__DIR__ . '/' . $Set[0]), 'rb'))) {
-                echo $L10N['Failed'];
+                $SigTool->outputMessage(sprintf($L10N['Accessing'], $Set[0]) . $L10N['Failed']);
             } else {
                 $Size += filesize($SigTool->fixPath(__DIR__ . '/' . $Set[0]));
                 if ($Set[6] > 0 && $Size > $Set[6]) {
@@ -500,12 +566,12 @@ if (strpos($RunMode, 'p') !== false) {
                     $FileData .= fread($Handle, $SigTool->SafeReadSize);
                 }
                 fclose($Handle);
-                echo $L10N['Done'];
+                $SigTool->outputMessage(sprintf($L10N['Accessing'], $Set[0]) . $L10N['Done']);
             }
             if ($UseMains) {
-                echo sprintf($L10N['Accessing'], $Set[1]);
+                $SigTool->outputMessage(sprintf($L10N['Accessing'], $Set[1]), true);
                 if (!is_resource($Handle = fopen($SigTool->fixPath(__DIR__ . '/' . $Set[1]), 'rb'))) {
-                    echo $L10N['Failed'];
+                    $SigTool->outputMessage(sprintf($L10N['Accessing'], $Set[1]) . $L10N['Failed']);
                 } else {
                     $Size += filesize($SigTool->fixPath(__DIR__ . '/' . $Set[1]));
                     if ($Set[6] > 0 && $Size > $Set[6]) {
@@ -520,12 +586,12 @@ if (strpos($RunMode, 'p') !== false) {
                         $FileData = substr($FileData, 0, $EoF) . "\n";
                     }
                     fclose($Handle);
-                    echo $L10N['Done'];
+                    $SigTool->outputMessage(sprintf($L10N['Accessing'], $Set[1]) . $L10N['Done']);
                 }
             } elseif (($EoL = strpos($FileData, "\n")) !== false) {
                 $FileData = substr($FileData, $EoL + 1);
             }
-            echo sprintf($L10N['Writing'], $Set[4]);
+            $SigTool->outputMessage(sprintf($L10N['Writing'], $Set[4]), true);
             if ($Set[5]) {
                 $FileData = 'phpMussel' . $Set[5] . "\n" . $FileData;
             }
@@ -558,34 +624,34 @@ if (strpos($RunMode, 'p') !== false) {
                 $Meta[$Set[4]]['Files']['Checksum'][0] = hash('sha256', $FileData) . ':' . strlen($FileData);
             }
 
-            echo $L10N['Done'];
+            $SigTool->outputMessage(sprintf($L10N['Writing'], $Set[4]) . $L10N['Done']);
             $FileData = '';
         }
 
         /** Don't need these anymore. */
         foreach ([$Set[0], $Set[1]] as $File) {
             if (file_exists($SigTool->fixPath(__DIR__ . '/' . $File))) {
-                echo sprintf($L10N['Deleting'], $File);
-                echo unlink($SigTool->fixPath(__DIR__ . '/' . $File)) ? $L10N['Done'] : $L10N['Failed'];
+                $SigTool->outputMessage(sprintf($L10N['Deleting'], $File), true);
+                $SigTool->outputMessage(sprintf($L10N['Deleting'], $File) . (unlink($SigTool->fixPath(__DIR__ . '/' . $File)) ? $L10N['Done'] : $L10N['Failed']));
             }
         }
     }
 
     /** NDB sequence. */
     if (is_readable($SigTool->fixPath(__DIR__ . '/clamav.ndb'))) {
-        echo sprintf($L10N['Accessing'], 'clamav.ndb');
+        $SigTool->outputMessage(sprintf($L10N['Accessing'], 'clamav.ndb'), true);
         $FileData = '';
         if (!is_resource($Handle = fopen($SigTool->fixPath(__DIR__ . '/clamav.ndb'), 'rb'))) {
-            echo $L10N['Failed'];
+            $SigTool->outputMessage(sprintf($L10N['Accessing'], 'clamav.ndb') . $L10N['Failed']);
         } else {
             while (!feof($Handle)) {
                 $FileData .= fread($Handle, $SigTool->SafeReadSize);
             }
             fclose($Handle);
-            echo $L10N['Done'];
+            $SigTool->outputMessage(sprintf($L10N['Accessing'], 'clamav.ndb') . $L10N['Done']);
         }
         if (!empty($FileData)) {
-            echo $L10N['Processing'];
+            $SigTool->outputMessage($L10N['Processing'], true);
 
             /** All the signature files that we're generating from our clamav.ndb file. */
             $FileSets = [
@@ -674,7 +740,7 @@ if (strpos($RunMode, 'p') !== false) {
                 $Percent = number_format(($SigsThis / $SigsNDB) * 100, 2) . '%';
                 $SigsThis++;
                 if ($Percent !== $Last) {
-                    echo sprintf("\r%s %s", $L10N['Processing'], $Percent);
+                    $SigTool->outputMessage($L10N['Processing'] . ' ' . $Percent);
                 }
 
                 /** The current line in the signature file. */
@@ -870,9 +936,9 @@ if (strpos($RunMode, 'p') !== false) {
                 }
             }
 
-            echo "\r                                       \r" . $L10N['Processing'] . $L10N['Done'];
+            $SigTool->outputMessage($L10N['Processing'] . $L10N['Done']);
             foreach ($FileSets as $FileSet => $FileData) {
-                echo sprintf($L10N['Writing'], $FileSet);
+                $SigTool->outputMessage(sprintf($L10N['Writing'], $FileSet), true);
                 if (!empty($Meta[$FileSet]['Files']['Checksum'][0]) && !empty($Meta[$FileSet]['Version'])) {
                     /** We use the format Y.z.B for signature file versioning. */
                     $Meta[$FileSet]['Version'] = date('Y.z.B', time());
@@ -883,19 +949,19 @@ if (strpos($RunMode, 'p') !== false) {
                 $Handle = gzopen($SigTool->fixPath(__DIR__ . '/' . $FileSet . '.gz'), 'wb');
                 gzwrite($Handle, $FileData);
                 gzclose($Handle);
-                echo $L10N['Done'];
+                $SigTool->outputMessage(sprintf($L10N['Writing'], $FileSet) . $L10N['Done']);
             }
         }
     }
 
     /** Update signatures.dat if necessary. */
     if (!empty($Meta)) {
-        echo sprintf($L10N['Writing'], 'signatures.dat');
+        $SigTool->outputMessage(sprintf($L10N['Writing'], 'signatures.dat'), true);
         $NewMeta = "---\n" . $SigTool->reconstruct($SigTool->Arr);
-        $Handle = fopen($SigTool->fixPath(__DIR__ . '/signatures.dat'), 'wb');
+        $Handle = fopen($DatFile, 'wb');
         fwrite($Handle, $NewMeta);
         fclose($Handle);
-        echo $L10N['Done'];
+        $SigTool->outputMessage(sprintf($L10N['Writing'], 'signatures.dat') . $L10N['Done']);
     }
 }
 

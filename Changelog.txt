@@ -10,6 +10,9 @@ Versioning guidelines for SemVer can be found at: https://semver.org/
 - [2021.07.15; Bug-fix; Maikuolan]: Resolved "error code: 1020" issue.
   Refer github.com/phpMussel/SigTool/issues/6
 
+- [2021.07.21; Maikuolan]: SigTool now displays current RAM usage throughout
+  its entire process.
+
 === Version/Release 1.0.2 ===
 MAINTENANCE RELEASE.
 
