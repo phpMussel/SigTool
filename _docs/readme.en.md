@@ -3,13 +3,18 @@
 Before installing, please check the requirements. If these aren't met, SigTool won't operate correctly.
 
 #### Requirements:
-- PHP &gt;= `7.0.3` with zlib + Phar support.
-- &gt;= 1GB free disk space (if working directly from disk) or available RAM (if using a RAM drive; recommended).
-- Ability to operate PHP in CLI-mode (command prompt, terminal, shell, etc).
+- __For SigTool &lt;=1.0.2:__ PHP &gt;=7.0.3 with phar support (PHP &gt;=7.2.0 recommended).
+- __For SigTool 1.0.3:__ PHP &gt;=7.0.3 (PHP &gt;=7.2.0 recommended).
+- __For SigTool v2:__ PHP &gt;=7.2.0.
+- __All versions:__ *At least* &gt;=681 MBs of available RAM (but, at least &gt;=1 GB is strongly recommended).
+- __All versions:__ Approximately ~300 MBs of available disk space (this number may vary between iterations of the signatures database).
+- __All versions:__ Ability to operate PHP in CLI-mode (e.g., command prompt, terminal, shell, bash, etc).
 
-To install SigTool, just download `SigTool.php` and `YAML.php`. :-)
+The recommended way to install SigTool is through Composer.
 
-SigTool can operate normally from a disk or storage medium in the same manner as any other PHP script. However, due to the large number of read/write operations it performs, it is highly recommended to operate it from a RAM drive, as this will slightly increase its speed and decrease excess disk read/write operations. Final output should not exceed approximately ~64MBs, but approximately ~1GB of free disk space or available RAM is required during normal operation due to temporary working files and in order to avoid read/write errors.
+`composer require phpmussel/sigtool`
+
+Alternatively, you can clone the repository, or download the ZIP, directly from GitHub.
 
 ---
 
@@ -98,4 +103,4 @@ clamav_swf_regex.db | Targets SWF files; Works with raw data; Signatures can con
 ---
 
 
-Last Updated: 7 March 2020 (2020.03.07).
+Last Updated: 22 July 2021 (2021.07.22).

@@ -3,13 +3,18 @@
 Controleer alstublieft de vereisten voordat u installeert. Als deze niet worden voldaan, SigTool zal niet goed werken.
 
 #### Vereisten:
-- PHP &gt;= `7.0.3` met zlib + Phar ondersteuning.
-- &gt;= 1GB vrije schijfruimte (als u rechtstreeks vanaf de schijf werkt) of beschikbare RAM (als u een RAM-station gebruikt; aanbevolen).
-- Vermogen om PHP te bedienen in de CLI-modus (command prompt, terminal, shell, enz).
+- __Voor SigTool &lt;=1.0.2:__ PHP &gt;=7.0.3 met phar ondersteuning (PHP &gt;=7.2.0 aanbevolen).
+- __Voor SigTool 1.0.3:__ PHP &gt;=7.0.3 (PHP &gt;=7.2.0 aanbevolen).
+- __Voor SigTool v2:__ PHP &gt;=7.2.0.
+- __Alle versies:__ *Ten minste* &gt;=681 MB beschikbaar RAM-geheugen (maar ten minste &gt;=1 GB wordt sterk aanbevolen).
+- __Alle versies:__ Ongeveer ~300 MB beschikbare schijfruimte (dit aantal kan variëren tussen iteraties van de signatures database).
+- __Alle versies:__ Mogelijkheid om PHP in CLI-modus te gebruiken (b.v., opdrachtprompt, terminal, shell, bash, enz).
 
-Om SigTool te installeren, download `SigTool.php` en `YAML.php`. :-)
+The recommended way to install SigTool is through Composer.
 
-SigTool kan normaal gesproken vanuit een disk of opslagmedium op dezelfde manier werken als een ander PHP-script. Echter, door het grote aantal lees/schrijf operaties uitgevoerd, het wordt ten zeerste aanbevolen om het van een RAM-station te bedienen, aangezien dit de snelheid zal verhogen en de overmaat lees/schrijf operaties verminderen. De uiteindelijke uitvoer mag niet hoger zijn dan ongeveer ~64MB, maar ongeveer ~1GB vrije schijfruimte of beschikbaar RAM is vereist tijdens normale werking wegens tijdelijke werkbestanden en om lees/schrijf fouten te voorkomen.
+`composer require phpmussel/sigtool`
+
+Als alternatief kunt u de repository klonen of de ZIP downloaden rechtstreeks van GitHub.
 
 ---
 
@@ -98,4 +103,4 @@ clamav_swf_regex.db | Bedoeld voor SWF-bestanden; Werkt met rauwe data; Signatur
 ---
 
 
-Laatste Bijgewerkt: 7 Maart 2020 (2020.03.07).
+Laatste Bijgewerkt: 22 Juli 2021 (2021.07.22).

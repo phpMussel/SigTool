@@ -3,13 +3,18 @@
 Sebelum menginstal, mohon periksa persyaratannya. Jika ini tidak terpenuhi, SigTool tidak akan beroperasi dengan benar.
 
 #### Persyaratan:
-- PHP &gt;= `7.0.3` dengan dukungan zlib + Phar.
-- &gt;= 1GB ruang disk kosong (jika bekerja langsung dari disk) atau RAM yang tersedia (jika menggunakan drive RAM; direkomendasikan).
-- Kemampuan mengoperasikan PHP dalam modus CLI (command prompt, terminal, shell, dll).
+- __Untuk SigTool &lt;=1.0.2:__ PHP &gt;=7.0.3 dengan dukungan phar (PHP &gt;=7.2.0 direkomendasikan).
+- __Untuk SigTool 1.0.3:__ PHP &gt;=7.0.3 (PHP &gt;=7.2.0 direkomendasikan).
+- __Untuk SigTool v2:__ PHP &gt;=7.2.0.
+- __Semua versi:__ *Setidaknya* &gt;=681 MB RAM yang tersedia (tapi, minimal &gt;=1 GB sangat direkomendasikan).
+- __Semua versi:__ Sekitar ~300 MB ruang disk yang tersedia (jumlah ini dapat bervariasi antara iterasi database tanda tangan).
+- __Semua versi:__ Kemampuan untuk mengoperasikan PHP dalam modus CLI (misalnya, command prompt, terminal, shell, bash, dll).
 
-Untuk menginstal SigTool, cukup download `SigTool.php` dan `YAML.php`. :-)
+The recommended way to install SigTool is through Composer.
 
-SigTool dapat beroperasi secara normal dari media disk atau media penyimpanan dengan cara yang sama seperti skrip PHP lainnya. Namun, karena banyaknya operasi baca/tulis yang dilakukan, sangat direkomendasikan untuk mengoperasikannya dari drive RAM, karena ini akan sedikit meningkatkan kecepatan dan mengurangi kelebihan operasi disk baca/tulis. Output akhir tidak boleh melebihi kira-kira ~64MBs, tapi kira-kira ~1GB ruang disk kosong atau RAM yang tersedia diperlukan selama operasi normal karena file kerja sementara dan untuk menghindari kesalahan baca/tulis.
+`composer require phpmussel/sigtool`
+
+Sebaliknya, Anda dapat mengkloning repositori, atau mengunduh ZIP, langsung dari GitHub.
 
 ---
 
@@ -98,4 +103,4 @@ clamav_swf_regex.db | Menargetkan file SWF; Bekerja dengan data mentah; Tanda ta
 ---
 
 
-Terakhir Diperbarui: 7 Maret 2020 (2020.03.07).
+Terakhir Diperbarui: 22 Juli 2021 (2021.07.22).

@@ -3,13 +3,18 @@
 Antes de la instalación, compruebe los requisitos. Si no se cumplen, SigTool no funcionará correctamente.
 
 #### Requisitos:
-- PHP &gt;= `7.0.3` con soporte zlib + Phar.
-- &gt;= 1GB de espacio libre en disco (si trabaja directamente desde el disco) o RAM disponible (si utiliza una unidad RAM; recomendado).
-- Capacidad para operar PHP en modo CLI (comando, terminal, shell, etc).
+- __Para SigTool &lt;=1.0.2:__ PHP &gt;=7.0.3 con soporte phar (se recomienda PHP &gt;=7.2.0).
+- __Para SigTool 1.0.3:__ PHP &gt;=7.0.3 (se recomienda PHP &gt;=7.2.0).
+- __Para SigTool v2:__ PHP &gt;=7.2.0.
+- __Todas las versiones:__ *Al menos* &gt;=681 681 MB de RAM disponible (pero se recomienda encarecidamente al menos &gt;=1 GB).
+- __Todas las versiones:__ Aproximadamente ~300 MB de espacio disponible en disco (este número puede variar entre iteraciones de la base de datos de firmas).
+- __Todas las versiones:__ Capacidad para operar PHP en modo CLI (por ejemplo, símbolo del sistema, terminal, shell, bash, etc).
 
-Para instalar SigTool, simplemente descargue `SigTool.php` y `YAML.php`. :-)
+La forma recomendada de instalar SigTool es a través de Composer.
 
-SigTool puede funcionar normalmente desde un disco o medio de almacenamiento de la misma manera que cualquier otro script PHP. Aunque, debido al gran número de operaciones de lectura/escritura que realiza, es altamente recomendable operarlo desde una unidad RAM, ya que esto aumentará ligeramente su velocidad y disminuirá el exceso de operaciones de lectura/escritura de disco. La salida final no debe exceder aproximadamente ~64MBs, pero aproximadamente ~1GB de espacio libre en disco o RAM disponible se requiere durante el funcionamiento normal debido a los archivos temporales de trabajo ya fin de evitar errores de lectura/escritura.
+`composer require phpmussel/sigtool`
+
+Alternativamente, puede clonar el repositorio o descargar el ZIP directamente desde GitHub.
 
 ---
 
@@ -98,4 +103,4 @@ clamav_swf_regex.db | Destinado a archivos SWF; Funciona con datos sin procesar;
 ---
 
 
-Última Actualización: 7 de Marzo de 2020 (2020.03.07).
+Última Actualización: 22 de Julio de 2021 (2021.07.22).

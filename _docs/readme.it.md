@@ -3,13 +3,18 @@
 Prima di installare, controllare i requisiti. Se questi non sono soddisfatti, SigTool non funzionerà correttamente.
 
 #### Requisiti:
-- PHP &gt;= `7.0.3` con supporto zlib + Phar.
-- &gt;= 1GB di spazio libero su disco (se lavora direttamente dal disco) o RAM disponibile (se si utilizza un'unità RAM; consigliato).
-- Capacità di utilizzare PHP in modalità CLI (prompt dei comandi, terminal, shell, ecc).
+- __Per SigTool &lt;=1.0.2:__ PHP &gt;=7.0.3 con supporto di phar (PHP &gt;=7.2.0 consigliato).
+- __Per SigTool 1.0.3:__ PHP &gt;=7.0.3 (PHP &gt;=7.2.0 consigliato).
+- __Per SigTool v2:__ PHP &gt;=7.2.0.
+- __Tutte le versioni:__ *Almeno* &gt;=681 MB di RAM disponibile (ma almeno &gt;=1 GB è fortemente consigliato).
+- __Tutte le versioni:__ Circa ~300 MB di spazio disponibile su disco (questo numero può variare tra le iterazioni del database delle firme).
+- __Tutte le versioni:__ Capacità di utilizzare PHP in modalità CLI (ad es., prompt dei comandi, terminale, shell, bash, ecc).
 
-Per installare SigTool, basta scaricare `SigTool.php` e `YAML.php`. :-)
+Il modo consigliato per installare SigTool è tramite Composer.
 
-SigTool può funzionare normalmente da un disco o da un supporto di memorizzazione nello stesso modo di qualsiasi altro script PHP. Tuttavia, a causa del numero elevato di operazioni di lettura/scrittura che esegue, è altamente consigliato per azionarlo da un'unità RAM, poichè ciò aumenterà leggermente la sua velocità e diminuirà le operazioni di lettura/scrittura di disco eccessivo. L'output finale non dovrebbe superare approssimativamente ~64MB, ma approssimativamente ~1GB di spazio libero su disco o RAM disponibile è necessario durante il normale funzionamento a causa di file temporanei di lavoro e per evitare errori di lettura/scrittura.
+`composer require phpmussel/sigtool`
+
+In alternativa, puoi clonare il repository, o scaricare lo ZIP, direttamente da GitHub.
 
 ---
 
@@ -97,4 +102,4 @@ clamav_swf_regex.db | Destinato ai file SWF; Funziona con dati non processati; L
 ---
 
 
-Ultimo Aggiornamento: 7 Marzo 2020 (2020.03.07).
+Ultimo Aggiornamento: 22 Luglio 2021 (2021.07.22).

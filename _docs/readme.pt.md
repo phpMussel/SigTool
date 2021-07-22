@@ -3,13 +3,18 @@
 Antes da instalação, verifique os requisitos. Se estes não forem atendidos, o SigTool não funcionará corretamente.
 
 #### Requisitos:
-- PHP &gt;= `7.0.3` com suporte zlib + Phar.
-- &gt;= 1GB de espaço livre no disco (se estiver trabalhando diretamente do disco) ou RAM disponível (se estiver usando uma unidade de RAM; recomendado).
-- Capacidade de operar o PHP no modo CLI (prompt de comando, terminal, shell, etc).
+- __Para SigTool &lt;=1.0.2:__ PHP &gt;=7.0.3 com suporte phar (PHP &gt;=7.2.0 recomendado).
+- __Para SigTool 1.0.3:__ PHP &gt;=7.0.3 (PHP &gt;=7.2.0 recomendado).
+- __Para SigTool v2:__ PHP &gt;=7.2.0.
+- __Todas versões:__ *Pelo menos* &gt;=681 MB de RAM disponível (mas, pelo menos &gt;=1 GB é fortemente recomendado).
+- __Todas versões:__ Aproximadamente ~300 MBs de espaço em disco disponível (este número pode variar entre as iterações do banco de dados de assinaturas).
+- __Todas versões:__ Capacidade de operar PHP no modo CLI (por exemplo, prompt de comando, terminal, shell, bash, etc).
 
-Para instalar o SigTool, basta baixar `SigTool.php` e `YAML.php`. :-)
+A maneira recomendada de instalar o SigTool é através do Composer.
 
-O SigTool pode operar normalmente a partir de um disco ou suporte de armazenamento da mesma maneira que qualquer outro script PHP. Contudo, devido ao grande número de operações de leitura/gravação que executa, é altamente recomendável operá-lo a partir de uma unidade de RAM, pois isso aumentará ligeiramente sua velocidade e diminuirá o excesso de operações de leitura/gravação do disco. A saída final não deve exceder aproximadamente ~64MBs, mas aproximadamente ~1GB de espaço livre em disco ou RAM disponível é necessária durante a operação normal devido a arquivos de trabalho temporários e para evitar erros de leitura/gravação.
+`composer require phpmussel/sigtool`
+
+Como alternativa, você pode clonar o repositório ou baixar o ZIP diretamente do GitHub.
 
 ---
 
@@ -98,4 +103,4 @@ clamav_swf_regex.db | Destinado a arquivos SWF; Funciona com dados brutos; As as
 ---
 
 
-Última Atualização: 7 de Março de 2020 (2020.03.07).
+Última Atualização: 22 de Julho de 2021 (2021.07.22).

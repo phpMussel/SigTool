@@ -3,13 +3,18 @@
 Vor der Installation, bitte überprüfen Sie, was erforderlich ist. Wenn was erforderlich ist nicht erfüllt ist, SigTool wird nicht richtig funktionieren.
 
 #### Erforderlich:
-- PHP &gt;= `7.0.3` mit zlib + phar unterstützung.
-- &gt;= 1GB freier Festplattenspeicher (wenn direkt von der Festplatte arbeiten) oder verfügbarer RAM (wenn Sie ein RAM-Laufwerk verwenden; empfohlen).
-- Möglichkeit für PHP im CLI-Modus zu betreiben (Eingabeaufforderung, Terminal, Shell, u.s.w.).
+- __Für SigTool &lt;=1.0.2:__ PHP &gt;=7.0.3 mit phar unterstützung (PHP &gt;=7.2.0 empfohlen).
+- __Für SigTool 1.0.3:__ PHP &gt;=7.0.3 (PHP &gt;=7.2.0 empfohlen).
+- __Für SigTool v2:__ PHP &gt;=7.2.0.
+- __Alle Versionen:__ *Mindestens* &gt;=681 MB verfügbarer RAM (aber mindestens &gt;=1 GB wird dringend empfohlen).
+- __Alle Versionen:__ Ungefähr ~300 MB verfügbarer Festplattenspeicher (diese Anzahl kann zwischen den Iterationen der Signaturdatenbank variieren).
+- __Alle Versionen:__ Fähigkeit um PHP im CLI-Modus zu betreiben (z.B., Eingabeaufforderung, Terminal, Shell, Bash u.s.w.).
 
-Um SigTool zu installieren, laden Sie einfach `SigTool.php` und `YAML.php` herunter. :-)
+Die empfohlene Methode zur Installation von SigTool ist über Composer.
 
-SigTool kann auf normale Weise von einem Datenträger oder Speichermedium auf die gleiche Weise wie jedes andere PHP-Skript arbeiten. Aufgrund jedoch der großen Anzahl der ausgeführten Lese/Schreibvorgänge, es wird dringend empfohlen, es von einem RAM-Laufwerk aus zu betreiben, weil dies seine Geschwindigkeit etwas erhöhen und überschüssige Lese/Schreibvorgänge reduzieren. Die endgültige Ausgabe sollte ungefähr ~64MB nicht überschreiten, aber im normalen Betrieb sind ungefähr ~1GB freier Festplattenspeicher oder verfügbarer RAM erforderlich aufgrund temporärer Arbeitsdateien und um Lese/Schreibfehler zu vermeiden.
+`composer require phpmussel/sigtool`
+
+Alternativ, können Sie das Repository klonen, oder die ZIP-Datei herunterladen, direkt von GitHub.
 
 ---
 
@@ -98,4 +103,4 @@ clamav_swf_regex.db | Es handelt sich um SWF-Dateien; Funktioniert mit Rohdaten;
 ---
 
 
-Zuletzt aktualisiert: 7 März 2020 (2020.03.07).
+Zuletzt aktualisiert: 22. Juli 2021 (2021.07.22).

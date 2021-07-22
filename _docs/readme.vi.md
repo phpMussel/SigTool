@@ -3,13 +3,18 @@
 Trước khi cài đặt, vui lòng kiểm tra các yêu cầu. Nếu những điều này không được đáp ứng, SigTool sẽ không hoạt động chính xác.
 
 #### Yêu cầu:
-- PHP &gt;= `7.0.3` với hỗ trợ zlib + Phar.
-- &gt;= 1GB không gian đĩa trống (nếu làm việc trực tiếp từ đĩa) hoặc bộ nhớ RAM có sẵn (nếu sử dụng một ổ đĩa RAM; được đề nghị).
-- Khả năng vận hành PHP trong chế độ CLI (dấu nhắc lệnh, terminal, shell, vv).
+- __Cho SigTool &lt;=1.0.2:__ PHP &gt;=7.0.3 với hỗ trợ cho phar (PHP &gt;=7.2.0 được khuyến nghị).
+- __Cho SigTool 1.0.3:__ PHP &gt;=7.0.3 (PHP &gt;=7.2.0 được khuyến nghị).
+- __Cho SigTool v2:__ PHP &gt;=7.2.0.
+- __Tất cả các phiên bản:__ *Ít nhất* &gt;=681 MB RAM khả dụng (nhưng, ít nhất &gt;=1 GB được khuyến nghị).
+- __Tất cả các phiên bản:__ Khoảng ~300 MB dung lượng đĩa trống (con số này có thể thay đổi giữa các lần lặp lại của cơ sở dữ liệu chữ ký).
+- __Tất cả các phiên bản:__ Khả năng vận hành PHP ở chế độ CLI (ví dụ, dấu nhắc lệnh, thiết bị đầu cuối, trình bao, bash, vv).
 
-Để cài đặt SigTool, chỉ cần tải xuống `SigTool.php` và `YAML.php`. :-)
+Cách được khuyến nghị để cài đặt SigTool là thông qua Composer.
 
-SigTool có thể hoạt động bình thường từ đĩa hoặc phương tiện lưu trữ theo cách tương tự như bất kỳ tập lệnh PHP nào khác. Tuy nhiên, do số lượng lớn các hoạt động đọc và viết nó thực hiện, nó rất khuyến khích để vận hành nó từ một ổ đĩa RAM, bởi vì điều này sẽ hơi tăng tốc độ của nó và giảm hoạt động đọc và viết của đĩa thừa. Sản lượng cuối cùng không được vượt quá ~64MB, nhưng khoảng 1GB không gian đĩa trống hoặc RAM có sẵn là bắt buộc trong quá trình hoạt động bình thường bởi vì các tập tin tạm thời làm việc và để tránh lỗi.
+`composer require phpmussel/sigtool`
+
+Ngoài ra, bạn có thể sao chép kho lưu trữ, hoặc tải xuống tập tin zip, trực tiếp từ GitHub.
 
 ---
 
@@ -98,4 +103,4 @@ clamav_swf_regex.db | Nhắm mục tiêu các tập tin SWF; Làm việc với d
 ---
 
 
-Lần cuối cập nhật: 7 Tháng Ba 2020 (2020.03.07).
+Lần cuối cập nhật: 2021.07.22.

@@ -7,11 +7,21 @@ Versioning guidelines for SemVer can be found at: https://semver.org/
 
 === Changes made since last versioned release ===
 
+None.
+
+=== Version/Release 1.0.3 ===
+PATCH RELEASE.
+
 - [2021.07.15; Bug-fix; Maikuolan]: Resolved "error code: 1020" issue.
   Refer github.com/phpMussel/SigTool/issues/6
 
 - [2021.07.21; Maikuolan]: SigTool now displays current RAM usage throughout
   its entire process.
+
+- [2021.07.22; Maikuolan]: Update requirements and installation instructions.
+
+Caleb M (Maikuolan),
+July 22, 2021.
 
 === Version/Release 1.0.2 ===
 MAINTENANCE RELEASE.

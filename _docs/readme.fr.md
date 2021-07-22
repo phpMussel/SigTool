@@ -3,13 +3,18 @@
 Avant l'installation, vérifiez les conditions requises. Si ceux-ci ne sont pas satisfaits, SigTool ne fonctionnera pas correctement.
 
 #### Les conditions requises :
-- PHP &gt;= `7.0.3` avec support de zlib + Phar.
-- &gt;= 1Go d'espace disque libre (si vous travaillez directement à partir du disque) ou RAM disponible (si vous utilisez un disque RAM ; recommandé).
-- Capacité d'opérer PHP en mode CLI (invite de commande, le terminal, shell, etc).
+- __Pour SigTool &lt;=1.0.2:__ PHP &gt;=7.0.3 avec support de phar (PHP &gt;=7.2.0 recommandé).
+- __Pour SigTool 1.0.3:__ PHP &gt;=7.0.3 (PHP &gt;=7.2.0 recommandé).
+- __Pour SigTool v2:__ PHP &gt;=7.2.0.
+- __Toutes les versions:__ *Au moins* &gt;=681 Mo de RAM disponible (mais, au moins &gt;=1 Go est fortement recommandé).
+- __Toutes les versions:__ Environ ~300 Mo d'espace disque disponible (ce nombre peut varier entre les itérations de la base de données de signatures).
+- __Toutes les versions:__ Capacité à utiliser PHP en mode CLI (par exemple, invite de commande, terminal, shell, bash, etc).
 
-Pour installer SigTool, téléchargez simplement `SigTool.php` et `YAML.php`. :-)
+La méthode recommandé pour installer SigTool est via Composer.
 
-SigTool peut fonctionner normalement à partir d'un disque ou d'un support de stockage de la même manière que tout autre script PHP. Cependant, en raison du grand nombre d'opérations de lecture/écriture qu'il effectue, il est fortement recommandé de l'utiliser à partir d'un disque RAM, pour la raison qu'il augmentera légèrement sa vitesse et diminuera les opérations excédentaires de lecture/écriture du disque. La sortie finale ne doit pas dépasser environ ~64Mo, mais environ ~1Go d'espace disque libre ou RAM disponible est requis pendant le fonctionnement normal en raison de fichiers de travail temporaires et afin d'éviter les erreurs de lecture/écriture.
+`composer require phpmussel/sigtool`
+
+Alternativement, vous pouvez cloner le référentiel ou télécharger le ZIP directement depuis GitHub.
 
 ---
 
@@ -98,4 +103,4 @@ clamav_swf_regex.db | Cible les fichiers SWF ; Fonctionne avec des données bru
 ---
 
 
-Dernière mise à jour : 7 Mars 2020 (2020.03.07).
+Dernière mise à jour : 22 Juillet 2021 (2021.07.22).
