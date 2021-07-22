@@ -31,9 +31,6 @@ Mogelijke vlaggen:
 - Geen argumenten: Laat deze hulpinformatie zien.
 - `x`: Extract signatuurbestanden uit `daily.cvd` en `main.cvd`.
 - `p`: Verwerk signatuurbestanden voor gebruik met phpMussel.
-- `m`: Download `main.cvd` voor verwerking.
-- `d`: Download `daily.cvd` voor verwerking.
-- `u`: Update SigTool (downloadt `SigTool.php` opnieuw en dies; geen controles uitgevoerd).
 
 Output geproduceerd is verschillende phpMussel signatuurbestanden die direct uit de ClamAV signatures database worden gegenereerd, in twee vormen:
 - Signatuurbestanden die direct in de `/vault/signatures/` map kunnen worden ingevoegd.

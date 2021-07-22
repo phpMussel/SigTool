@@ -31,9 +31,6 @@ Flag possibile:
 - Nessun argomento: Visualizza le informazioni di aiuto.
 - `x`: Estrarre i file di firme da `daily.cvd` e `main.cvd`.
 - `p`: Processare le file di firma per l'utilizzo con phpMussel.
-- `m`: Scaricare `main.cvd` prima di processare.
-- `d`: Scaricare `daily.cvd` prima di processare.
-- `u`: Aggiornare SigTool (scarica nuovamente `SigTool.php` e die; nessun controllo effettuato).
 
 L'output prodotto è vari file di firme per phpMussel generati direttamente dal database di firme per ClamAV, in due forme:
 - File di firme che possono essere inseriti direttamente nella cartella `/vault/signatures/`.

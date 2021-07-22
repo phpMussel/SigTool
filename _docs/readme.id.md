@@ -31,9 +31,6 @@ Bendera yang mungkin:
 - Tidak ada argumen: Tampilkan informasi bantuan ini.
 - `x`: Ekstrak file tanda tangan dari `daily.cvd` dan `main.cvd`.
 - `p`: Proses file tanda tangan untuk digunakan dengan phpMussel.
-- `m`: Download `main.cvd` sebelum diproses.
-- `d`: Download `daily.cvd` sebelum diproses.
-- `u`: Perbarui SigTool (download `SigTool.php` lagi dan die; tidak ada pemeriksaan yang dilakukan).
 
 Output yang dihasilkan adalah berbagai file tanda tangan phpMussel yang dihasilkan langsung dari database tanda tangan ClamAV, dalam dua bentuk:
 - File tanda tangan yang bisa dimasukkan langsung ke direktori `/vault/signatures/`.

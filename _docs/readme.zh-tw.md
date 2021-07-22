@@ -31,9 +31,6 @@
 - 沒有參數：顯示此幫助信息。
 - `x`：從`daily.cvd`和`main.cvd`中提取簽名文件。
 - `p`：處理用於phpMussel的簽名文件。
-- `m`：在處理之前下載`main.cvd`。
-- `d`：在處理之前下載`daily.cvd`。
-- `u`：更新SigTool（重新`SigTool.php`下載然後die；沒有檢查執行）.
 
 產生的產出是各種phpMussel簽名文件直接從ClamAV簽名數據庫生成，有兩種形式：
 - 可以直接插入在`/vault/signatures/`目錄的簽名文件。

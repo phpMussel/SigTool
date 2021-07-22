@@ -31,9 +31,6 @@ Các cờ có sẵn:
 - Không có đối số: Hiển thị thông tin trợ giúp này.
 - `x`: Trích xuất các tập tin chữ ký từ `daily.cvd` và `main.cvd`.
 - `p`: Xử lý các tập tin chữ ký để sử dụng với phpMussel.
-- `m`: Tải xuống `main.cvd` trước khi xử lý.
-- `d`: Tải xuống `daily.cvd` trước khi xử lý.
-- `u`: Cập nhật SigTool (tải xuống `SigTool.php` lại và die; không kiểm tra được thực hiện).
 
 Đầu ra được sản xuất là các tập tin chữ ký phpMussel khác nhau được tạo trực tiếp từ cơ sở dữ liệu chữ ký ClamAV, theo hai hình thức:
 - Chữ ký có thể được chèn trực tiếp vào thư mục `/vault/signatures/`.

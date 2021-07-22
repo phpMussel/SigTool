@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v1.0.3 (last modified: 2021.07.21).
+ * SigTool v2.0.0 (last modified: 2021.07.22).
  *
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
@@ -18,12 +18,12 @@ class SigTool extends \Maikuolan\Common\YAML
     /**
      * @var string Script version.
      */
-    public $Ver = '1.0.3';
+    public $Ver = '2.0.0';
 
     /**
      * @var string Last modified date.
      */
-    public $Modified = '2021.07.21';
+    public $Modified = '2021.07.22';
 
     /**
      * @var string Script user agent.
@@ -84,44 +84,6 @@ class SigTool extends \Maikuolan\Common\YAML
             $Raw = substr($Raw, 4);
         }
         $this->Raw = $Raw;
-    }
-
-    /**
-     * Use cURL to fetch files.
-     *
-     * @param string $URI The resource to fetch.
-     * @param int $Timeout An optional timeout.
-     * @return string The cURL response (the fetched resource).
-     */
-    public function fetch($URI, $Timeout = 600)
-    {
-        /** Initialise the cURL session. */
-        $Request = curl_init($URI);
-
-        $LCURI = strtolower($URI);
-        $SSL = (substr($LCURI, 0, 6) === 'https:');
-
-        curl_setopt($Request, CURLOPT_FRESH_CONNECT, true);
-        curl_setopt($Request, CURLOPT_HEADER, false);
-        curl_setopt($Request, CURLOPT_POST, false);
-        if ($SSL) {
-            curl_setopt($Request, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
-            curl_setopt($Request, CURLOPT_SSL_VERIFYPEER, false);
-        }
-        curl_setopt($Request, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($Request, CURLOPT_MAXREDIRS, 1);
-        curl_setopt($Request, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($Request, CURLOPT_TIMEOUT, $Timeout);
-        curl_setopt($Request, CURLOPT_USERAGENT, $this->UA);
-
-        /** Execute and get the response. */
-        $Response = curl_exec($Request);
-
-        /** Close the cURL session. */
-        curl_close($Request);
-
-        /** Return the results of the request. */
-        return $Response;
     }
 
     /**
@@ -325,36 +287,28 @@ $L10N = [
         " Arguments (all are OFF by default; include to turn ON):\n" .
         "  - No arguments: Display this help information.\n" .
         "  - x: Extract signature files from \"daily.cvd\" and \"main.cvd\".\n" .
-        "  - p: Process signature files for use with phpMussel.\n" .
-        "  - m: Download main.cvd before processing (deprecated).\n" .
-        "  - d: Download daily.cvd before processing (deprecated).\n" .
-        "  - u: Update SigTool (redownloads SigTool's files and dies;\n" .
-        "       doesn't perform any checks).\n\n"
+        "  - p: Process signature files for use with phpMussel.\n\n"
     ),
     'Accessing' => ' Accessing %s ...',
     'Decompressing' => ' Decompressing %s ...',
     'Deleting' => ' Deleting %s ...',
     'Done' => " Done!",
-    'Downloading' => ' Downloading %s ...',
     'Extracting_to_Cvd' => ' Extracting contents from %s to Cvd object ...',
     'Failed' => " Failed!",
     'Processing' => ' Processing ...',
-    'Sorting' => ' Sorting %s ...',
     'Writing' => ' Writing %s ...',
-    '_Error0' => ' Error at line "%d"! SigTool terminated.',
-    '_Error1' => ' Writing to "%2$s" failed at line "%1$d"! SigTool terminated.',
-    '_Error2' => ' Reading from "%2$s" failed at line "%1$d"! SigTool terminated.',
-    '_Error3' => ' Fetching "%2$s" from the upstream failed at line "%1$d"! SigTool terminated.',
-    '_Error4' => ' Fetching "%2$s" blocked by upstream firewall at line "%1$d"! SigTool terminated.',
-    '_Error5' => ' Reading "%2$s" failed at line "%1$d"! "%2$s" could be corrupted! SigTool terminated.'
+    '_Error_Corrupted' => ' Reading "%2$s" failed at line "%1$d"! "%2$s" could be corrupted! SigTool terminated.',
+    '_Error_Other' => ' Error at line "%d"! SigTool terminated.',
+    '_Error_Reading' => ' Reading from "%2$s" failed at line "%1$d"! SigTool terminated.',
+    '_Error_Writing' => ' Writing to "%2$s" failed at line "%1$d"! SigTool terminated.'
 ];
 
 /**
  * Terminate with debug information.
  */
-$Terminate = function ($Err = '_Error0', $Msg = '') use (&$SigTool, &$L10N) {
+$Terminate = function ($Err = '_Error_Other', $Msg = '') use (&$SigTool, &$L10N) {
     $Debug = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
-    $SigTool->outputMessage(sprintf($L10N[$Err] ?? $L10N['_Error0'], $Debug['line'], $Msg), true);
+    $SigTool->outputMessage(sprintf($L10N[$Err] ?? $L10N['_Error_Other'], $Debug['line'], $Msg), true);
     echo "\n\n";
     die;
 };
@@ -373,78 +327,7 @@ if ($RunMode === '') {
 date_default_timezone_set('Europe/Zurich');
 
 /**
- * Updating SigTool.
- */
-if (strpos($RunMode, 'u') !== false) {
-    foreach (['SigTool.php', 'YAML.php', 'Cvd.php'] as $File) {
-        $SigTool->outputMessage(sprintf($L10N['Downloading'], $File), true);
-        try {
-            $Data = $SigTool->fetch('https://raw.githubusercontent.com/phpMussel/SigTool/master/' . $File);
-        } catch (\Exception $e) {
-            $Terminate('_Error3', $File);
-        }
-        $SigTool->outputMessage(sprintf($L10N['Downloading'], $File) . $L10N['Done']);
-        $SigTool->outputMessage(sprintf($L10N['Writing'], $File), true);
-        if (!file_put_contents($SigTool->fixPath(__DIR__ . '/' . $File), $Data)) {
-            $Terminate('_Error1', $File);
-        }
-        $SigTool->outputMessage(sprintf($L10N['Writing'], $File) . $L10N['Done']);
-    }
-    die;
-}
-
-/**
- * @deprecated
- * Phase 1: Download main.cvd.
- */
-if (strpos($RunMode, 'm') !== false) {
-    echo sprintf($L10N['Downloading'], 'main.cvd');
-    try {
-        $Data = $SigTool->fetch('http://database.clamav.net/main.cvd');
-    } catch (\Exception $e) {
-        $Terminate('_Error3', 'main.cvd');
-    }
-    if ($Data === '') {
-        $Terminate('_Error3', 'main.cvd');
-    }
-    if ($Data === 'error code: 1020') {
-        $Terminate('_Error4', 'main.cvd');
-    }
-    echo $L10N['Done'] . sprintf($L10N['Writing'], 'main.cvd');
-    if (!file_put_contents($SigTool->fixPath(__DIR__ . '/main.cvd'), $Data)) {
-        $Terminate('_Error1', 'main.cvd');
-    }
-    echo $L10N['Done'];
-    unset($Data);
-}
-
-/**
- * @deprecated
- * Phase 2: Download daily.cvd.
- */
-if (strpos($RunMode, 'd') !== false) {
-    echo sprintf($L10N['Downloading'], 'daily.cvd');
-    try {
-        $Data = $SigTool->fetch('http://database.clamav.net/daily.cvd');
-    } catch (\Exception $e) {
-        $Terminate('_Error3', 'daily.cvd');
-    }
-    if ($Data === '') {
-        $Terminate('_Error3', 'daily.cvd');
-    }
-    if ($Data === 'error code: 1020') {
-        $Terminate('_Error4', 'daily.cvd');
-    }
-    echo $L10N['Done'] . sprintf($L10N['Writing'], 'daily.cvd');
-    if (!file_put_contents($SigTool->fixPath(__DIR__ . '/daily.cvd'), $Data)) {
-        $Terminate('_Error1', 'daily.cvd');
-    }
-    echo $L10N['Done'];
-    unset($Data);
-}
-
-/**
- * Phase 3: Extract ClamAV signature files from "daily.cvd" and "main.cvd" packages.
+ * Extract ClamAV signature files from "daily.cvd" and "main.cvd" packages.
  */
 if (strpos($RunMode, 'x') !== false) {
     foreach (['daily.cvd', 'main.cvd'] as $Set) {
@@ -452,7 +335,7 @@ if (strpos($RunMode, 'x') !== false) {
 
         /** Terminate if the file is missing or unreadable. */
         if (!file_exists($File) || !is_readable($File)) {
-            $Terminate('_Error2', $Set);
+            $Terminate('_Error_Reading', $Set);
         }
 
         $SigTool->outputMessage(sprintf($L10N['Decompressing'], $Set), true);
@@ -460,7 +343,7 @@ if (strpos($RunMode, 'x') !== false) {
         $SigTool->outputMessage(sprintf($L10N['Decompressing'], $Set) . $L10N['Done']);
         $SigTool->outputMessage(sprintf($L10N['Extracting_to_Cvd'], $Set), true);
         if ($Files->ErrorState !== 0) {
-            $Terminate('_Error5', $File);
+            $Terminate('_Error_Corrupted', $File);
         }
         $SigTool->outputMessage(sprintf($L10N['Extracting_to_Cvd'], $Set) . $L10N['Done']);
         while (true) {
@@ -470,7 +353,7 @@ if (strpos($RunMode, 'x') !== false) {
                 $SigTool->outputMessage(sprintf($L10N['Writing'], $Name), true);
                 $Handle = fopen($SigTool->fixPath(__DIR__ . '/' . $Name), 'wb');
                 if (!is_resource($Handle)) {
-                    $Terminate('_Error1', $Name);
+                    $Terminate('_Error_Writing', $Name);
                 }
                 fwrite($Handle, $Data);
                 fclose($Handle);
@@ -487,7 +370,7 @@ if (strpos($RunMode, 'x') !== false) {
 }
 
 /**
- * Phase 4: Process signature files for use with phpMussel.
+ * Process signature files for use with phpMussel.
  */
 if (strpos($RunMode, 'p') !== false) {
     /** Check if signatures.dat exists; If so, we'll read it for updating. */
@@ -605,13 +488,13 @@ if (strpos($RunMode, 'p') !== false) {
 
             /** Write to file. */
             if (!is_resource($Handle = fopen($SigTool->fixPath(__DIR__ . '/' . $Set[4]), 'wb'))) {
-                $Terminate('_Error1', $Set[4] . '.gz');
+                $Terminate('_Error_Writing', $Set[4] . '.gz');
             }
             fwrite($Handle, $FileData);
             fclose($Handle);
             if ($Set[5]) {
                 if (!is_resource($Handle = gzopen($SigTool->fixPath(__DIR__ . '/' . $Set[4] . '.gz'), 'wb'))) {
-                    $Terminate('_Error1', $Set[4] . '.gz');
+                    $Terminate('_Error_Writing', $Set[4] . '.gz');
                 }
                 gzwrite($Handle, $FileData);
                 gzclose($Handle);

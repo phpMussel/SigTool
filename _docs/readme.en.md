@@ -31,9 +31,6 @@ Possible flags:
 - No arguments: Display this help information.
 - `x`: Extract signature files from `daily.cvd` and `main.cvd`.
 - `p`: Process signature files for use with phpMussel.
-- `m`: Download `main.cvd` before processing.
-- `d`: Download `daily.cvd` before processing.
-- `u`: Update SigTool (redownloads `SigTool.php` and dies; no checks performed).
 
 Output produced is various phpMussel signature files generated directly from the ClamAV signatures database, in two forms:
 - Signature files that can be inserted directly into the `/vault/signatures/` directory.

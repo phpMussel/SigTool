@@ -31,9 +31,6 @@ Drapeaux possibles :
 - Aucun argument : Affichez ces informations d'aide.
 - `x` : Extrayez les fichiers de signature de `daily.cvd` et` main.cvd`.
 - `p` : Procurez-vous des fichiers de signature à utiliser avec phpMussel.
-- `m` : Télécharger `main.cvd` avant le traitement.
-- `d` : Télécharger `daily.cvd` avant le traitement.
-- `u` : Mettre à jour SigTool (télécharge `SigTool.php` à nouveau et die ; aucun contrôle effectué).
 
 La sortie produite est divers fichiers de signature pour phpMussel, généré directement à partir de la base de données de signature pour ClamAV, sous deux formes :
 - Fichiers de signatures qui peuvent être insérés directement dans le répertoire `/vault/signatures/`.

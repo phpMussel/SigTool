@@ -31,9 +31,6 @@ Möglichen Flaggen:
 - Keine Argumente: Zeigt diese Hilfeinformationen.
 - `x`: Extrahiert Signaturdateien aus "daily.cvd" und "main.cvd".
 - `p`: Verarbeitet Signaturdateien zur Verwendung mit phpMussel.
-- `m`: Holt `main.cvd` vor der Verarbeitung.
-- `d`: Holt `daily.cvd` vor der Verarbeitung.
-- `u`: Aktualisiert SigTool (lädt `SigTool.php` erneut herunter und die; es werden keine Prüfungen durchgeführt).
 
 Die Ausgabe ist verschiedenen phpMussel-Signaturdateien, direkt aus der ClamAV-Signaturdatenbank in zwei Formen generiert:
 - Signaturdateien, die direkt in das `/vault/signatures/`-Verzeichnis eingefügt werden können.
