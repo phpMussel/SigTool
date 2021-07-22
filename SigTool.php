@@ -235,11 +235,10 @@ class SigTool extends \Maikuolan\Common\YAML
      * @param int $Size
      * @return string Formatted size.
      */
-    private function formatSize($Size)
+    private function formatSize(int $Size): string
     {
         $Scale = ['bytes', 'KB', 'MB', 'GB', 'TB'];
         $Iterate = 0;
-        $Size = (int)$Size;
         while ($Size > 1024) {
             $Size /= 1024;
             $Iterate++;
@@ -254,7 +253,7 @@ class SigTool extends \Maikuolan\Common\YAML
 /** Fetch arguments. */
 $RunMode = !empty($argv[1]) ? strtolower($argv[1]) : '';
 
-/** Initialise SigTool object. */
+/** Instantiate the SigTool object. */
 $SigTool = new SigTool();
 
 /** L10N. */
