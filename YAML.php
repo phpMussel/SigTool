@@ -55,7 +55,7 @@ class YAML
      *      be needed by some implementations to ensure compatibility).
      * @link https://github.com/Maikuolan/Common/tags
      */
-    const VERSION = '1.6.2';
+    public const VERSION = '2.6.2';
 
     /**
      * Can optionally begin processing data as soon as the object is
@@ -65,7 +65,7 @@ class YAML
      * @param string $In The data to process.
      * @return void
      */
-    public function __construct($In = '')
+    public function __construct(string $In = '')
     {
         if ($In) {
             $this->process($In, $this->Data);
@@ -80,7 +80,7 @@ class YAML
      * @param string|int|bool $ValueLow The value to be normalised, lowercased.
      * @return void
      */
-    private function normaliseValue(&$Value, $ValueLen, $ValueLow)
+    private function normaliseValue(&$Value, int $ValueLen, $ValueLow): void
     {
         /** Check for anchors and populate if necessary. */
         $AnchorMatches = [];
@@ -144,9 +144,9 @@ class YAML
      * @param int $Depth Tab depth (inherited through recursion; ignore it).
      * @return bool True when entire process completes successfully. False to exit early.
      */
-    public function process($In, array &$Arr, $Depth = 0)
+    public function process(string $In, array &$Arr, int $Depth = 0): bool
     {
-        if (!is_string($In) || strpos($In, "\n") === false) {
+        if (strpos($In, "\n") === false) {
             return false;
         }
         if ($Depth === 0) {
@@ -233,7 +233,7 @@ class YAML
      * @param array $Arr Where to store the data.
      * @return bool True when entire process completes successfully. False to exit early.
      */
-    private function processLine(&$ThisLine, &$ThisTab, &$Key, &$Value, array &$Arr)
+    private function processLine(string &$ThisLine, int &$ThisTab, &$Key, &$Value, array &$Arr): bool
     {
         if ($ThisLine === '---') {
             $Key = '---';
@@ -303,7 +303,7 @@ class YAML
      * @param int $Depth The level depth.
      * @return void
      */
-    private function processInner(array $Arr, &$Out, $Depth = 0)
+    private function processInner(array $Arr, string &$Out, int $Depth = 0): void
     {
         $Sequential = (array_keys($Arr) === range(0, count($Arr) - 1));
         foreach ($Arr as $Key => $Value) {
@@ -350,7 +350,7 @@ class YAML
      * @param array $Arr The array to reconstruct from.
      * @return string The reconstructed YAML.
      */
-    public function reconstruct(array $Arr)
+    public function reconstruct(array $Arr): string
     {
         $Out = '';
         $this->processInner($Arr, $Out);
@@ -362,7 +362,7 @@ class YAML
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->reconstruct($this->Data);
     }

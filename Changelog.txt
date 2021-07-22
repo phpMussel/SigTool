@@ -7,10 +7,11 @@ Versioning guidelines for SemVer can be found at: https://semver.org/
 
 === Changes made since last versioned release ===
 
-- [2021.07.22; Maikuolan]: Remove deprecated functionality (automatically
+- [2021.07.22; Maikuolan]: Removed deprecated functionality (automatically
   downloading the main.cvd and/or daily.cvd files, internal self-update
   functionality; for the former, just download these files manually; for the
-  latter, just use Composer instead).
+  latter, just use Composer instead). Increased minimum PHP version requirement
+  to PHP 7.2, and refactored all code accordingly.
 
 === Version/Release 1.0.3 ===
 PATCH RELEASE.

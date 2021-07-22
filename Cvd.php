@@ -1,6 +1,6 @@
 <?php
 /**
- * Cvd handler (last modified: 2021.07.20).
+ * Cvd handler (last modified: 2021.07.22).
  * Source: https://github.com/phpMussel/SigTool/blob/master/Cvd.php
  *
  * Adapted from phpMussel's TarHandler class.
@@ -50,7 +50,7 @@ class Cvd
      * @param string $Data The cvd data.
      * @return void
      */
-    public function __construct($File)
+    public function __construct(string $File)
     {
         /** Attempt to open the file. */
         if (
@@ -99,7 +99,7 @@ class Cvd
      * @param int $Bytes Optionally, how many bytes to read from the entry.
      * @return string The entry's content, or an empty string if not available.
      */
-    public function EntryRead($Bytes = -1)
+    public function EntryRead(int $Bytes = -1): string
     {
         $Actual = $this->EntryActualSize();
         if ($Bytes < 0 || $Bytes > $Actual) {
@@ -113,7 +113,7 @@ class Cvd
      *
      * @return int
      */
-    public function EntryActualSize()
+    public function EntryActualSize(): int
     {
         return octdec(preg_replace('/\D/', '', substr($this->Data, $this->Offset + 124, 12))) ?: 0;
     }
@@ -123,7 +123,7 @@ class Cvd
      *
      * @return bool True = Is a directory. False = Isn't a directory.
      */
-    public function EntryIsDirectory()
+    public function EntryIsDirectory(): bool
     {
         $Name = $this->EntryName();
         $Separator = substr($Name, -1, 1);
@@ -136,7 +136,7 @@ class Cvd
      * @return string The name of the entry at the current entry pointer, or an
      *      empty string if there's no entry or if the entry pointer is invalid.
      */
-    public function EntryName()
+    public function EntryName(): string
     {
         return preg_replace('/[^\x20-\xff]/', '', substr($this->Data, $this->Offset, 100));
     }
@@ -146,7 +146,7 @@ class Cvd
      *
      * @return bool False if there aren't any more entries.
      */
-    public function EntryNext()
+    public function EntryNext(): bool
     {
         if (($this->Offset + 1024) > $this->TotalSize) {
             return false;

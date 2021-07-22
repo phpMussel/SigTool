@@ -17,33 +17,24 @@ class SigTool extends \Maikuolan\Common\YAML
 {
     /**
      * @var string Script version.
+     * @link https://github.com/phpMussel/SigTool/tags
      */
-    public $Ver = '2.0.0';
+    public const VERSION = '2.0.0';
 
     /**
      * @var string Last modified date.
      */
-    public $Modified = '2021.07.22';
-
-    /**
-     * @var string Script user agent.
-     */
-    public $UA = 'SigTool v%s (https://github.com/phpMussel/SigTool)';
-
-    /**
-     * @var array SigTool YAML data post-processed data array.
-     */
-    public $Arr = [];
-
-    /**
-     * @var string SigTool YAML data pre-processed raw data.
-     */
-    public $Raw = '';
+    public const MODIFIED = '2021.07.22';
 
     /**
      * @var int Safe file chunk size for when reading files.
      */
-    public $SafeReadSize = 131072;
+    public const SAFE_READ_SIZE = 131072;
+
+    /**
+     * @var string SigTool YAML data pre-processed raw data.
+     */
+    private $Raw = '';
 
     /**
      * @var string Most recent line sent to output.
@@ -51,23 +42,13 @@ class SigTool extends \Maikuolan\Common\YAML
     private $RecentLine = '';
 
     /**
-     * Fix variables during instantiation.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->UA = sprintf($this->UA, $this->Ver);
-    }
-
-    /**
      * Parse locally.
      *
      * @return bool
      */
-    public function readIn()
+    public function readIn(): bool
     {
-        $Arr = &$this->Arr;
+        $Arr = &$this->Data;
         $Raw = $this->Raw;
         return $this->process($Raw, $Arr);
     }
@@ -92,7 +73,7 @@ class SigTool extends \Maikuolan\Common\YAML
      * @param string $Data The verbatim signature name or identifier.
      * @return void
      */
-    public function shorthand(&$Data)
+    public function shorthand(string &$Data)
     {
         while (true) {
             $Check = hash('sha256', $Data) . ':' . strlen($Data);
@@ -224,7 +205,7 @@ class SigTool extends \Maikuolan\Common\YAML
      * @param string $Path
      * @return string
      */
-    public function fixPath($Path)
+    public function fixPath(string $Path): string
     {
         return str_replace(['\/', '\\', '/\\'], '/', $Path);
     }
@@ -236,7 +217,7 @@ class SigTool extends \Maikuolan\Common\YAML
      * @param bool $NewLine Whether to print to a new line.
      * @return void
      */
-    public function outputMessage($Message = '', $NewLine = false)
+    public function outputMessage(string $Message = '', bool $NewLine = false)
     {
         if ($Message) {
             $this->RecentLine = wordwrap($Message, 64, "\n ");
@@ -280,10 +261,10 @@ $SigTool = new SigTool();
 $L10N = [
     'Help' => sprintf(
         " SigTool v%s (last modified: %s).\n\n%s",
-        $SigTool->Ver,
-        $SigTool->Modified,
+        SigTool::VERSION,
+        SigTool::MODIFIED,
         " Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.\n\n" .
-        " Syntax:\n  \$ php SigTool.php [arguments]\n\n Example:\n  php SigTool.php xpmd\n\n" .
+        " Syntax:\n  \$ php SigTool.php [arguments]\n\n Example:\n  php SigTool.php xp\n\n" .
         " Arguments (all are OFF by default; include to turn ON):\n" .
         "  - No arguments: Display this help information.\n" .
         "  - x: Extract signature files from \"daily.cvd\" and \"main.cvd\".\n" .
@@ -380,7 +361,7 @@ if (strpos($RunMode, 'p') !== false) {
         $SigTool->setRaw(fread($Handle, filesize($DatFile)));
         fclose($Handle);
         $SigTool->readIn();
-        $Meta = &$SigTool->Arr;
+        $Meta = &$SigTool->Data;
         $SigTool->outputMessage(sprintf($L10N['Accessing'], 'signatures.dat') . $L10N['Done']);
     }
 
@@ -446,7 +427,7 @@ if (strpos($RunMode, 'p') !== false) {
                     $UseMains = true;
                 }
                 while (!feof($Handle)) {
-                    $FileData .= fread($Handle, $SigTool->SafeReadSize);
+                    $FileData .= fread($Handle, SigTool::SAFE_READ_SIZE);
                 }
                 fclose($Handle);
                 $SigTool->outputMessage(sprintf($L10N['Accessing'], $Set[0]) . $L10N['Done']);
@@ -462,8 +443,8 @@ if (strpos($RunMode, 'p') !== false) {
                     }
                     $RemSize = $Set[6] ? $Set[6] : $Size;
                     while (!feof($Handle) && $RemSize > 0) {
-                        $RemSize -= $SigTool->SafeReadSize;
-                        $FileData = fread($Handle, $SigTool->SafeReadSize) . $FileData;
+                        $RemSize -= SigTool::SAFE_READ_SIZE;
+                        $FileData = fread($Handle, SigTool::SAFE_READ_SIZE) . $FileData;
                     }
                     if ($RemSize < 1 && substr($FileData, -1, 1) !== "\n" && ($EoF = strrpos($FileData, "\n")) !== false) {
                         $FileData = substr($FileData, 0, $EoF) . "\n";
@@ -528,7 +509,7 @@ if (strpos($RunMode, 'p') !== false) {
             $SigTool->outputMessage(sprintf($L10N['Accessing'], 'clamav.ndb') . $L10N['Failed']);
         } else {
             while (!feof($Handle)) {
-                $FileData .= fread($Handle, $SigTool->SafeReadSize);
+                $FileData .= fread($Handle, SigTool::SAFE_READ_SIZE);
             }
             fclose($Handle);
             $SigTool->outputMessage(sprintf($L10N['Accessing'], 'clamav.ndb') . $L10N['Done']);
@@ -642,10 +623,10 @@ if (strpos($RunMode, 'p') !== false) {
                 }
 
                 $ThisLine = explode(':', $ThisLine);
-                $SigName = empty($ThisLine[0]) ? '' : $ThisLine[0];
+                $SigName = $ThisLine[0] ?? '';
                 $SigType = empty($ThisLine[1]) ? 0 : (int)$ThisLine[1];
-                $SigOffset = empty($ThisLine[2]) ? '' : $ThisLine[2];
-                $SigHex = empty($ThisLine[3]) ? '' : $ThisLine[3];
+                $SigOffset = $ThisLine[2] ?? '';
+                $SigHex = $ThisLine[3] ?? '';
                 $StartStop = '';
 
                 /** Sort offsets. */
@@ -840,7 +821,7 @@ if (strpos($RunMode, 'p') !== false) {
     /** Update signatures.dat if necessary. */
     if (!empty($Meta)) {
         $SigTool->outputMessage(sprintf($L10N['Writing'], 'signatures.dat'), true);
-        $NewMeta = "---\n" . $SigTool->reconstruct($SigTool->Arr);
+        $NewMeta = "---\n" . $SigTool->reconstruct($SigTool->Data);
         $Handle = fopen($DatFile, 'wb');
         fwrite($Handle, $NewMeta);
         fclose($Handle);
