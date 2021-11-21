@@ -13,10 +13,10 @@ Generates signatures for **[phpMussel](https://github.com/phpMussel/phpMussel)**
 Before installing, please check the requirements. If these aren't met, SigTool won't operate correctly.
 
 #### Requirements:
-- __For SigTool &lt;=1.0.2:__ PHP &gt;=7.0.3 with phar support (PHP &gt;=7.2.0 recommended).
-- __For SigTool 1.0.3:__ PHP &gt;=7.0.3 (PHP &gt;=7.2.0 recommended).
-- __For SigTool v2:__ PHP &gt;=7.2.0.
-- __All versions:__ *At least* &gt;=681 MBs of available RAM (but, at least &gt;=1 GB is strongly recommended).
+- __For SigTool &lt;= 1.0.2:__ PHP &gt;= 7.0.3 with phar support (PHP &gt;= 7.2 recommended).
+- __For SigTool 1.0.3:__ PHP &gt;= 7.0.3 (PHP &gt;= 7.2 recommended).
+- __For SigTool v2:__ PHP &gt;= 7.2.
+- __All versions:__ *At least* &gt;= 681 MBs of available RAM (but, at least &gt;= 1 GB is strongly recommended).
 - __All versions:__ Approximately ~300 MBs of available disk space (this number may vary between iterations of the signatures database).
 - __All versions:__ Ability to operate PHP in CLI-mode (e.g., command prompt, terminal, shell, bash, etc).
 
@@ -61,4 +61,4 @@ More information can be found in the documentation herein.
 ---
 
 
-Last Updated: 22 July 2021 (2021.07.22).
+Last Updated: 21 November 2021 (2021.11.21).
