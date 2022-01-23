@@ -9,7 +9,7 @@ jobs:
   strategy:
    matrix:
     operating-system: [ubuntu-latest]
-    php-versions: ['7.2', '7.3', '7.4', '8.0']
+    php-versions: ['8.0']
   name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
   steps:
   - name: Checkout
@@ -23,4 +23,6 @@ jobs:
      tools: php-cs-fixer
 
   - name: PHP-CS-Fixer Check
-    run: php-cs-fixer fix -v --dry-run ./SigTool.php --rules=@PSR12
+    run: |
+     php-cs-fixer fix -v --dry-run ./SigTool.php --rules=@PSR12
+     php-cs-fixer fix -v --dry-run ./Cvd.php --rules=@PSR12
