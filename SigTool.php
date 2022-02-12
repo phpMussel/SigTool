@@ -1,11 +1,11 @@
 <?php
 /**
- * SigTool v2.0.0 (last modified: 2021.07.22).
+ * SigTool v2.0.0 (last modified: 2022.02.12).
+ * @link https://github.com/phpMussel/SigTool
  *
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
  *
- * Package location: GitHub <https://github.com/phpMussel/SigTool>.
- * Author: Caleb M (Maikuolan) <https://github.com/Maikuolan>.
+ * @author Caleb M (Maikuolan) <https://github.com/Maikuolan>.
  */
 
 namespace phpMussel\SigTool;

@@ -1,13 +1,12 @@
 <?php
 /**
- * Cvd handler (last modified: 2021.07.22).
- * Source: https://github.com/phpMussel/SigTool/blob/master/Cvd.php
+ * Cvd handler (last modified: 2022.02.12).
+ * @link https://github.com/phpMussel/SigTool/blob/master/Cvd.php
  *
  * Adapted from phpMussel's TarHandler class.
- * Source: https://github.com/phpMussel/Core/blob/v3/src/TarHandler.php
+ * @link https://github.com/phpMussel/Core/blob/v3/src/TarHandler.php
  *
- * Package location: GitHub <https://github.com/phpMussel/SigTool>.
- * Author: Caleb M (Maikuolan) <https://github.com/Maikuolan>.
+ * @author Caleb M (Maikuolan) <https://github.com/Maikuolan>.
  */
 
 namespace phpMussel\SigTool;
