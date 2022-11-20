@@ -13,6 +13,8 @@ Versioning guidelines for SemVer can be found at: https://semver.org/
   latter, just use Composer instead). Increased minimum PHP version requirement
   to PHP 7.2, and refactored all code accordingly.
 
+- [2022.11.20; Maikuolan]: Avoid packaging unnecessary files into dist.
+
 === Version/Release 1.0.3 ===
 PATCH RELEASE.
 
