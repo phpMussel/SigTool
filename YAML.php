@@ -1,6 +1,6 @@
 <?php
 /**
- * YAML handler (last modified: 2022.02.21).
+ * YAML handler (last modified: 2023.03.24).
  *
  * This file is a part of the "common classes package", utilised by a number of
  * packages and projects, including CIDRAM and phpMussel.
@@ -132,7 +132,7 @@ class YAML
      *      be needed by some implementations to ensure compatibility).
      * @link https://github.com/Maikuolan/Common/tags
      */
-    public const VERSION = '2.9.0';
+    public const VERSION = '2.9.6';
 
     /**
      * Can optionally begin processing data as soon as the object is
@@ -380,7 +380,7 @@ class YAML
         $Success = true;
 
         /** Needed for processing any remaining data. */
-        if ($SendTo && !empty($Key)) {
+        if ($SendTo) {
             if (!$this->MultiLine && !$this->MultiLineFolded) {
                 if (!isset($Arr[$Key]) || !is_array($Arr[$Key])) {
                     $Arr[$Key] = [];
@@ -448,22 +448,32 @@ class YAML
      *
      * @param mixed $Data The data to traverse.
      * @param string|array $Path The path to traverse.
+     * @param bool $AllowNonScalar Whether to allow non-scalar returns.
      * @return mixed The traversed data, or an empty string on failure.
      */
-    public function dataTraverse(&$Data, $Path = [])
+    public function dataTraverse(&$Data, $Path = [], bool $AllowNonScalar = false)
     {
         if (!is_array($Path)) {
             $Path = preg_split('~(?<!\\\)\.~', $Path) ?: [];
         }
         $Segment = array_shift($Path);
         if ($Segment === null || strlen($Segment) === 0) {
-            return is_scalar($Data) ? $Data : '';
+            return $AllowNonScalar || is_scalar($Data) ? $Data : '';
         }
         $Segment = str_replace('\.', '.', $Segment);
-        if (is_array($Data)) {
-            return isset($Data[$Segment]) ? $this->dataTraverse($Data[$Segment], $Path) : '';
+        if (is_array($Data) && isset($Data[$Segment])) {
+            return $this->dataTraverse($Data[$Segment], $Path, $AllowNonScalar);
         }
-        return $this->dataTraverse($Data, $Path);
+        if (is_object($Data) && property_exists($Data, $Segment)) {
+            return $this->dataTraverse($Data->$Segment, $Path, $AllowNonScalar);
+        }
+        if (is_string($Data)) {
+            if (preg_match('~^(?:trim|str(?:tolower|toupper|len))\(\)~i', $Segment)) {
+                $Segment = substr($Segment, 0, -2);
+                $Data = $Segment($Data);
+            }
+        }
+        return $this->dataTraverse($Data, $Path, $AllowNonScalar);
     }
 
     /**
@@ -766,66 +776,67 @@ class YAML
             if ($Depth === $this->FlowRebuildDepth) {
                 $Out .= "\n";
             }
-        } else {
-            foreach ($Arr as $Key => $Value) {
-                if ($Key === '---' && $Value === null) {
-                    $Out .= "---\n";
-                    continue;
-                }
-                if ($Key === '...' && $Value === null) {
-                    $Out .= "...\n";
-                    continue;
-                }
-                $ThisDepth = str_repeat($this->Indent, $Depth);
-                if ($NullSet && !$Sequential) {
-                    $Out .= $ThisDepth . '?';
-                    $Value = $Key;
-                } else {
-                    $Out .= $ThisDepth . ($Sequential ? '-' : ($this->QuoteKeys ? $this->scalarToString($Key) : $Key) . ':');
-                }
-                if (is_array($Value)) {
-                    if ($Depth < $this->FlowRebuildDepth - 1) {
-                        $Out .= "\n";
-                    }
-                    $this->processInner($Value, $Out, $Depth + 1);
-                    continue;
-                }
-                $Out .= ' ';
-                if (is_string($Value)) {
-                    if (strpos($Value, "\n") !== false) {
-                        if (preg_match('~\n{2,}$~m', $Value)) {
-                            $ToAdd = "|+\n" . $ThisDepth . $this->Indent;
-                        } else {
-                            $ToAdd = "|\n" . $ThisDepth . $this->Indent;
-                        }
-                        $ToAdd .= preg_replace('~\n(?=[^\n])~m', "\n" . $ThisDepth . $this->Indent, $Value);
-                    } elseif ($this->FoldedAt > 0 && strpos($Value, ' ') !== false && strlen($Value) >= $this->FoldedAt) {
-                        $ToAdd = ">\n" . $ThisDepth . $this->Indent . wordwrap(
-                            $Value,
-                            $this->FoldedAt,
-                            "\n" . $ThisDepth . $this->Indent
-                        );
-                    } else {
-                        $ToAdd = $this->Quotes . $this->escape($Value) . $this->Quotes;
-                    }
-                } else {
-                    $ToAdd = $this->scalarToString($Value);
-                }
-                if ($this->DoWithAnchors) {
-                    foreach ($this->Anchors as $Name => $Data) {
-                        if ($Data === $ToAdd) {
-                            if (empty($this->AnchorsDone[$Name])) {
-                                $ToAdd = '&' . $Name . ' ' . $ToAdd;
-                                $this->AnchorsDone[$Name] = true;
-                            } else {
-                                $ToAdd = '*' . $Name;
-                            }
-                            break;
-                        }
-                    }
-                }
-                $Out .= $ToAdd . "\n";
+            return;
+        }
+        foreach ($Arr as $Key => $Value) {
+            if ($Key === '---' && $Value === null) {
+                $Out .= "---\n";
+                continue;
             }
+            if ($Key === '...' && $Value === null) {
+                $Out .= "...\n";
+                continue;
+            }
+            $ThisDepth = str_repeat($this->Indent, $Depth);
+            if ($NullSet && !$Sequential) {
+                $Out .= $ThisDepth . '?';
+                $Value = $Key;
+            } else {
+                $Out .= $ThisDepth . ($Sequential ? '-' : ($this->QuoteKeys ? $this->scalarToString($Key) : $Key) . ':');
+            }
+            if (is_array($Value)) {
+                if ($Depth < $this->FlowRebuildDepth - 1) {
+                    $Out .= "\n";
+                }
+                $this->processInner($Value, $Out, $Depth + 1);
+                continue;
+            }
+            $Out .= ' ';
+            if (is_string($Value)) {
+                $HasHash = strpos($Value, '#') !== false;
+                if (!$HasHash && strpos($Value, "\n") !== false) {
+                    if (preg_match('~\n{2,}$~m', $Value)) {
+                        $ToAdd = "|+\n" . $ThisDepth . $this->Indent;
+                    } else {
+                        $ToAdd = "|\n" . $ThisDepth . $this->Indent;
+                    }
+                    $ToAdd .= preg_replace('~\n(?=[^\n])~m', "\n" . $ThisDepth . $this->Indent, $Value);
+                } elseif (!$HasHash && $this->FoldedAt > 0 && strpos($Value, ' ') !== false && strlen($Value) >= $this->FoldedAt) {
+                    $ToAdd = ">\n" . $ThisDepth . $this->Indent . wordwrap(
+                        $Value,
+                        $this->FoldedAt,
+                        "\n" . $ThisDepth . $this->Indent
+                    );
+                } else {
+                    $ToAdd = $this->Quotes . $this->escape($Value) . $this->Quotes;
+                }
+            } else {
+                $ToAdd = $this->scalarToString($Value);
+            }
+            if ($this->DoWithAnchors) {
+                foreach ($this->Anchors as $Name => $Data) {
+                    if ($Data === $ToAdd) {
+                        if (empty($this->AnchorsDone[$Name])) {
+                            $ToAdd = '&' . $Name . ' ' . $ToAdd;
+                            $this->AnchorsDone[$Name] = true;
+                        } else {
+                            $ToAdd = '*' . $Name;
+                        }
+                        break;
+                    }
+                }
+            }
+            $Out .= $ToAdd . "\n";
         }
     }
 
@@ -1425,6 +1436,12 @@ class YAML
         }
         if (is_string($In)) {
             return $this->Quotes . $this->escape($In) . $this->Quotes;
+        }
+        if (is_object($In)) {
+            if (method_exists($In, '__toString')) {
+                return $this->Quotes . $this->escape((string)$In) . $this->Quotes;
+            }
+            throw new \Error('Non-stringable object detected while attempting to reconstruct YAML data');
         }
         return $In;
     }
