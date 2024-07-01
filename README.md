@@ -55,10 +55,10 @@ More information can be found in the documentation herein.
 - **[Português](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.pt.md)**
 - **[Русский](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.ru.md)**
 - **[Tiếng Việt](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.vi.md)**
-- **[中文（简体）](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.zh.md)**
-- **[中文（傳統）](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.zh-tw.md)**
+- **[中文（简体）](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.zh-Hans.md)**
+- **[中文（傳統）](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.zh-Hant.md)**
 
 ---
 
 
-Last Updated: 21 November 2021 (2021.11.21).
+Last Updated: 1 July 2024 (2024.07.01).
