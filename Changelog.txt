@@ -7,7 +7,19 @@ Versioning guidelines for SemVer can be found at: https://semver.org/
 
 === Changes made since last versioned release ===
 
+(none)
+
+=== Version/Release 2.0.1 ===
+PATCH RELEASE.
+
 - [2024.11.06; Maikuolan]: Added PHP 8.4 to workflows.
+
+- [2025.03.20; Maikuolan]: Synced the YAML class to its latest version and
+  fixed some missing headers to be appended to certain generated signature
+  files.
+
+Caleb M (Maikuolan),
+March 20, 2025.
 
 === Version/Release 2.0.0 ===
 MAJOR RELEASE (BACKWARDS INCOMPATIBLE).

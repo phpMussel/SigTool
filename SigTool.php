@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v2.0.0 (last modified: 2022.02.12).
+ * SigTool v2.0.1 (last modified: 2025.03.20).
  * @link https://github.com/phpMussel/SigTool
  *
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
@@ -10,6 +10,7 @@
 
 namespace phpMussel\SigTool;
 
+require __DIR__ . '/CommonAbstract.php';
 require __DIR__ . '/YAML.php';
 require __DIR__ . '/Cvd.php';
 
@@ -19,12 +20,12 @@ class SigTool extends \Maikuolan\Common\YAML
      * @var string Script version.
      * @link https://github.com/phpMussel/SigTool/tags
      */
-    public const VERSION = '2.0.0';
+    public const VERSION = '2.0.1';
 
     /**
      * @var string Last modified date.
      */
-    public const MODIFIED = '2021.07.22';
+    public const MODIFIED = '2025.03.20';
 
     /**
      * @var int Safe file chunk size for when reading files.
@@ -518,12 +519,12 @@ if (strpos($RunMode, 'p') !== false) {
 
             /** All the signature files that we're generating from our clamav.ndb file. */
             $FileSets = [
-                'clamav.db' => "phpMussel0\n>!\$fileswitch>pefile>-1\n",
-                'clamav_regex.db' => "phpMussel@\n>!\$fileswitch>pefile>-1\n",
+                'clamav.db' => "phpMussel0\n>!\$fileswitch>pefile>-1\n>\$fileswitch>infectable>-1\n",
+                'clamav_regex.db' => "phpMussel@\n>!\$fileswitch>pefile>-1\n>\$fileswitch>infectable>-1\n",
                 'clamav.htdb' => "phpMusselp\n>\$is_html>1>-1\n",
                 'clamav_regex.htdb' => "phpMussel\x80\n>\$is_html>1>-1\n",
-                'clamav.ndb' => "phpMusselP\n>!\$fileswitch>pefile>-1\n",
-                'clamav_regex.ndb' => "phpMussel`\n>!\$fileswitch>pefile>-1\n",
+                'clamav.ndb' => "phpMusselP\n>!\$fileswitch>pefile>-1\n>\$fileswitch>infectable>-1\n",
+                'clamav_regex.ndb' => "phpMussel`\n>!\$fileswitch>pefile>-1\n>\$fileswitch>infectable>-1\n",
                 'clamav_elf.db' => "phpMussel0\n>\$is_elf>1>-1\n",
                 'clamav_elf_regex.db' => "phpMussel@\n>\$is_elf>1>-1\n",
                 'clamav_email.db' => "phpMussel0\n>\$is_email>1>-1\n",
