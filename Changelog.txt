@@ -7,7 +7,7 @@ Versioning guidelines for SemVer can be found at: https://semver.org/
 
 === Changes made since last versioned release ===
 
-(none)
+- [2025.11.21]: Added PHP 8.5 to workflows.
 
 === Version/Release 2.0.1 ===
 PATCH RELEASE.
