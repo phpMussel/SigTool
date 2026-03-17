@@ -18,7 +18,7 @@
 
 namespace Maikuolan\Common;
 
-class YAML extends CommonAbstract implements \Countable, \Stringable
+class YAML extends CommonAbstract implements \Countable
 {
     /**
      * @var array An array to contain all the data processed by the handler.
@@ -511,7 +511,7 @@ class YAML extends CommonAbstract implements \Countable, \Stringable
     public function reconstruct(array $Arr, bool $UseCaptured = false, bool $DoWithAnchors = false): string
     {
         $Out = '';
-        $this->DoWithAnchors = (count($this->Anchors) && $DoWithAnchors);
+        $this->DoWithAnchors = (\count($this->Anchors) && $DoWithAnchors);
         if ($UseCaptured) {
             if ($this->LastIndent !== '') {
                 $this->Indent = $this->LastIndent;
@@ -542,7 +542,7 @@ class YAML extends CommonAbstract implements \Countable, \Stringable
         ) {
             return;
         }
-        $MatchCount = count($VarMatches[0]);
+        $MatchCount = \count($VarMatches[0]);
         for ($Index = 0; $Index < $MatchCount; $Index++) {
             if (($Extracted = $this->dataTraverse($this->Refs, $VarMatches[1][$Index])) && \is_string($Extracted)) {
                 $Data = \str_replace($VarMatches[0][$Index], $Extracted, $Data);
@@ -557,7 +557,7 @@ class YAML extends CommonAbstract implements \Countable, \Stringable
      */
     public function count(): int
     {
-        return count($this->Data);
+        return \count($this->Data);
     }
 
     /**
@@ -750,7 +750,7 @@ class YAML extends CommonAbstract implements \Countable, \Stringable
             if (\substr($Key, 0, 1) === '[' && \substr($Key, -1) === ']') {
                 $TryList = [];
                 $this->flowControl($Key, $TryList, '[', true);
-                $TryListCount = count($TryList);
+                $TryListCount = \count($TryList);
             } else {
                 $TryListCount = 0;
                 if (($EnPos = \strpos($Key, '(')) !== false && \substr($ThisLine, -1, 1) === ')') {
@@ -772,7 +772,7 @@ class YAML extends CommonAbstract implements \Countable, \Stringable
             if ($ValueLen > 0) {
                 if (($this->LastResolvedTag === '!merge' || $Key === '<<') && \is_array($Value) && !$InlineEntity) {
                     $Arr += $this->merge($Value);
-                } elseif ($TryListCount !== 0 && (!\is_array($Value) || count($Value) === $TryListCount)) {
+                } elseif ($TryListCount !== 0 && (!\is_array($Value) || \count($Value) === $TryListCount)) {
                     if (\is_array($Value)) {
                         $Values = $Value;
                         foreach ($TryList as $Key) {
@@ -838,7 +838,7 @@ class YAML extends CommonAbstract implements \Countable, \Stringable
      */
     private function processInner(array $Arr, string &$Out, int $Depth = 0): void
     {
-        $Sequential = (\array_keys($Arr) === range(0, count($Arr) - 1));
+        $Sequential = (\array_keys($Arr) === \range(0, \count($Arr) - 1));
         $NullSet = $this->isNullSet($Arr);
         if ($Depth >= $this->FlowRebuildDepth) {
             $Out .= $Sequential ? '[' : '{';
@@ -1208,7 +1208,7 @@ class YAML extends CommonAbstract implements \Countable, \Stringable
             $ValueLow = \strtolower($Value);
         } else {
             if (\is_array($Value)) {
-                $ValueLen = count($Value);
+                $ValueLen = \count($Value);
             } else {
                 $ValueLen = empty($Value) ? 0 : 1;
             }

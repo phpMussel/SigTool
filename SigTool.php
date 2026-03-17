@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v2.0.1 (last modified: 2026.03.17).
+ * SigTool v2.0.2 (last modified: 2026.03.17).
  * @link https://github.com/phpMussel/SigTool
  *
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
@@ -720,7 +720,7 @@ if (\strpos($RunMode, 'p') !== false) {
                             }
                             $Replacer = \substr($Replacer, 0, -1) . ')';
                             $FinalLast = \array_pop($InnerCharRange) ?: '';
-                            $InnerCharCount = count($InnerCharRange);
+                            $InnerCharCount = \count($InnerCharRange);
                             if (!$InnerCharCount) {
                                 break;
                             }
