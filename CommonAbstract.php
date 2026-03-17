@@ -1,6 +1,6 @@
 <?php
 /**
- * Common abstract for the common classes package (last modified: 2024.09.20).
+ * Common abstract for the common classes package (last modified: 2026.03.17).
  *
  * This file is a part of the "common classes package", utilised by a number of
  * packages and projects, including CIDRAM and phpMussel.
@@ -20,7 +20,7 @@ abstract class CommonAbstract
      * @var string Common Classes Package tag/release version.
      * @link https://github.com/Maikuolan/Common/tags
      */
-    public const VERSION = '2.12.3';
+    public const VERSION = '2.16.0';
 
     /**
      * Traverse data path.
@@ -33,32 +33,73 @@ abstract class CommonAbstract
      */
     public function dataTraverse(&$Data, $Path = [], bool $AllowNonScalar = false, bool $AllowMethodCalls = false)
     {
-        if (!is_array($Path)) {
-            $Path = preg_split('~(?<!\\\\)\\.~', $Path) ?: [];
+        if (!\is_array($Path)) {
+            $Path = \preg_split('~(?<!\\\\)\\.~', $Path) ?: [];
         }
-        $Segment = array_shift($Path);
-        if ($Segment === null || strlen($Segment) === 0) {
-            return $AllowNonScalar || is_scalar($Data) ? $Data : '';
+        $Segment = \array_shift($Path);
+        if ($Segment === null || \strlen($Segment) === 0) {
+            return $AllowNonScalar || \is_scalar($Data) ? $Data : '';
         }
-        $Segment = str_replace('\.', '.', $Segment);
-        if (is_array($Data)) {
+        $Segment = \str_replace('\.', '.', $Segment);
+        if ($Data instanceof \Maikuolan\Common\LazyArray) {
+            $Data->trigger();
+            $Data = $Data->Data;
+        }
+        if (\is_array($Data)) {
+            if (\preg_match('~^(?:keys|flip|pop|shift)\\(\\)$~i', $Segment)) {
+                $Segment = 'array_' . \substr($Segment, 0, -2);
+                $Working = $Segment($Data);
+                return $this->dataTraverse($Working, $Path, $AllowNonScalar, $AllowMethodCalls);
+            }
             return isset($Data[$Segment]) ? $this->dataTraverse($Data[$Segment], $Path, $AllowNonScalar, $AllowMethodCalls) : '';
         }
-        if (is_object($Data)) {
-            if (property_exists($Data, $Segment)) {
+        if (\is_object($Data)) {
+            if (\property_exists($Data, $Segment)) {
                 return $this->dataTraverse($Data->$Segment, $Path, $AllowNonScalar, $AllowMethodCalls);
             }
-            if ($AllowMethodCalls && method_exists($Data, $Segment)) {
+            if ($AllowMethodCalls && \method_exists($Data, $Segment)) {
                 $Working = $Data->{$Segment}(...$Path);
                 return $this->dataTraverse($Working, [], $AllowNonScalar);
             }
         }
-        if (is_string($Data)) {
-            if (preg_match('~^(?:trim|str(?:tolower|toupper|len))\\(\\)~i', $Segment)) {
-                $Segment = substr($Segment, 0, -2);
-                $Data = $Segment($Data);
-            }
+        if (
+            (\is_string($Data) && \preg_match('~^(?:str(?:tolower|toupper|len)|trim)\\(\\)$~i', $Segment)) ||
+            (\is_numeric($Data) && \preg_match('~^(?:floor|ceil)\\(\\)$~i', $Segment))
+        ) {
+            $Segment = \substr($Segment, 0, -2);
+            $Working = $Segment($Data);
+            return $this->dataTraverse($Working, $Path, $AllowNonScalar, $AllowMethodCalls);
         }
         return $this->dataTraverse($Data, $Path, $AllowNonScalar, $AllowMethodCalls);
+    }
+
+    /**
+     * Used to redact sensitive properties from an object's dump.
+     *
+     * @return array An object's dumped properties.
+     */
+    public function __debugInfo(): array
+    {
+        $Properties = \get_object_vars($this);
+
+        /** Attributes available as of PHP >= 8. Properties returned as is for older PHP versions. */
+        if (!\class_exists('\ReflectionProperty') || !\method_exists('\ReflectionProperty', 'getAttributes')) {
+            return $Properties;
+        }
+
+        foreach ($Properties as $Property => &$Value) {
+            $Reflection = new \ReflectionProperty($this, $Property);
+            $Attributes = $Reflection->getAttributes();
+            foreach ($Attributes as $Attribute) {
+                $Name = $Attribute->getName();
+                if ($Name === 'Maikuolan\Common\Context') {
+                    $Arguments = $Attribute->getArguments();
+                    if (!empty($Arguments['Sensitive'])) {
+                        $Value = $Attribute->newInstance();
+                    }
+                }
+            }
+        }
+        return $Properties;
     }
 }
