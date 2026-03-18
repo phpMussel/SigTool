@@ -1,6 +1,6 @@
 <?php
 /**
- * Cvd handler (last modified: 2022.02.12).
+ * Cvd handler (last modified: 2026.03.18).
  * @link https://github.com/phpMussel/SigTool/blob/master/Cvd.php
  *
  * Adapted from phpMussel's TarHandler class.
@@ -53,22 +53,22 @@ class Cvd
     {
         /** Attempt to open the file. */
         if (
-            !is_readable($File) ||
-            !is_file($File) ||
-            !is_resource(($Handle = fopen($File, 'rb')))
+            !\is_readable($File) ||
+            !\is_file($File) ||
+            !\is_resource(($Handle = \fopen($File, 'rb')))
         ) {
             $this->ErrorState = 2;
             return;
         }
 
         /** Attempt to read the file. */
-        while (!feof($Handle)) {
-            $this->Data .= fread($Handle, 131072);
+        while (!\feof($Handle)) {
+            $this->Data .= \fread($Handle, 131072);
         }
-        fclose($Handle);
+        \fclose($Handle);
 
         /** Set total size. */
-        $this->TotalSize = strlen($this->Data);
+        $this->TotalSize = \strlen($this->Data);
 
         /** Guard. */
         if ($this->TotalSize <= 512) {
@@ -77,13 +77,13 @@ class Cvd
         }
 
         /** Attempt to decompress the cvd data. */
-        $this->Data = gzdecode(substr($this->Data, 512));
+        $this->Data = \gzdecode(\substr($this->Data, 512));
 
         /** Pad the cvd data. */
-        $this->Data .= str_repeat("\0", 512 - (strlen($this->Data) % 512));
+        $this->Data .= \str_repeat("\0", 512 - (\strlen($this->Data) % 512));
 
         /** Adjust total size. */
-        if (($this->TotalSize = strlen($this->Data)) < 1) {
+        if (($this->TotalSize = \strlen($this->Data)) < 1) {
             $this->ErrorState = 2;
             return;
         }
@@ -104,7 +104,7 @@ class Cvd
         if ($Bytes < 0 || $Bytes > $Actual) {
             $Bytes = $Actual;
         }
-        return substr($this->Data, $this->Offset + 512, $Bytes);
+        return \substr($this->Data, $this->Offset + 512, $Bytes);
     }
 
     /**
@@ -114,7 +114,7 @@ class Cvd
      */
     public function EntryActualSize(): int
     {
-        return octdec(preg_replace('/\D/', '', substr($this->Data, $this->Offset + 124, 12))) ?: 0;
+        return \octdec(\preg_replace('/\D/', '', \substr($this->Data, $this->Offset + 124, 12))) ?: 0;
     }
 
     /**
@@ -125,7 +125,7 @@ class Cvd
     public function EntryIsDirectory(): bool
     {
         $Name = $this->EntryName();
-        $Separator = substr($Name, -1, 1);
+        $Separator = \substr($Name, -1, 1);
         return (($Separator === "\\" || $Separator === '/') && $this->EntryActualSize() === 0);
     }
 
@@ -137,7 +137,7 @@ class Cvd
      */
     public function EntryName(): string
     {
-        return preg_replace('/[^\x20-\xff]/', '', substr($this->Data, $this->Offset, 100));
+        return \preg_replace('/[^\x20-\xff]/', '', \substr($this->Data, $this->Offset, 100));
     }
 
     /**
