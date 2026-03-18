@@ -252,7 +252,7 @@ class YAML extends CommonAbstract implements \Countable
                     if (
                         $Attempt === false ||
                         !$this->Demojibakefier->checkConformity($Attempt, 'UTF-8') ||
-                        strcmp(iconv('UTF-8', $this->LastInputEncoding, $Attempt), $In) !== 0
+                        \strcmp(iconv('UTF-8', $this->LastInputEncoding, $Attempt), $In) !== 0
                     ) {
                         return false;
                     }
@@ -1070,14 +1070,14 @@ class YAML extends CommonAbstract implements \Countable
                     return $Captured[0];
                 }
                 $Reversed = ($Attempt = iconv('UTF-16BE', 'UTF-8', $Decoded)) === false ? '' : iconv('UTF-8', 'UTF-16BE', $Attempt);
-                return $Captured[1] . (($Attempt !== false && strcmp($Reversed, $Decoded) === 0) ? $Attempt : $Decoded);
+                return $Captured[1] . (($Attempt !== false && \strcmp($Reversed, $Decoded) === 0) ? $Attempt : $Decoded);
             }, $Value);
             $Value = \preg_replace_callback('~(?<!\\\\)\\\\((?:\\\\{2})*)U([\dA-Fa-f]{8})~', function ($Captured) {
                 if (($Decoded = \hex2bin($Captured[2])) === false) {
                     return $Captured[0];
                 }
                 $Reversed = ($Attempt = iconv('UTF-32BE', 'UTF-8', $Decoded)) === false ? '' : iconv('UTF-8', 'UTF-32BE', $Attempt);
-                return $Captured[1] . (($Attempt !== false && strcmp($Reversed, $Decoded) === 0) ? $Attempt : $Decoded);
+                return $Captured[1] . (($Attempt !== false && \strcmp($Reversed, $Decoded) === 0) ? $Attempt : $Decoded);
             }, $Value);
             $Value = \str_replace('\\\\', '\\', $Value);
             restore_error_handler();
