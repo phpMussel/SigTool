@@ -1,6 +1,6 @@
 <?php
 /**
- * SigTool v2.0.2 (last modified: 2026.03.18).
+ * SigTool v2.0.2 (last modified: 2026.03.20).
  * @link https://github.com/phpMussel/SigTool
  *
  * Generates signatures for phpMussel using main.cvd and daily.cvd from ClamAV.
@@ -25,7 +25,7 @@ class SigTool extends \Maikuolan\Common\YAML
     /**
      * @var string Last modified date.
      */
-    public const MODIFIED = '2026.03.18';
+    public const MODIFIED = '2026.03.20';
 
     /**
      * @var int Safe file chunk size for when reading files.
@@ -288,7 +288,7 @@ $L10N = [
  * Terminate with debug information.
  */
 $Terminate = function ($Err = '_Error_Other', $Msg = '') use (&$SigTool, &$L10N) {
-    $Debug = \debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | \DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
+    $Debug = \debug_backtrace(\DEBUG_BACKTRACE_PROVIDE_OBJECT | \DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
     $SigTool->outputMessage(\sprintf($L10N[$Err] ?? $L10N['_Error_Other'], $Debug['line'], $Msg), true);
     echo "\n\n";
     die;
