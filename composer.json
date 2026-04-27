@@ -6,7 +6,7 @@
     "support": {
         "issues": "https://github.com/phpMussel/SigTool/issues",
         "source": "https://github.com/phpMussel/SigTool",
-        "docs": "https://github.com/phpMussel/SigTool/tree/master/_docs",
+        "docs": "https://github.com/phpMussel/SigTool/tree/master/docs",
         "rss": "https://github.com/phpMussel/SigTool/releases.atom",
         "chat": "https://gitter.im/phpMussel2/Lobby"
     },

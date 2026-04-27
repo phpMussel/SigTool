@@ -42,22 +42,22 @@ More information can be found in the documentation herein.
 
 
 ### Documentation:
-- **[English](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.en.md)**
-- **[Deutsch](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.de.md)**
-- **[Español](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.es.md)**
-- **[Français](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.fr.md)**
-- **[Bahasa Indonesia](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.id.md)**
-- **[Italiano](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.it.md)**
-- **[日本語](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.ja.md)**
-- **[한국어](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.ko.md)**
-- **[Nederlandse](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.nl.md)**
-- **[Português](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.pt.md)**
-- **[Русский](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.ru.md)**
-- **[Tiếng Việt](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.vi.md)**
-- **[中文（简体）](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.zh-Hans.md)**
-- **[中文（傳統）](https://github.com/phpMussel/SigTool/blob/master/_docs/readme.zh-Hant.md)**
+- **[English](https://github.com/phpMussel/SigTool/blob/master/docs/readme.en.md)**
+- **[Deutsch](https://github.com/phpMussel/SigTool/blob/master/docs/readme.de.md)**
+- **[Español](https://github.com/phpMussel/SigTool/blob/master/docs/readme.es.md)**
+- **[Français](https://github.com/phpMussel/SigTool/blob/master/docs/readme.fr.md)**
+- **[Bahasa Indonesia](https://github.com/phpMussel/SigTool/blob/master/docs/readme.id.md)**
+- **[Italiano](https://github.com/phpMussel/SigTool/blob/master/docs/readme.it.md)**
+- **[日本語](https://github.com/phpMussel/SigTool/blob/master/docs/readme.ja.md)**
+- **[한국어](https://github.com/phpMussel/SigTool/blob/master/docs/readme.ko.md)**
+- **[Nederlandse](https://github.com/phpMussel/SigTool/blob/master/docs/readme.nl.md)**
+- **[Português](https://github.com/phpMussel/SigTool/blob/master/docs/readme.pt.md)**
+- **[Русский](https://github.com/phpMussel/SigTool/blob/master/docs/readme.ru.md)**
+- **[Tiếng Việt](https://github.com/phpMussel/SigTool/blob/master/docs/readme.vi.md)**
+- **[中文（简体）](https://github.com/phpMussel/SigTool/blob/master/docs/readme.zh-Hans.md)**
+- **[中文（傳統）](https://github.com/phpMussel/SigTool/blob/master/docs/readme.zh-Hant.md)**
 
 ---
 
 
-Last Updated: 1 July 2024 (2024.07.01).
+Last Updated: 27 April 2026 (2026.04.27).

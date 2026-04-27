@@ -5,6 +5,14 @@ SigTool adheres to the SemVer guidelines for versioning.
 
 Versioning guidelines for SemVer can be found at: https://semver.org/
 
+=== In development ===
+
+- [2026.04.27]: Renaming "_docs" to "docs" to help with certain kinds of
+  external tooling which seem to be entirely unable to detect documentation if
+  said documentation isn't stored in a directory named specifically as "docs"
+  (despite said documentation's location already being clearly identified in
+  both the README file as well as the composer.json file).
+
 === Version/Release 2.0.2 ===
 PATCH RELEASE.
 
